@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:17
+    container_name: flipstyle_db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file: .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME} -d ${DATABASE_NAME}"]
+      interval: 30s        # Checa a cada meio minuto
+      timeout: 10s         # Espera até 10s pela resposta antes de considerar falha
+      retries: 3           # Só marca como morto se falhar 3 vezes seguidas (ou seja, 1min 30s de erro real)
+      start_period: 20s
+    networks:
+      - flipstyle_network
+  web:
+    build: .
+    container_name: flipstyle_app
+    restart: always
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - flipstyle_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  postgres_data:
+
+networks:
+  flipstyle_network:
+    driver: bridge

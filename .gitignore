@@ -1,0 +1,17 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# Variáveis de Ambiente (CRÍTICO)
+.env
+
+# Docker
+postgres_data/
+
+# Arquivos Estáticos e de Media
+staticfiles/
+media/
+
+# Ambientes Virtuais
+venv/
+
+.gunicorn
