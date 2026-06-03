@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="banner-home">
+    <button class="carousel-btn prev">&#10094;</button>
+    <button class="carousel-btn next">&#10095;</button>
+
+    <a href="#" class="banner-link carousel-item active">
+        <picture>
+            <source media="(max-width: 600px)" srcset="{% static 'img/banner-mobile-1.webp' %}">
+            <img src="{% static 'img/banner-desktop-1.webp' %}" alt="Banner FlipStyleCompany" class="banner-img">
+        </picture>
+        <div class="banner-content">
+            <h1>SÓ SHAPE ORIGINAL!</h1>
+            <p>Confira agora!</p>
+        </div>
+    </a>
+    
+    <a href="#" class="banner-link carousel-item">
+        <picture>
+            <source media="(max-width: 600px)" srcset="{% static 'img/banner-mobile-2.webp' %}">
+            <img src="{% static 'img/banner-desktop-2.webp' %}" alt="Banner 2" class="banner-img">
+        </picture>
+        <div class="banner-content">
+            <h1>VÁRIOS BUTS!</h1>
+            <p>Confira agora!</p>
+        </div>
+    </a>
+</div>
+
+<a href="https://wa.me/5515996100598?text=Olá! Gostaria de mais informações sobre como comprar na loja." target="_blank" class="whatsapp-float">
+    <img src="{% static 'img/whatsapp.svg' %}" alt="WhatsApp">
+</a>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const items = document.querySelectorAll('.carousel-item');
+    let index = 0;
+
+    const update = (newIndex) => {
+        items[index].classList.remove('active');
+        index = (newIndex + items.length) % items.length;
+        items[index].classList.add('active');
+    };
+
+    document.querySelector('.next').onclick = () => update(index + 1);
+    document.querySelector('.prev').onclick = () => update(index - 1);
+});
+</script>
+
+{% endblock %}

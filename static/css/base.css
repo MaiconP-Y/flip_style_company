@@ -1,0 +1,286 @@
+:root {
+    --bg-body: #f5f5f7;
+    --bg-nav: #ffffff;
+    --text-primary: #1d1d1f;
+    --text-secondary: #86868b;
+    --transition-default: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { overflow-x: hidden; }
+body, h1, h2, h3, h4, p, ul, li, figure, figcaption { margin: 0; padding: 0; }
+a { text-decoration: none; color: inherit; }
+ul { list-style: none; }
+
+/* Classe utilitária para o JS (Trava de Scroll) */
+.scroll-lock { overflow: hidden; }
+
+/* 2. Base e Tipografia */
+body {
+    background-color: var(--bg-body);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+}
+
+header {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    background-color: transparent; /* Libera o fundo para o pseudo-elemento */
+}
+
+.nav-content {
+    max-width: 1850px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 30px;
+}
+
+.nav-links, .nav-right-spacer {
+    flex: 1; 
+    display: flex;
+}
+
+.nav-links {
+    gap: 20px;
+    justify-content: flex-start;
+}
+
+.nav-links li {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.nav-right-spacer {
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.logo_center {
+    display: flex;
+    justify-content: center;
+}
+
+.logo img { margin: -5px 0 -7px; }
+
+/* 4. Submenu Desktop */
+.has-submenu { position: relative; }
+
+.has-submenu::after {
+    content: '';
+    position: absolute;
+    bottom: -8px; 
+    left: 0;
+    width: 100%;
+    height: 2px; 
+    background-color: var(--text-primary); 
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-default), visibility var(--transition-default);
+}
+
+.submenu {
+    position: fixed; 
+    left: 0;
+    right: 0; /* Substitui o width: 100vw para evitar o overflow */
+    top: 72px; 
+    height: 200px;
+    background-color: var(--bg-body);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0.4s ease;
+    z-index: 999;
+}
+
+.submenu::before {
+    content: '';
+    position: absolute;
+    top: -30px; 
+    left: 0;
+    width: 100%;
+    height: 30px; 
+}
+
+.submenu li { margin-top: 5px; }
+.submenu li a { font-weight: 600; margin-left: 50px; }
+
+/* Interações Desktop */
+@media (hover: hover) and (min-width: 851px) {
+    .has-submenu:hover::after,
+    .has-submenu:focus-within::after,
+    .has-submenu:hover .submenu,
+    .submenu:hover {
+        opacity: 1;
+        visibility: visible;
+    }
+    .toggle-submenu { display: none; }
+}
+
+/* 5. Menu Mobile (Hambúrguer) */
+.menu-toggle {
+    display: none; 
+    background: none;
+    border: none;
+    cursor: pointer;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px;
+    z-index: 1002;
+}
+
+.menu-toggle span {
+    display: block;
+    width: 25px;
+    height: 2px;
+    background-color: var(--text-primary);
+    transition: var(--transition-default);
+}
+
+/* 6. Componente de Busca */
+.search-open-trigger, .search-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-primary);
+}
+
+.search-open-trigger {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+}
+
+.search-btn { z-index: 2001; }
+
+.search-form {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 180px;
+    background-color: var(--bg-nav);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-30px);
+    transition: opacity var(--transition-default), transform var(--transition-default), visibility var(--transition-default);
+}
+
+.search-container {
+    display: flex;
+}
+
+.search-form.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.search-form input {
+    width: 100%;
+    max-width: 800px;
+    font-size: 24px;
+    border: none;
+    border-bottom: 2px solid var(--text-primary); 
+    outline: none;
+    color: var(--text-primary);
+    background: transparent;
+}
+
+/* 7. Footer */
+footer {
+    background-color: var(--bg-nav);
+    padding: 40px 20px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   8. RESPONSIVIDADE (Mobile)
+   ========================================================================== */
+@media (max-width: 850px) {
+    .menu-toggle { display: flex; }
+    .nav-content { padding: 12px 15px; }
+
+    .nav-links {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100vh;
+        background-color: #fff;
+        flex-direction: column;
+        gap: 0;
+        box-shadow: 5px 0 25px rgba(0, 0, 0, 0.1);
+        z-index: 1001;
+        transform: translateX(-100%);
+        transition: transform var(--transition-default);
+        overflow-y: auto; 
+    }
+
+    .nav-links.active { transform: translateX(0); }
+    .nav-links li { width: 100%; border-bottom: 1px solid #f5f5f7; }
+    
+    .nav-links li a {
+        display: block;
+        padding: 18px 24px;
+        font-size: 15px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .has-submenu::after { display: none; }
+
+    .submenu {
+        display: none; 
+        background: #f9f9f9;
+        width: 100%;
+        height: auto;
+        position: static;
+        box-shadow: none;
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .submenu.active { display: block; }
+    .submenu li { border-bottom: none; }
+    
+    .submenu li a {
+        padding: 12px 40px;
+        font-size: 14px;
+        font-weight: 500;
+        text-transform: none;
+        color: var(--text-secondary);
+        margin-left: 0;
+    }
+
+    .toggle-submenu {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 18px;
+        position: absolute;
+        right: 20px;
+        top: 15px;
+        color: var(--text-primary);
+        font-weight: 600;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
