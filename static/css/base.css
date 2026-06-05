@@ -150,53 +150,47 @@ header {
     color: var(--text-primary);
 }
 
-.search-open-trigger {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-}
-
-.search-btn { z-index: 2001; }
-
-.search-form {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 180px;
-    background-color: var(--bg-nav);
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    z-index: 2000;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-30px);
-    transition: opacity var(--transition-default), transform var(--transition-default), visibility var(--transition-default);
-}
-
 .search-container {
+    background-color: #e3e3e3;
+    border-radius: 20px;
     display: flex;
-}
-
-.search-form.active {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
+    align-items: center;
+    width: 100%;
+    height: 30px;
 }
 
 .search-form input {
     width: 100%;
-    max-width: 800px;
-    font-size: 24px;
+    max-width: 200px;
+    font-size: 14px;
+    margin-left: 10px;
     border: none;
-    border-bottom: 2px solid var(--text-primary); 
     outline: none;
     color: var(--text-primary);
     background: transparent;
+}
+.whatsapp-float {
+    position: fixed;
+    bottom: 40px;
+    right: 30px;
+    z-index: 999;
+    width: 45px;
+    height: 45px;
+    /* O ícone que você enviou já é o círculo, então vamos usar a cor dele */
+    background-color: rgb(0, 0, 0); 
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease;
+}
+
+
+.whatsapp-float img {
+    width: 60%; /* Ajuste para centralizar o ícone dentro do círculo */
+    height: auto;
+    filter: brightness(0) invert(1);
 }
 
 /* 7. Footer */
@@ -212,9 +206,44 @@ footer {
    8. RESPONSIVIDADE (Mobile)
    ========================================================================== */
 @media (max-width: 850px) {
-    .menu-toggle { display: flex; }
-    .nav-content { padding: 12px 15px; }
+    /* --- ESTRUTURA GLOBAL CONTRAIDA --- */
+    .nav-content {
+        padding: 12px 15px 70px; /* 70px no bottom abre o espaço exato para a busca embaixo */
+        position: relative;      /* Permite o posicionamento absoluto do search */
+    }
 
+    .menu-toggle { 
+        display: flex; 
+    }
+
+    /* --- COMPONENTE DE BUSCA (Estilo ÖUS) --- */
+    .nav-right-spacer {
+        position: absolute;
+        bottom: 10px;
+        left: 15px;
+        right: 15px;
+        width: calc(100% - 30px);
+        justify-content: center;
+        z-index: 10;
+    }
+
+    .search-form {
+        width: 100%;
+    }
+
+    .search-container {
+        height: 45px;
+        padding: 10px 10px;
+    }
+
+    .search-form input {
+        max-width: 100%;
+    }
+    .search-btn {
+        margin-top: 2px;
+    }
+
+    /* --- GAVETA MOBILE (Menu Lateral) --- */
     .nav-links {
         position: fixed;
         top: 0;
@@ -231,8 +260,14 @@ footer {
         overflow-y: auto; 
     }
 
-    .nav-links.active { transform: translateX(0); }
-    .nav-links li { width: 100%; border-bottom: 1px solid #f5f5f7; }
+    .nav-links.active { 
+        transform: translateX(0); 
+    }
+    
+    .nav-links li { 
+        width: 100%; 
+        border-bottom: 1px solid #f5f5f7; 
+    }
     
     .nav-links li a {
         display: block;
@@ -242,8 +277,31 @@ footer {
         text-transform: uppercase;
     }
 
-    .has-submenu::after { display: none; }
+    .has-submenu::after { 
+        display: none; 
+    }
+    /* --- OVERLAY DO MENU MOBILE --- */
+    .menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.4); /* Preto com 40% de opacidade para escurecer o fundo */
+        z-index: 1000; /* Fica acima de tudo, mas abaixo da gaveta do menu (que é 1001) */
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
 
+    /* Quando o menu estiver ativo, a cortina aparece e bloqueia o fundo */
+    .nav-links.active ~ .menu-overlay,
+    .menu-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* --- SUBMENUS INTERNOS (Acordeão Mobile) --- */
     .submenu {
         display: none; 
         background: #f9f9f9;
@@ -255,8 +313,13 @@ footer {
         visibility: visible;
     }
 
-    .submenu.active { display: block; }
-    .submenu li { border-bottom: none; }
+    .submenu.active { 
+        display: block; 
+    }
+    
+    .submenu li { 
+        border-bottom: none; 
+    }
     
     .submenu li a {
         padding: 12px 40px;
@@ -282,5 +345,6 @@ footer {
         display: flex;
         align-items: center;
         justify-content: center;
+        z-index: 5;
     }
 }

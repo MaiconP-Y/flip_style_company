@@ -12,189 +12,117 @@
 </head>
 <body>
 
-<header>
-    <nav class="nav-content" aria-label="Navegação Principal">
-        
-        <ul class="nav-links">
-            {% if user.is_authenticated %}
-                <li><a href="#">Dashboard</a></li>
-            {% else %}
-                <li class="has-submenu">
-                    <a href="#">Skate e Peças</a> 
-                    <button class="toggle-submenu" aria-label="Abrir submenu" aria-expanded="false">+</button>
-                    <div class="submenu">
-                        <div class="submenu-inner">
-                            <ul>
-                                <li><a href="#">Skates montados</a></li>
-                                <li><a href="#">Shapes</a></li>
-                                <li><a href="#">Trucks</a></li>
-                                <li><a href="#">Rodas</a></li>
-                            </ul>
+    <header>
+        <nav class="nav-content" aria-label="Navegação Principal">
+            
+            <ul class="nav-links">
+                {% if user.is_authenticated %}
+                    <li><a href="#">Dashboard</a></li>
+                {% else %}
+                    <li class="has-submenu">
+                        <a href="#">Skate e Peças</a> 
+                        <button class="toggle-submenu" aria-label="Abrir submenu" aria-expanded="false">+</button>
+                        <div class="submenu">
+                            <div class="submenu-inner">
+                                <ul>
+                                    <li><a href="#">Skates montados</a></li>
+                                    <li><a href="#">Shapes</a></li>
+                                    <li><a href="#">Trucks</a></li>
+                                    <li><a href="#">Rodas</a></li>
+                                </ul>
+                            </div>
                         </div>
-                    </div>
-                </li>
+                    </li>
 
-                <li class="has-submenu">
-                    <a href="#">Roupas</a>
-                    <button class="toggle-submenu" aria-label="Abrir submenu" aria-expanded="false">+</button>
-                    <div class="submenu">
-                        <div class="submenu-inner">
-                            <ul>
-                                <li><a href="#">Camisetas</a></li>
-                                <li><a href="#">Calças</a></li>
-                                <li><a href="#">Moletons</a></li>
-                                <li><a href="#">Jaquetas</a></li>
-                                <li><a href="#">Bermudas</a></li>
-                            </ul>
+                    <li class="has-submenu">
+                        <a href="#">Roupas</a>
+                        <button class="toggle-submenu" aria-label="Abrir submenu" aria-expanded="false">+</button>
+                        <div class="submenu">
+                            <div class="submenu-inner">
+                                <ul>
+                                    <li><a href="#">Camisetas</a></li>
+                                    <li><a href="#">Calças</a></li>
+                                    <li><a href="#">Moletons</a></li>
+                                    <li><a href="#">Jaquetas</a></li>
+                                    <li><a href="#">Bermudas</a></li>
+                                </ul>
+                            </div>
                         </div>
-                    </div>
-                </li>
-                
-                <li class="has-submenu">
-                    <a href="#">Acessórios</a>
-                    <button class="toggle-submenu" aria-label="Abrir submenu" aria-expanded="false">+</button>
-                    <div class="submenu">
-                        <div class="submenu-inner">
-                            <ul>
-                                <li><a href="#">Toucas</a></li>
-                                <li><a href="#">Bonés</a></li>
-                                <li><a href="#">Bags</a></li>
-                                <li><a href="#">Carteiras</a></li>
-                                <li><a href="#">Laces</a></li>
-                                <li><a href="#">Meias</a></li>
-                            </ul>
+                    </li>
+                    
+                    <li class="has-submenu">
+                        <a href="#">Acessórios</a>
+                        <button class="toggle-submenu" aria-label="Abrir submenu" aria-expanded="false">+</button>
+                        <div class="submenu">
+                            <div class="submenu-inner">
+                                <ul>
+                                    <li><a href="#">Toucas</a></li>
+                                    <li><a href="#">Bonés</a></li>
+                                    <li><a href="#">Bags</a></li>
+                                    <li><a href="#">Carteiras</a></li>
+                                    <li><a href="#">Laces</a></li>
+                                    <li><a href="#">Meias</a></li>
+                                </ul>
+                            </div>
                         </div>
-                    </div>
-                </li>
+                    </li>
 
-                <li class="has-submenu">
-                    <a href="#">Footwear</a>
-                    <button class="toggle-submenu" aria-label="Abrir submenu" aria-expanded="false">+</button>
-                    <div class="submenu">
-                        <div class="submenu-inner">
-                            <ul>
-                                <li><a href="#">Para Skate</a></li>
-                                <li><a href="#">Para o dia a dia</a></li>
-                            </ul>
+                    <li class="has-submenu">
+                        <a href="#">Footwear</a>
+                        <button class="toggle-submenu" aria-label="Abrir submenu" aria-expanded="false">+</button>
+                        <div class="submenu">
+                            <div class="submenu-inner">
+                                <ul>
+                                    <li><a href="#">Para Skate</a></li>
+                                    <li><a href="#">Para o dia a dia</a></li>
+                                </ul>
+                            </div>
                         </div>
-                    </div>
-                </li>
-            {% endif %}
-        </ul>
+                    </li>
+                {% endif %}
+            </ul>
 
-        <div class="logo_center">
-            <a href="{% url 'home' %}" class="logo">
-                <img src="{% static 'img/favicon_average.webp' %}" alt="Logo FlipStyleCompany">
-            </a>
-        </div>
-        
-        <div class="nav-right-spacer">
-            <button type="button" class="search-open-trigger" id="openSearch" aria-label="Abrir pesquisa">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
+            <div class="logo_center">
+                <a href="{% url 'home' %}" class="logo">
+                    <img src="{% static 'img/favicon_average.webp' %}" alt="Logo FlipStyleCompany">
+                </a>
+            </div>
+            
+            <div class="nav-right-spacer">
+                <form action="#" method="GET" class="search-form" id="searchForm">
+                    <div class="search-container">
+                        <input type="text" name="search" id="searchInput" placeholder="Digite o que você procura" aria-label="Buscar produto" autocomplete="off">
+                        <button type="submit" class="search-btn" id="submitSearch" aria-label="Executar busca">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <button class="menu-toggle" aria-label="Abrir Menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
             </button>
+        </nav>
+        <div class="menu-overlay" id="js-menu-overlay"></div>
+    </header>
 
-            <form action="#" method="GET" class="search-form" id="searchForm">
-                <div class="search-container">
-                    <input type="text" name="search" id="searchInput" placeholder="Digite o que você procura" aria-label="Buscar produto" autocomplete="off">
-                    <button type="submit" class="search-btn" id="submitSearch" aria-label="Executar busca">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        </svg>
-                    </button>
-                </div>
-            </form>
-        </div>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
 
-        <button class="menu-toggle" aria-label="Abrir Menu" aria-expanded="false">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
-    </nav>
-</header>
-
-<main>
-    {% block content %}{% endblock %}
-</main>
-
-<footer>
-    {% block footer %}
-        <p>&copy; 2026 FlipStyleCompany. CNPJ: 04439927000183, Rua Amazonas Ribas 287 - Centro - Itararé - SP - CEP 18460-051</p>
-    {% endblock %}
-</footer>
-
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const DOM = {
-            searchOpenBtn: document.getElementById("openSearch"),
-            searchForm: document.getElementById("searchForm"),
-            searchInput: document.getElementById("searchInput"),
-            menuToggle: document.querySelector(".menu-toggle"),
-            navLinks: document.querySelector(".nav-links")
-        };
-
-        const toggleBodyScroll = (lock) => document.body.classList.toggle("scroll-lock", lock);
-
-        // 1. Controle da Busca
-        DOM.searchOpenBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            DOM.searchForm.classList.add("active");
-            toggleBodyScroll(true);
-            setTimeout(() => DOM.searchInput.focus(), 150);
-        });
-
-        DOM.searchForm.addEventListener("submit", (e) => {
-            if (!DOM.searchInput.value.trim()) {
-                e.preventDefault();
-                DOM.searchForm.classList.remove("active");
-                toggleBodyScroll(false);
-            }
-        });
-
-        // 2. Gaveta Mobile
-        DOM.menuToggle.addEventListener("click", (e) => {
-            e.stopPropagation();
-            const isActive = DOM.navLinks.classList.toggle("active");
-            DOM.menuToggle.setAttribute("aria-expanded", isActive);
-            toggleBodyScroll(isActive);
-        });
-
-        // 3. Submenus via Delegação
-        DOM.navLinks.addEventListener("click", (e) => {
-            const btn = e.target.closest(".toggle-submenu");
-            if (!btn) return;
-
-            e.stopPropagation();
-            const submenu = btn.nextElementSibling;
-            const isOpened = submenu.classList.toggle("active");
-            
-            btn.textContent = isOpened ? "-" : "+";
-            btn.setAttribute("aria-expanded", isOpened);
-        });
-
-        // 4. Fechamento Global
-        const closeAll = () => {
-            DOM.searchForm.classList.remove("active");
-            DOM.navLinks.classList.remove("active");
-            DOM.menuToggle.setAttribute("aria-expanded", "false");
-            toggleBodyScroll(false);
-        };
-
-        document.addEventListener("click", (e) => {
-            const isOutsideSearch = DOM.searchForm.classList.contains("active") && !DOM.searchForm.contains(e.target) && e.target !== DOM.searchOpenBtn;
-            const isOutsideMenu = DOM.navLinks.classList.contains("active") && !DOM.navLinks.contains(e.target) && !DOM.menuToggle.contains(e.target);
-            
-            if (isOutsideSearch || isOutsideMenu) closeAll();
-        });
-
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "Escape") closeAll();
-        });
-    });
-</script>
+    <footer>
+        {% block footer %}
+            <p>&copy; 2026 FlipStyleCompany. CNPJ: 04439927000183, Rua Amazonas Ribas 287 - Centro - Itararé - SP - CEP 18460-051</p>
+        {% endblock %}
+    </footer>
+    <a href="https://wa.me/5515996100598?text=Olá! Gostaria de mais informações sobre como comprar na loja." target="_blank" class="whatsapp-float">
+        <img src="{% static 'img/whatsapp.svg' %}" alt="WhatsApp">
+    </a>
+    <script src="{% static 'js/global.js' %}" defer></script>
 </body>
 </html>
