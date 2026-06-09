@@ -49,6 +49,7 @@
 
             if (submenu) {
                 submenu.classList.toggle('active');
+                btn.classList.toggle('active');
                 btn.textContent = submenu.classList.contains('active') ? '-' : '+';
             }
         });
