@@ -10,43 +10,43 @@
     <button class="carousel-btn prev">&#10094;</button>
     <button class="carousel-btn next">&#10095;</button>
 
-    <a href="#" class="banner-link carousel-item active">
-        <picture>
-            <source media="(max-width: 600px)" srcset="{% static 'img/banner-mobile-1.webp' %}">
-            <img src="{% static 'img/banner-desktop-1.webp' %}" alt="Banner FlipStyleCompany" class="banner-img">
-        </picture>
-        <div class="banner-content">
-            <h1>SHAPES SKATEBOARDS!</h1>
-            <p>Confira agora!</p>
-        </div>
-    </a>
-    
-    <a href="#" class="banner-link carousel-item">
-        <picture>
-            <source media="(max-width: 600px)" srcset="{% static 'img/banner-mobile-2.webp' %}">
-            <img src="{% static 'img/banner-desktop-2.webp' %}" alt="Banner 2" class="banner-img">
-        </picture>
-        <div class="banner-content">
-            <h1>VÁRIOS BUTS!</h1>
-            <p>Confira agora!</p>
-        </div>
-    </a>
+    <div class="carousel-inner">
+        <a href="#" class="banner-link carousel-item">
+            <picture>
+                <source media="(max-width: 600px)" srcset="{% static 'img/banner-mobile-shapes.webp' %}">
+                <img src="{% static 'img/banner-desktop-shapes.webp' %}" alt="Banner FlipStyleCompany" class="banner-img">
+            </picture>
+            <div class="banner-content">
+                <h1>SHAPES SKATEBOARDS!</h1>
+                <p>Confira agora!</p>
+            </div>
+        </a>
+        
+        <a href="#" class="banner-link carousel-item">
+            <picture>
+                <source media="(max-width: 600px)" srcset="{% static 'img/banner-mobile-buts.webp' %}">
+                <img src="{% static 'img/banner-desktop-buts.webp' %}" alt="Banner 2" class="banner-img">
+            </picture>
+            <div class="banner-content">
+                <h1>VÁRIOS BUTS!</h1>
+                <p>Confira agora!</p>
+            </div>
+        </a>
+        <a href="#" class="banner-link carousel-item">
+            <picture>
+                <source media="(max-width: 600px)" srcset="{% static 'img/banner-mobile-shapes-thrasher.webp' %}">
+                <img src="{% static 'img/banner-desktop-shapes-thrasher.webp' %}" alt="THRASHER" class="banner-img">
+            </picture>
+            <div class="banner-content">
+                <h1>THRASHER!</h1>
+                <p>Confira agora!</p>
+            </div>
+        </a>
+    </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const items = document.querySelectorAll('.carousel-item');
-    let index = 0;
+{% endblock %}
 
-    const update = (newIndex) => {
-        items[index].classList.remove('active');
-        index = (newIndex + items.length) % items.length;
-        items[index].classList.add('active');
-    };
-
-    document.querySelector('.next').onclick = () => update(index + 1);
-    document.querySelector('.prev').onclick = () => update(index - 1);
-});
-</script>
-
+{% block extra_js %}
+<script src="{% static 'js/index.js' %}"></script>
 {% endblock %}

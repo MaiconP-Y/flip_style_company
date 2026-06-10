@@ -86,6 +86,11 @@ header {
     z-index: 999;
 }
 
+.submenu-inner {
+    width: 300px;
+    margin-left: 20px;
+}
+
 .submenu::before {
     content: '';
     position: absolute;
@@ -205,6 +210,10 @@ footer {
    8. RESPONSIVIDADE (Mobile)
    ========================================================================== */
 @media (max-width: 905px) {
+    .has-submenu:hover > a {
+        border-bottom: none;
+        padding-bottom: 18px
+    }
     .has-submenu { 
         position: relative; 
     }

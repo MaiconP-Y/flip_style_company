@@ -7,38 +7,52 @@ img, picture {
 .banner-home {
     position: relative;
     width: 100%;
+    overflow: hidden; /* Esconde o que sai da tela */
 }
 
+/* Container que desliza as imagens */
+.carousel-inner {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    width: 100%;
+    touch-action: pan-y;
+}
+
+.carousel-item {
+    min-width: 100%; /* Cada item ocupa 100% da largura */
+    position: relative;
+    display: block;
+}
 
 .banner-img {
     display: block;
-    width: 100%; /* A imagem sempre ocupará 100% da largura do pai */
+    width: 100%;
     height: auto;
 }
 
 .banner-content {
     text-align: center;
-    position: absolute; /* Tira o elemento do fluxo e fixa sobre a imagem */
-    bottom: 5%; /* Ajuste a distância da base */
+    position: absolute;
+    bottom: 5%;
     left: 50%;
     transform: translateX(-50%);
-    color: white; /* Garante visibilidade (ajuste conforme sua imagem) */
+    background: rgb(0, 0, 0);
+    border: 1px solid rgb(255, 255, 255);
+    border-radius: 5px;
+    padding: 10px 25px;
     z-index: 1;
     transition: all 0.4s ease;
 }
 
-.banner-content h1, .banner-content p {
-    text-shadow: 0px 4px 10px rgb(0, 0, 0);
-}
-
 .banner-content h1 {
-    font-family: Bebas Neue;
-    font-size: 25px;
+    font-family: Roboto Flex Bold 700;
+    font-size: 17px;
+    color: rgb(255, 255, 255);
 }
 .banner-content p {
-    font-family: Roboto;
-    font-size: 20px;
-    border-bottom: 1px solid rgb(255, 255, 255);
+    font-family: Roboto Flex Bold 700;
+    font-size: 18px;
+    color: rgb(255, 255, 255);
 }
 
 .banner-link {
@@ -46,13 +60,7 @@ img, picture {
     position: relative;
 }
 
-.banner-link:hover .banner-content {
-    transform: translateX(-50%) scale(1.05); /* Cresce o texto em 5% */
-    cursor: pointer; /* Muda o cursor para a mãozinha */
-}
 
-.carousel-item { display: none; }
-.carousel-item.active { display: block; }
 
 .carousel-btn {
     position: absolute;
@@ -67,8 +75,8 @@ img, picture {
 }
 .prev { left: 10px; }
 .next { right: 10px; }
-/* Responsividade simples para manter a proporção */
+
 @media (max-width: 600px) {
-    .banner-content h1 { font-size: 1.2rem; }
-    .banner-content p { font-size: 1.0rem; }
+    .banner-content h1 { font-size: 13px; }
+    .banner-content p { font-size: 14px; }
 }
