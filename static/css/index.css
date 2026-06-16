@@ -14,6 +14,7 @@ img, picture {
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch; /* Fluidez nativa para iOS */
     will-change: scroll-position;
+    scroll-behavior: smooth
 }
 
 .carousel-inner::-webkit-scrollbar,
@@ -282,6 +283,40 @@ img, picture {
     justify-content: center;
 }
 
+/* LOGICA ICONS FRETE, WHATS, SITE SEGURO##########
+########################################*/
+.trust-bar {
+    display: flex;             /* Muda de grid para flex */
+    justify-content: center;
+    flex-wrap: wrap;
+    grid-template-columns: repeat(4, 1fr); /* 4 colunas iguais */
+    gap: 20px;
+    padding: 30px 20px;
+    background: #ffffff;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.trust-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 250px;
+}
+
+.trust-item img {
+    width: 30px; /* Tamanho do ícone */
+    height: 30px;
+}
+
+.trust-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.trust-text strong { font-size: 14px; text-transform: uppercase; }
+.trust-text span { font-size: 12px; color: #666; }
+/* FIM LOGICA ICONS FRETE, WHATS, SITE SEGURO##########
+########################################*/
 @media (max-width: 899px) {
     .banner-content h1 { font-size: 13px; }
     .banner-content p { font-size: 14px; }
