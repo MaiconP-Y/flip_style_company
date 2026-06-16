@@ -25,7 +25,7 @@ class ProductVariantInline(admin.TabularInline):
 class ProductAdmin(admin.ModelAdmin):
     # Combinamos todos os atributos aqui:
     inlines = [ProductImageInline, ProductVariantInline]
-    list_display = ('name', 'brand', 'price', 'is_featured', 'created_at')
+    list_display = ('name', 'brand', 'color', 'price', 'is_featured', 'created_at')
     list_editable = ('is_featured',) # Permite editar direto na lista
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ('name',)
