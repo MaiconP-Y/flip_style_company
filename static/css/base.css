@@ -7,13 +7,15 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html, body { overflow-x: hidden; }
+
+/* reset atual ótimo! */
 body, h1, h2, h3, h4, p, ul, li, figure, figcaption { margin: 0; padding: 0; }
+/* o inherit esteja sempre ligado para fontes em botões/inputs */
+button, input, select, textarea {
+    font: inherit;
+}
 a { text-decoration: none; color: inherit; }
 ul { list-style: none; }
-
-/* Classe utilitária para o JS (Trava de Scroll) */
-.scroll-lock { overflow: hidden; }
 
 /* 2. Base e Tipografia */
 body {
@@ -29,7 +31,18 @@ header {
     top: 0;
     width: 100%;
     z-index: 1000;
-    background-color: var(--bg-nav); /* Definido como branco para garantir que o submenu não fique transparente ao rolar */
+    background-color: var(--bg-nav);
+    transition: transform 0.2s ease;
+    will-change: transform;
+}
+
+.header-hidden {
+    transform: translateY(-100%);
+}
+/* Quando o menu abrir, aplicamos isso ao body/html */
+.scroll-lock {
+    overflow: hidden !important; /* Trava tudo */
+    height: 100% !important;     /* Garante que o tamanho da tela seja bloqueado */
 }
 
 .nav-content {
@@ -66,7 +79,10 @@ header {
     justify-content: center;
 }
 
-.logo img { margin: -5px 0 -7px; }
+.logo img { 
+    margin: -5px 0 -7px;
+    height: 60px;
+}
 
 /* 4. Submenu (Novo e Limpo) */
 .has-submenu { 
@@ -82,7 +98,7 @@ header {
     padding: 10px 0;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+
     z-index: 999;
 }
 
@@ -96,7 +112,7 @@ header {
     position: absolute;
     top: -30px; 
     left: 0;
-    width: 30%;
+    width: 80%;
     height: 30px; 
 }
 
@@ -148,9 +164,12 @@ header {
 }
 
 /* 6. Componente de Busca */
-.search-open-trigger, .search-btn {
-    background: none;
+.search-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border: none;
+    background: none;
     cursor: pointer;
     color: var(--text-primary);
 }
@@ -210,6 +229,10 @@ footer {
    8. RESPONSIVIDADE (Mobile)
    ========================================================================== */
 @media (max-width: 905px) {
+    .submenu-inner {
+        width: 100%;
+        margin-left: 0;
+    }
     .has-submenu:hover > a {
         border-bottom: none;
         padding-bottom: 18px
@@ -237,7 +260,6 @@ footer {
     .search-form { width: 100%; }
     .search-container { height: 45px; padding: 10px 10px; }
     .search-form input { max-width: 100%; }
-    .search-btn { margin-top: 2px; }
 
     .nav-links {
         position: fixed;
@@ -256,7 +278,7 @@ footer {
     }
 
     .nav-links.active { transform: translateX(0); }
-    .nav-links li { width: 100%; border-bottom: 1px solid #f5f5f7; }
+    .nav-links li { border-bottom: 1px solid #f5f5f7; }
     .nav-links li a { display: block; padding: 18px 24px; font-size: 15px; font-weight: 600; text-transform: uppercase; }
 
     .has-submenu::after { display: none; }
@@ -280,7 +302,7 @@ footer {
     .submenu {
         display: none; 
         background: #f9f9f9;
-        width: 100%;
+        width: calc(100% - 60px);
         height: auto;
         position: static;
         box-shadow: none;
@@ -289,37 +311,32 @@ footer {
     }
 
     .submenu.active { display: block; }
-    .submenu li { border-bottom: none; }
-    .submenu li a { padding: 12px 40px; font-size: 14px; font-weight: 500; color: var(--text-secondary); margin-left: 0; }
+
+    .submenu li a { 
+        padding: 12px 40px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-left: 0; 
+    }
 
     .toggle-submenu {
         background: none;
         border: none;
         cursor: pointer;
         font-size: 20px;
-        
         position: absolute;
         top: 0;
         right: 0;
         height: 100%;
         width: 60px;
-        
         color: var(--text-primary);
         font-weight: 600;
-        
         display: flex;
         align-items: center;
         justify-content: center; /* Centraliza o + ou - */
-        
         z-index: 10;
-        
-        /* Adiciona a transição para a borda não aparecer "do nada" */
-        transition: border-bottom 0.2s ease;
+        overscroll-behavior: contain;
     }
 
-    /* Quando aberto, ganha a borda fina */
-    .toggle-submenu.active {
-        border-left: 1px solid #f2f2f2;
-        background-color: #ffffff;
-    }
 }
