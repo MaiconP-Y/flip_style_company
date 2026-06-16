@@ -6,15 +6,15 @@
 {% endblock %}
 
 {% block content %}
-<div class="banner-home">
-    <button class="carousel-btn prev">&#10094;</button>
-    <button class="carousel-btn next">&#10095;</button>
+<div class="banner-home" id="bannerHome">
+    <button class="btn-carousel-base prev" id="bannerPrev" aria-label="Anterior">&#10094;</button>
+    <button class="btn-carousel-base next" id="bannerNext" aria-label="Próximo">&#10095;</button>
 
-    <div class="carousel-inner">
+    <div class="carousel-inner" id="bannerInner">
         <a href="#" class="banner-link carousel-item">
             <picture>
                 <source media="(max-width: 600px)" srcset="{% static 'img/banner-mobile-shapes.webp' %}">
-                <img src="{% static 'img/banner-desktop-shapes.webp' %}" alt="Banner FlipStyleCompany" class="banner-img">
+                <img src="{% static 'img/banner-desktop-shapes.webp' %}" width="1920" height="780" alt="Banner Shapes" class="banner-img">
             </picture>
             <div class="banner-content">
                 <h1>SHAPES SKATEBOARDS!</h1>
@@ -25,17 +25,18 @@
         <a href="#" class="banner-link carousel-item">
             <picture>
                 <source media="(max-width: 600px)" srcset="{% static 'img/banner-mobile-buts.webp' %}">
-                <img src="{% static 'img/banner-desktop-buts.webp' %}" alt="Banner 2" class="banner-img">
+                <img src="{% static 'img/banner-desktop-buts.webp' %}" width="1920" height="780" alt="Banner Buts" class="banner-img">
             </picture>
             <div class="banner-content">
                 <h1>VÁRIOS BUTS!</h1>
                 <p>Confira agora!</p>
             </div>
         </a>
+
         <a href="#" class="banner-link carousel-item">
             <picture>
                 <source media="(max-width: 600px)" srcset="{% static 'img/banner-mobile-shapes-thrasher.webp' %}">
-                <img src="{% static 'img/banner-desktop-shapes-thrasher.webp' %}" alt="THRASHER" class="banner-img">
+                <img src="{% static 'img/banner-desktop-shapes-thrasher.webp' %}" width="1920" height="780" alt="Banner Thrasher" class="banner-img">
             </picture>
             <div class="banner-content">
                 <h1>THRASHER!</h1>
@@ -45,6 +46,79 @@
     </div>
 </div>
 
+<section class="products-section">
+    <div class="section-header">
+        <h2 class="section-title">Mais Vendidos</h2>
+        <div class="carousel-controls">
+            <!-- Substituído para a classe unificada -->
+            <button class="btn-carousel-page prev" id="prodPrev" aria-label="Anterior">&#10094;</button>
+            <button class="btn-carousel-page next" id="prodNext" aria-label="Próximo">&#10095;</button>
+        </div>
+    </div>
+
+    <div class="products-carousel-wrapper">
+        <div class="products-carousel" id="productsCarousel">
+            {% for produto in produtos %}
+            <a href="#" class="product-card">
+                {% if produto.images.all %}
+                    <img src="{{ produto.images.first.image.url }}" width="2000" height="2000" alt="{{ produto.name }}" class="product-img">
+                {% endif %}
+                
+                <div class="product-info">
+                    <h3>{{ produto.name }} - {{ produto.color.name }}</h3>
+                    <p class="product-price">R$ {{ produto.price }}</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="carousel-pagination" id="prodPagination"></div>
+</section>
+
+<section class="products-section" id="brands-section">
+    <div class="section-header">
+        <h2 class="section-title">Parcerias </h2>
+        <div class="carousel-controls">
+            <button id="brandsPrev" class="btn-carousel-page">&#10094;</button>
+            <button id="brandsNext" class="btn-carousel-page">&#10095;</button>
+        </div>
+    </div>
+
+    <div class="products-carousel-wrapper" id="brandsCarouselWrapper">
+        <div class="carousel-inner" id="brandsInner">
+            {% for marca in marcas %}
+                <a href="#" class="brand-item">
+                    <img src="{% static marca.image %}" alt="{{ marca.name }}" class="brand-img" width="100" height="100">
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="products-section" id="categories-section">
+    <div class="section-header">
+        <h2 class="section-title">Categorias</h2>
+        <div class="carousel-controls">
+            <button id="catPrev" class="btn-carousel-page">&#10094;</button>
+            <button id="catNext" class="btn-carousel-page">&#10095;</button>
+        </div>
+    </div>
+
+    <div class="products-carousel" id="categoriesCarousel">
+        {% for cat in categorias %}
+        <a href="#" class="product-card category-card">
+            <div class="image-wrapper">
+                <img src="{% static cat.image %}" width="475" height="475" alt="{{ cat.name }}" class="product-img">
+            </div>
+            <div class="product-info" style="text-align: center;">
+                <h3>{{ cat.name }}</h3>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <div class="carousel-pagination" id="catPagination"></div>
+</section>
 {% endblock %}
 
 {% block extra_js %}
