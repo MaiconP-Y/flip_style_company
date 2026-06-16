@@ -141,12 +141,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         nextBtn?.addEventListener('click', () => {
             if (isTransitioning) return;
+            stopTimer(); // Adicione isso
             move(Math.round(container.scrollLeft / cardWidth) + 1);
+            startTimer(); // Adicione isso
         });
 
         prevBtn?.addEventListener('click', () => {
             if (isTransitioning) return;
+            stopTimer(); // Adicione isso
             move(Math.round(container.scrollLeft / cardWidth) - 1);
+            startTimer(); // Adicione isso
         });
 
         document.addEventListener('visibilitychange', () => {
@@ -176,29 +180,38 @@ document.addEventListener('DOMContentLoaded', () => {
         const update = () => {
             cardWidth = CarouselEngine.getCardWidth(container);
             dots = CarouselEngine.createDots(container, dotsContainer, cardWidth, (i) => {
-                container.scrollTo({ left: i * cardWidth, behavior: 'smooth' });
+                container.scrollTo({ left: i * cardWidth });
             });
             syncDots();
         };
 
+        let ticking = false;
+
         const syncDots = () => {
-            const idx = CarouselEngine.getActiveIndex(container.scrollLeft, cardWidth, dots.length);
-            dots.forEach((dot, i) => dot.classList.toggle('active', i === idx));
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const idx = CarouselEngine.getActiveIndex(container.scrollLeft, cardWidth, dots.length);
+                    dots.forEach((dot, i) => dot.classList.toggle('active', i === idx));
+                    ticking = false;
+                });
+                ticking = true;
+            }
         };
 
         new ResizeObserver(update).observe(container);
 
         nextBtn?.addEventListener('click', () => {
             const atEnd = container.scrollLeft + container.offsetWidth >= container.scrollWidth - 10;
-            container.scrollTo({ left: atEnd ? 0 : container.scrollLeft + cardWidth, behavior: 'smooth' });
+            container.scrollTo({ left: atEnd ? 0 : container.scrollLeft + cardWidth });
         });
 
         prevBtn?.addEventListener('click', () => {
             const atStart = container.scrollLeft <= 1;
-            container.scrollTo({ left: atStart ? container.scrollWidth : container.scrollLeft - cardWidth, behavior: 'smooth' });
+            // Removido o behavior: 'smooth' daqui também para padronizar com o CSS
+            container.scrollTo({ left: atStart ? container.scrollWidth : container.scrollLeft - cardWidth });
         });
 
-        container.addEventListener('scroll', () => window.requestAnimationFrame(syncDots), { passive: true });
+        container.addEventListener('scroll', syncDots, { passive: true });
     };
 
     // Execução Centralizada
