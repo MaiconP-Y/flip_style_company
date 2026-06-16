@@ -1,93 +1,209 @@
-// static/js/index.js
 document.addEventListener('DOMContentLoaded', () => {
-    
+
     /**
-     * Lógica Modular e Nativa de Carrossel com Arrastar e Clicar (Pointer Events)
-     * @param {HTMLElement} container - O elemento pai que encapsula o carrossel (ex: .banner-home)
-     * @param {number} autoPlayInterval - Tempo em milissegundos para o autoplay (0 para desativar)
+     * ENGINE DE COMPORTAMENTO NATIVO
      */
-    const initCarousel = (container, autoPlayInterval = 0) => {
-        if (!container) return;
+    const CarouselEngine = {
+        // Calcula a largura real considerando bordas e o espaçamento (gap) do CSS
+        getCardWidth: (container) => {
+            const item = container.firstElementChild;
+            if (!item) return 0;
+            const gap = parseFloat(window.getComputedStyle(container).gap) || 0;
+            return item.getBoundingClientRect().width + gap;
+        },
 
-        const inner = container.querySelector('.carousel-inner');
-        const items = container.querySelectorAll('.carousel-item');
-        if (!inner || items.length === 0) return;
+        getActiveIndex: (scrollLeft, cardWidth, dotsCount) => {
+            if (cardWidth <= 0) return 0;
+            const index = Math.round(scrollLeft / cardWidth);
+            return Math.max(0, Math.min(index, dotsCount - 1));
+        },
 
-        let index = 0, timer;
-        let isDragging = false, isMoved = false, startX = 0;
+        createDots: (container, dotsContainer, cardWidth, onDotClick) => {
+            if (!dotsContainer) return [];
+            const totalItems = container.children.length;
+            const visibleCards = Math.round(container.clientWidth / (cardWidth || 1)) || 1;
+            const dotsCount = Math.max(1, totalItems - visibleCards + 1);
 
-        const update = (newIndex) => {
-            index = (newIndex + items.length) % items.length;
-            inner.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-            inner.style.transform = `translateX(-${index * 100}%)`;
-            if (autoPlayInterval > 0) resetAutoPlay();
-        };
-
-        const resetAutoPlay = () => {
-            clearInterval(timer);
-            timer = setInterval(() => update(index + 1), autoPlayInterval);
-        };
-
-        container.querySelector('.next')?.addEventListener('click', () => update(index + 1));
-        container.querySelector('.prev')?.addEventListener('click', () => update(index - 1));
-
-        inner.addEventListener('dragstart', e => e.preventDefault());
-
-        inner.addEventListener('pointerdown', (e) => {
-            isDragging = true;
-            isMoved = false;
-            startX = e.clientX;
-            inner.style.transition = 'none';
-            if (autoPlayInterval > 0) clearInterval(timer);
-            
-            // Captura o ponteiro no elemento alvo exato para preservar a árvore do DOM
-            e.target.setPointerCapture(e.pointerId);
-        });
-
-        inner.addEventListener('pointermove', (e) => {
-            if (!isDragging) return;
-            const diff = e.clientX - startX;
-            if (Math.abs(diff) > 5) isMoved = true;
-            
-            // Aplica o deslocamento físico baseado no arrasto do usuário
-            inner.style.transform = `translateX(calc(-${index * 100}% + ${diff}px))`;
-        });
-
-        const pointerEnd = (e) => {
-            if (!isDragging) return;
-            isDragging = false;
-            
-            e.target.releasePointerCapture(e.pointerId);
-            
-            const diff = e.clientX - startX;
-            // Define se passa para o próximo, volta ou mantém a imagem atual
-            update(diff > 50 ? index - 1 : diff < -50 ? index + 1 : index);
-        };
-
-        inner.addEventListener('pointerup', pointerEnd);
-        inner.addEventListener('pointercancel', pointerEnd);
-
-        inner.addEventListener('click', (e) => {
-            // Se o usuário arrastou o elemento, cancela o link. Se apenas clicou, redireciona nativamente.
-            if (isMoved) { 
-                e.preventDefault(); 
-                e.stopPropagation(); 
+            if (dotsCount <= 1) {
+                dotsContainer.innerHTML = '';
+                return [];
             }
-        });
 
-        if (autoPlayInterval > 0) resetAutoPlay();
+            const fragment = document.createDocumentFragment();
+            const dots = Array.from({ length: dotsCount }, (_, i) => {
+                const dot = document.createElement('button');
+                dot.classList.add('carousel-dot');
+                dot.setAttribute('aria-label', `Ir para slide ${i + 1}`);
+                dot.addEventListener('click', () => onDotClick(i));
+                fragment.appendChild(dot);
+                return dot;
+            });
+
+            dotsContainer.innerHTML = '';
+            dotsContainer.appendChild(fragment);
+            return dots;
+        }
     };
 
-    // ==========================================================================
-    // INICIALIZAÇÃO DOS COMPONENTES DA HOME
-    // ==========================================================================
+    /**
+     * CARROSSEL INFINITO (Banners)
+     */
+    const initInfiniteCarousel = (wrapperId, nextBtnId, prevBtnId) => {
+        const wrapper = document.getElementById(wrapperId);
+        if (!wrapper) return;
+        
+        const container = wrapper.querySelector('.carousel-inner');
+        const nextBtn = document.getElementById(nextBtnId);
+        const prevBtn = document.getElementById(prevBtnId);
+        if (!container || container.children.length <= 1) return;
+        
+        const originalItems = Array.from(container.children);
+        const originalCount = originalItems.length;
 
-    // 1. Banner Principal: Passa o elemento correspondente e define Autoplay de 5 segundos (5000ms)
-    initCarousel(document.querySelector('.banner-home'), 5000);
+        // Injeção limpa de clones via DocumentFragment (1 único Reflow)
+        const startFragment = document.createDocumentFragment();
+        const endFragment = document.createDocumentFragment();
 
-    // 2. Carrossel de Categorias: Passa o container criado e desativa o Autoplay (0)
-    initCarousel(document.querySelector('.categories-carousel'), 0);
+        originalItems.forEach(item => endFragment.appendChild(item.cloneNode(true)).classList.add('carousel-clone'));
+        [...originalItems].reverse().forEach(item => startFragment.insertBefore(item.cloneNode(true), startFragment.firstChild).classList.add('carousel-clone'));
 
-    // 3. Carrossel de Mais Vendidos (Produtos): Passa o container criado e desativa o Autoplay (0)
-    initCarousel(document.querySelector('.products-carousel'), 0);
+        container.appendChild(endFragment);
+        container.insertBefore(startFragment, container.firstChild);
+
+        let timer = null;
+        let isTransitioning = false;
+        let cardWidth = 0;
+
+        const move = (index, smooth = true) => {
+            if (cardWidth <= 0) return;
+            isTransitioning = true;
+            
+            // Remove o snap antes de mover programaticamente para evitar conflito com o CSS
+            container.style.scrollSnapType = 'none';
+            container.style.scrollBehavior = smooth ? 'smooth' : 'auto';
+            container.scrollLeft = cardWidth * index;
+            
+            // Restaura o snap imediatamente se o movimento for instantâneo
+            if (!smooth) {
+                container.style.scrollSnapType = 'x mandatory';
+                isTransitioning = false;
+            }
+        };
+
+        const handleResetPosition = () => {
+            const idx = Math.round(container.scrollLeft / cardWidth);
+            if (idx < originalCount) {
+                move(idx + originalCount, false);
+            } else if (idx >= originalCount * 2) {
+                move(idx - originalCount, false);
+            }
+            container.style.scrollSnapType = 'x mandatory';
+            isTransitioning = false;
+        };
+
+        const startTimer = () => {
+            if (timer) cancelAnimationFrame(timer);
+            let lastTime = performance.now();
+            
+            const loop = (now) => {
+                if (now - lastTime >= 5000) {
+                    if (document.visibilityState === 'visible' && !isTransitioning) {
+                        const currentIndex = Math.round(container.scrollLeft / cardWidth);
+                        move(currentIndex + 1);
+                    }
+                    lastTime = now;
+                }
+                timer = requestAnimationFrame(loop);
+            };
+            timer = requestAnimationFrame(loop);
+        };
+
+        const stopTimer = () => {
+            if (timer) cancelAnimationFrame(timer);
+            timer = null;
+        };
+
+        // Escuta redimensionamento de tela e atualiza a matemática em tempo real
+        const resizeObserver = new ResizeObserver(() => {
+            const oldWidth = cardWidth;
+            cardWidth = CarouselEngine.getCardWidth(container);
+            if (oldWidth !== cardWidth && oldWidth > 0) {
+                const currentIndex = Math.round(container.scrollLeft / oldWidth);
+                move(currentIndex, false);
+            }
+        });
+        resizeObserver.observe(container);
+
+        // Listeners com tratamento passivo para manter a fluidez de toque
+        container.addEventListener('scrollend', handleResetPosition);
+        container.addEventListener('touchstart', stopTimer, { passive: true });
+        container.addEventListener('touchend', startTimer, { passive: true });
+
+        nextBtn?.addEventListener('click', () => {
+            if (isTransitioning) return;
+            move(Math.round(container.scrollLeft / cardWidth) + 1);
+        });
+
+        prevBtn?.addEventListener('click', () => {
+            if (isTransitioning) return;
+            move(Math.round(container.scrollLeft / cardWidth) - 1);
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            document.visibilityState === 'hidden' ? stopTimer() : startTimer();
+        });
+
+        requestAnimationFrame(() => {
+            cardWidth = CarouselEngine.getCardWidth(container);
+            move(originalCount, false);
+            startTimer();
+        });
+    };
+
+    /**
+     * CARROSSEL TRADICIONAL (Produtos e Categorias)
+     */
+    const setupCarousel = (carouselId, nextBtnId, prevBtnId, dotsContainerId) => {
+        const container = document.getElementById(carouselId);
+        const nextBtn = document.getElementById(nextBtnId);
+        const prevBtn = document.getElementById(prevBtnId);
+        const dotsContainer = document.getElementById(dotsContainerId);
+        if (!container) return;
+
+        let cardWidth = 0;
+        let dots = [];
+
+        const update = () => {
+            cardWidth = CarouselEngine.getCardWidth(container);
+            dots = CarouselEngine.createDots(container, dotsContainer, cardWidth, (i) => {
+                container.scrollTo({ left: i * cardWidth, behavior: 'smooth' });
+            });
+            syncDots();
+        };
+
+        const syncDots = () => {
+            const idx = CarouselEngine.getActiveIndex(container.scrollLeft, cardWidth, dots.length);
+            dots.forEach((dot, i) => dot.classList.toggle('active', i === idx));
+        };
+
+        new ResizeObserver(update).observe(container);
+
+        nextBtn?.addEventListener('click', () => {
+            const atEnd = container.scrollLeft + container.offsetWidth >= container.scrollWidth - 10;
+            container.scrollTo({ left: atEnd ? 0 : container.scrollLeft + cardWidth, behavior: 'smooth' });
+        });
+
+        prevBtn?.addEventListener('click', () => {
+            const atStart = container.scrollLeft <= 1;
+            container.scrollTo({ left: atStart ? container.scrollWidth : container.scrollLeft - cardWidth, behavior: 'smooth' });
+        });
+
+        container.addEventListener('scroll', () => window.requestAnimationFrame(syncDots), { passive: true });
+    };
+
+    // Execução Centralizada
+    initInfiniteCarousel('bannerHome', 'bannerNext', 'bannerPrev');
+    initInfiniteCarousel('brandsCarouselWrapper', 'brandsNext', 'brandsPrev');
+    setupCarousel('productsCarousel', 'prodNext', 'prodPrev', 'prodPagination');
+    setupCarousel('categoriesCarousel', 'catNext', 'catPrev', 'catPagination');
 });
