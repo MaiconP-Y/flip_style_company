@@ -24,6 +24,7 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     line-height: 1.5;
+    overflow-x: hidden;
 }
 
 header {
@@ -211,7 +212,7 @@ header {
 }
 
 .whatsapp-float img {
-    width: 60%; 
+    width: 80%; 
     height: auto;
     filter: brightness(0) invert(1);
 }
@@ -252,7 +253,8 @@ footer {
         bottom: 10px;
         left: 15px;
         right: 15px;
-        width: calc(100% - 30px);
+        /* Remova o width: calc(100% - 30px); */
+        /* O uso combinado de left e right já define a largura perfeitamente e respeita o box-sizing */
         justify-content: center;
         z-index: 10;
     }
@@ -266,7 +268,7 @@ footer {
         top: 0;
         left: 0;
         width: 280px;
-        height: 100vh;
+        height: 100dvh;
         background-color: #fff;
         flex-direction: column;
         gap: 0;
