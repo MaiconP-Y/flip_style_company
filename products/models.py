@@ -77,6 +77,10 @@ class Product(models.Model):
             self.variants.filter(stock__gt=0)
             .values_list('size__name', flat=True)
         )
+    
+    @property
+    def preco_parcelado(self):
+        return self.price / 12
 
 
 class Size(models.Model):

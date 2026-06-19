@@ -10,14 +10,12 @@ def home(request):
 
     # 2. Definição da lista estática de categorias
     categorias = [
-        {'name': 'Calça Cargo', 'image': 'img/categories/calca-cargo.webp'},
-        {'name': 'Bermudas', 'image': 'img/categories/bermudas.webp'},
-        {'name': 'Bonés', 'image': 'img/categories/bones.webp'},
         {'name': 'Calças', 'image': 'img/categories/calcas.webp'},
-        {'name': 'Camisetas', 'image': 'img/categories/camisetas.webp'},
-        {'name': 'Meias', 'image': 'img/categories/meias.webp'},
-        {'name': 'Moletons', 'image': 'img/categories/moletons.webp'},
+        {'name': 'Bonés', 'image': 'img/categories/bones.webp'},
         {'name': 'Toucas', 'image': 'img/categories/toucas.webp'},
+        {'name': 'Bermudas', 'image': 'img/categories/bermudas.webp'},
+        {'name': 'Meias', 'image': 'img/categories/meias.webp'},
+        {'name': 'Blusas', 'image': 'img/categories/moletons.webp'},
     ]
 
     marcas = [
