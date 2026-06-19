@@ -1,10 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    /**
-     * ENGINE DE COMPORTAMENTO NATIVO
-     */
     const CarouselEngine = {
-        // Calcula a largura real considerando bordas e o espaçamento (gap) do CSS
         getCardWidth: (container) => {
             const item = container.firstElementChild;
             if (!item) return 0;
@@ -18,10 +14,12 @@ document.addEventListener('DOMContentLoaded', () => {
             return Math.max(0, Math.min(index, dotsCount - 1));
         },
 
-        createDots: (container, dotsContainer, cardWidth, onDotClick) => {
+        createDots: (container, dotsContainer, onDotClick) => {
             if (!dotsContainer) return [];
+            
             const totalItems = container.children.length;
-            const visibleCards = Math.round(container.clientWidth / (cardWidth || 1)) || 1;
+            const cardWidth = container.firstElementChild?.getBoundingClientRect().width || 1;
+            const visibleCards = Math.max(1, Math.floor(container.clientWidth / cardWidth));
             const dotsCount = Math.max(1, totalItems - visibleCards + 1);
 
             if (dotsCount <= 1) {
@@ -29,6 +27,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 return [];
             }
 
+            if (dotsContainer.children.length === dotsCount) {
+                return Array.from(dotsContainer.children);
+            }
+
+            dotsContainer.innerHTML = '';
             const fragment = document.createDocumentFragment();
             const dots = Array.from({ length: dotsCount }, (_, i) => {
                 const dot = document.createElement('button');
@@ -39,14 +42,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 return dot;
             });
 
-            dotsContainer.innerHTML = '';
             dotsContainer.appendChild(fragment);
             return dots;
         }
     };
 
     /**
-     * CARROSSEL INFINITO (Banners)
+     * RESTAURADO: CARROSSEL INFINITO ORIGINAL E FUNCIONAL
      */
     const initInfiniteCarousel = (wrapperId, nextBtnId, prevBtnId) => {
         const wrapper = document.getElementById(wrapperId);
@@ -60,7 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const originalItems = Array.from(container.children);
         const originalCount = originalItems.length;
 
-        // Injeção limpa de clones via DocumentFragment (1 único Reflow)
         const startFragment = document.createDocumentFragment();
         const endFragment = document.createDocumentFragment();
 
@@ -78,12 +79,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (cardWidth <= 0) return;
             isTransitioning = true;
             
-            // Remove o snap antes de mover programaticamente para evitar conflito com o CSS
             container.style.scrollSnapType = 'none';
             container.style.scrollBehavior = smooth ? 'smooth' : 'auto';
             container.scrollLeft = cardWidth * index;
             
-            // Restaura o snap imediatamente se o movimento for instantâneo
             if (!smooth) {
                 container.style.scrollSnapType = 'x mandatory';
                 isTransitioning = false;
@@ -123,7 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
             timer = null;
         };
 
-        // Escuta redimensionamento de tela e atualiza a matemática em tempo real
         const resizeObserver = new ResizeObserver(() => {
             const oldWidth = cardWidth;
             cardWidth = CarouselEngine.getCardWidth(container);
@@ -134,23 +132,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         resizeObserver.observe(container);
 
-        // Listeners com tratamento passivo para manter a fluidez de toque
         container.addEventListener('scrollend', handleResetPosition);
         container.addEventListener('touchstart', stopTimer, { passive: true });
         container.addEventListener('touchend', startTimer, { passive: true });
 
         nextBtn?.addEventListener('click', () => {
             if (isTransitioning) return;
-            stopTimer(); // Adicione isso
+            stopTimer();
             move(Math.round(container.scrollLeft / cardWidth) + 1);
-            startTimer(); // Adicione isso
+            startTimer();
         });
 
         prevBtn?.addEventListener('click', () => {
             if (isTransitioning) return;
-            stopTimer(); // Adicione isso
+            stopTimer();
             move(Math.round(container.scrollLeft / cardWidth) - 1);
-            startTimer(); // Adicione isso
+            startTimer();
         });
 
         document.addEventListener('visibilitychange', () => {
@@ -165,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     /**
-     * CARROSSEL TRADICIONAL (Produtos e Categorias)
+     * OTIMIZADO: CARROSSEL TRADICIONAL COM RECALCULO CIRÚRGICO APENAS EM BREAKPOINTS
      */
     const setupCarousel = (carouselId, nextBtnId, prevBtnId, dotsContainerId) => {
         const container = document.getElementById(carouselId);
@@ -174,14 +171,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const dotsContainer = document.getElementById(dotsContainerId);
         if (!container) return;
 
-        let cardWidth = 0;
+        let cardWidth = CarouselEngine.getCardWidth(container);
         let dots = [];
+
+        const rebuildDots = () => {
+            dots = CarouselEngine.createDots(container, dotsContainer, (i) => {
+                container.scrollTo({ left: i * cardWidth });
+            });
+            syncDots();
+        };
 
         const update = () => {
             cardWidth = CarouselEngine.getCardWidth(container);
-            dots = CarouselEngine.createDots(container, dotsContainer, cardWidth, (i) => {
-                container.scrollTo({ left: i * cardWidth });
-            });
             syncDots();
         };
 
@@ -191,14 +192,29 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!ticking) {
                 window.requestAnimationFrame(() => {
                     const idx = CarouselEngine.getActiveIndex(container.scrollLeft, cardWidth, dots.length);
-                    dots.forEach((dot, i) => dot.classList.toggle('active', i === idx));
+                    dots.forEach((dot, i) => {
+                        const isActive = i === idx;
+                        if (dot.classList.contains('active') !== isActive) {
+                            dot.classList.toggle('active', isActive);
+                        }
+                    });
                     ticking = false;
                 });
                 ticking = true;
             }
         };
 
+        rebuildDots();
+
         new ResizeObserver(update).observe(container);
+
+        const breakpoints = [
+            window.matchMedia('(max-width: 899px)'),
+            window.matchMedia('(max-width: 600px)')
+        ];
+        breakpoints.forEach(query => {
+            query.addEventListener('change', rebuildDots);
+        });
 
         nextBtn?.addEventListener('click', () => {
             const atEnd = container.scrollLeft + container.offsetWidth >= container.scrollWidth - 10;
@@ -207,7 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         prevBtn?.addEventListener('click', () => {
             const atStart = container.scrollLeft <= 1;
-            // Removido o behavior: 'smooth' daqui também para padronizar com o CSS
             container.scrollTo({ left: atStart ? container.scrollWidth : container.scrollLeft - cardWidth });
         });
 
@@ -217,6 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Execução Centralizada
     initInfiniteCarousel('bannerHome', 'bannerNext', 'bannerPrev');
     initInfiniteCarousel('brandsCarouselWrapper', 'brandsNext', 'brandsPrev');
+    
     setupCarousel('productsCarousel', 'prodNext', 'prodPrev', 'prodPagination');
     setupCarousel('categoriesCarousel', 'catNext', 'catPrev', 'catPagination');
 });
