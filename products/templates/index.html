@@ -50,7 +50,6 @@
     <div class="section-header">
         <h2 class="section-title">Mais Vendidos</h2>
         <div class="carousel-controls">
-            <!-- Substituído para a classe unificada -->
             <button class="btn-carousel-page prev" id="prodPrev" aria-label="Anterior">&#10094;</button>
             <button class="btn-carousel-page next" id="prodNext" aria-label="Próximo">&#10095;</button>
         </div>
@@ -61,12 +60,25 @@
             {% for produto in produtos %}
             <a href="#" class="product-card">
                 {% if produto.images.all %}
-                    <img src="{{ produto.images.first.image.url }}" width="2000" height="2000" alt="{{ produto.name }}" class="product-img">
+                <div class="product-img-wrapper">
+                    {% for img in produto.images.all|slice:":2" %}
+                        <img src="{{ img.image.url }}" 
+                            width="2000" 
+                            height="2000" 
+                            alt="{{ produto.name }}" 
+                            class="product-img {% if forloop.first %}primary-img{% else %}secondary-img{% endif %}"
+                            {% if not forloop.parentloop.first %}loading="lazy"{% endif %}
+                            decoding="async">
+                    {% endfor %}
+                </div>
                 {% endif %}
                 
                 <div class="product-info">
-                    <h3>{{ produto.name }} - {{ produto.color.name }}</h3>
+                    <h3>{{ produto.name }}</h3>
                     <p class="product-price">R$ {{ produto.price }}</p>
+                    <p class="product-installments">
+                        ou 12x de R$ {{ produto.preco_parcelado|floatformat:2 }} sem juros
+                    </p>
                 </div>
             </a>
             {% endfor %}
@@ -75,47 +87,43 @@
     <div class="carousel-pagination" id="prodPagination"></div>
 </section>
 
-<section class="trust-bar">
-    <div class="trust-item">
-        <img src="{% static 'img/icons/card.svg' %}" alt="Parcelamento">
-        <div class="trust-text">
-            <strong>PARCELAMENTO</strong>
-            <span>Em até 6x sem juros</span>
+<section class="trust-bar-wrapper">
+    <div class="trust-bar">
+        <div class="trust-item">
+            <img src="{% static 'img/icons/credit-card-regular-full.svg' %}" alt="Parcelamento">
+            <div class="trust-text">
+                <strong>PARCELAMENTO</strong>
+                <span>Em até 12x sem juros</span>
+            </div>
         </div>
-    </div>
-    <div class="trust-item">
-        <img src="{% static 'img/icons/truck.svg' %}" alt="Frete">
-        <div class="trust-text">
-            <strong>FRETE GRÁTIS</strong>
-            <span>Acima de R$399,90</span>
+        <div class="trust-item">
+            <img src="{% static 'img/icons/truck.svg' %}" alt="Frete">
+            <div class="trust-text">
+                <strong>FRETE GRÁTIS</strong>
+                <span>Acima de R$399,90</span>
+            </div>
         </div>
-    </div>
-    <div class="trust-item">
-        <img src="{% static 'img/icons/whatsapp-brands-solid-full.svg' %}" alt="WhatsApp">
-        <div class="trust-text">
-            <strong>ATENDIMENTO</strong>
-            <span>Via WhatsApp</span>
+        <div class="trust-item">
+            <img src="{% static 'img/icons/whatsapp-brands-solid-full.svg' %}" alt="WhatsApp">
+            <div class="trust-text">
+                <strong>ATENDIMENTO</strong>
+                <span>Via WhatsApp</span>
+            </div>
         </div>
-    </div>
-    <div class="trust-item">
-        <img src="{% static 'img/icons/circle-check.svg' %}" alt="Segurança">
-        <div class="trust-text">
-            <strong>SITE SEGURO</strong>
-            <span>Compre tranquilo</span>
+        <div class="trust-item">
+            <img src="{% static 'img/icons/circle-check.svg' %}" alt="Segurança">
+            <div class="trust-text">
+                <strong>SITE SEGURO</strong>
+                <span>Compre tranquilo</span>
+            </div>
         </div>
     </div>
 </section>
 
 <section class="products-section" id="brands-section">
-    <div class="section-header">
-        <h2 class="section-title">Parcerias </h2>
-        <div class="carousel-controls">
-            <button id="brandsPrev" class="btn-carousel-page">&#10094;</button>
-            <button id="brandsNext" class="btn-carousel-page">&#10095;</button>
-        </div>
-    </div>
-
-    <div class="products-carousel-wrapper" id="brandsCarouselWrapper">
+    <div class="products-carousel-wrapper carousel-nav-wrapper" id="brandsCarouselWrapper">
+        <button id="brandsPrev" class="btn-carousel-page btn-carousel-positioned" aria-label="Anterior">&#10094;</button>
+        
         <div class="carousel-inner" id="brandsInner">
             {% for marca in marcas %}
                 <a href="#" class="brand-item">
@@ -123,7 +131,27 @@
                 </a>
             {% endfor %}
         </div>
+
+        <button id="brandsNext" class="btn-carousel-page btn-carousel-positioned" aria-label="Próximo">&#10095;</button>
     </div>
+</section>
+
+<section class="double-banner">
+    <a href="#" class="banner-box">
+        <img src="{% static 'img/Designsemnome.png' %}" alt="Banner 1" width="960" height="725">
+        <div class="banner-overlay">
+            <h3>Footwears</h3>
+            <p>Confira agora!</p>
+        </div>
+    </a>
+    
+    <a href="#" class="banner-box">
+        <img src="{% static 'img/Designsemnome2.png' %}" alt="Banner 2" width="960" height="725">
+        <div class="banner-overlay">
+            <h3>Camisetas</h3>
+            <p>Confira agora!</p>
+        </div>
+    </a>
 </section>
 
 <section class="products-section" id="categories-section">
