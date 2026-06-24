@@ -1,0 +1,171 @@
+.products-list-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px 20px;
+    width: 100%;
+}
+
+/* Container principal dos filtros - Agora usando Flexbox para separar */
+.menu-filtros { 
+    display: flex; 
+    align-items: center;
+    width: 100%;
+    font-family: sans-serif;
+    height: 50px;
+    margin-bottom: 20px;
+}
+
+.filtros-esquerda {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filtros-direita {
+    margin-left: auto;
+}
+
+/* Classe específica para menus que precisam abrir para a esquerda */
+
+
+/* Estrutura do Dropdown */
+.dropdown { 
+    position: relative; 
+    display: inline-block; 
+}
+
+.dropbtn { 
+    background: none; 
+    border: none; 
+    cursor: pointer; 
+    font-weight: bold; 
+    font-size: 14px; 
+    padding: 5px; 
+}
+
+/* Conteúdo dos Dropdowns */
+.dropdown-content {
+    display: none; 
+    position: absolute;
+    background-color: white;
+    min-width: 200px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    padding: 10px;
+    z-index: 10;
+    border: 1px solid #ddd;
+    grid-template-columns: repeat(2, 1fr); /* Padrão 2 colunas */
+    gap: 5px;
+}
+
+/* Ativação do menu */
+.dropdown:hover .dropdown-content,
+.dropdown:focus-within .dropdown-content { 
+    display: grid; 
+}
+
+/* Exceção para o menu de ordenação e preço (sempre 1 coluna) */
+.menu-preco {
+    grid-template-columns: 1fr !important;
+    right: 0;
+    left: auto;
+}
+
+/* Estilo dos itens */
+.btn-filtro {
+    text-decoration: none;
+    color: black;
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+    font-size: 12px;
+    background: #fff;
+}
+
+.btn-filtro:hover { 
+    background-color: #f0f0f0; 
+}
+
+.btn-limpar {
+    text-decoration: none;
+    color: #666;
+    font-weight: bold;
+    font-size: 14px;
+    margin-left: 10px;
+}
+
+.filtros-ativos {
+    display: flex;
+    gap: 10px;
+}
+
+.tag-filtro {
+    background: #000;
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 15px;
+    text-decoration: none;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tag-filtro span {
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.limpar-tudo {
+    color: #666;
+    text-decoration: underline;
+    font-size: 14px;
+    align-self: center;
+}
+/* Responsividade */
+@media (max-width: 1300px) {
+    .products-grid {
+        grid-template-columns: repeat(4, 1fr); 
+        gap: 15px 10px;
+    }
+    .products-grid .product-info h3 {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 768px) {
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 15px 10px;
+    }
+    .products-grid .product-info h3 {
+        font-size: 14px;
+    }
+}
+@media (max-width: 905px) {
+    .tag-filtro {
+        padding: 4px 15px;
+    }
+}
+
+.category-banner {
+    width: 100%;
+    padding: 40px 20px;
+    background-color: #ffffff;
+    text-align: center;
+    border: 1px solid #f0f0f0;
+
+}
+
+.category-banner h1 {
+    font-size: 20px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 0;
+    color: #333;
+}

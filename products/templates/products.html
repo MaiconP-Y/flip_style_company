@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load query_transform %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/products.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="category-banner">
+    <h1>
+        {% if request.GET.marca %}
+            {{ request.GET.marca|title }}
+        {% else %}
+            {{ subcategory_slug|default:category_slug|default:"Coleção Completa"|title }}
+        {% endif %}
+    </h1>
+</div>
+
+<main class="products-list-container">
+    {% if request.GET.cor or request.GET.tamanho or request.GET.marca %}
+        <div class="filtros-ativos">            
+            {% if request.GET.cor %}
+                {# Remove a cor da URL, mas preserva tamanho, marca, etc #}
+                <a href="?{% query_transform cor=None %}" class="tag-filtro">
+                    {{ request.GET.cor|title }} <span>&times;</span>
+                </a>
+            {% endif %}
+            
+            {% if request.GET.tamanho %}
+                {# Remove o tamanho da URL, mas preserva cor, marca, etc #}
+                <a href="?{% query_transform tamanho=None %}" class="tag-filtro">
+                    {{ request.GET.tamanho }} <span>&times;</span>
+                </a>
+            {% endif %}
+
+            {% if request.GET.marca %}
+                {# Caso queira dar a opção de remover a marca ativa também #}
+                <a href="?{% query_transform marca=None %}" class="tag-filtro">
+                    {{ request.GET.marca|title }} <span>&times;</span>
+                </a>
+            {% endif %}
+
+            <a href="{% url 'products' %}" class="limpar-tudo">
+                Limpar tudo
+            </a>
+        </div>
+    {% endif %}
+    <div class="menu-filtros">
+        <div class="filtros-esquerda">
+            <div class="dropdown">
+                <button class="dropbtn">COR ▾</button>
+                <div class="dropdown-content"> 
+                    {% for c in cores %}
+                        {# Mantém marca, tamanho e ordena, alterando/inserindo apenas a cor #}
+                        <a href="?{% query_transform cor=c.slug %}" class="btn-filtro">{{ c.name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <button class="dropbtn">TAMANHO ▾</button>
+                <div class="dropdown-content">
+                    {% for s in tamanhos %}
+                        {# Mantém marca, cor e ordena, alterando/inserindo apenas o tamanho #}
+                        <a href="?{% query_transform tamanho=s.slug %}" class="btn-filtro">{{ s.name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="dropdown filtros-direita">
+            <button class="dropbtn">ORDENAR POR ▾</button>
+            <div class="dropdown-content menu-preco"> 
+                <a href="?{% query_transform preco='asc' %}" class="btn-filtro">Menor Preço</a>
+                <a href="?{% query_transform preco='desc' %}" class="btn-filtro">Maior Preço</a>
+            </div>
+        </div>
+    </div>
+    <div class="products-grid">
+        {% for produto in products %}
+        <a href="#" class="product-card">
+            {% if produto.images.all %}
+            <div class="product-img-wrapper">
+                {% for img in produto.images.all|slice:":2" %}
+                    <img src="{{ img.image.url }}" 
+                         width="800" 
+                         height="800" 
+                         alt="{{ produto.name }}" 
+                         class="product-img {% if forloop.first %}primary-img{% else %}secondary-img{% endif %}"
+                         {% if not forloop.parentloop.first %}loading="lazy"{% endif %}
+                         decoding="async">
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="product-info">
+                <h3>{{ produto.name }}</h3>
+                <p class="product-price">R$ {{ produto.price }}</p>
+                {% if produto.preco_parcelado %}
+                <p class="product-installments">
+                    12x de R$ {{ produto.preco_parcelado|floatformat:2 }} sem juros
+                </p>
+                {% endif %}
+            </div>
+        </a>
+        {% empty %}
+        <div class="empty-state">
+            <p>Nenhum produto encontrado nesta categoria.</p>
+        </div>
+        {% endfor %}
+    </div>
+</main>
+{% endblock %}
