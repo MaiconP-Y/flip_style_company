@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/webp" href="{% static 'img/favicon.webp' %}">
-    <title>{% block title %}FlipStyleCompany | Roupas, calçados e peças de skate. Só produtos originais{% endblock %}</title>
-    <meta name="description" content="{% block description %}Feita por um skatista para skatistas! Só produtos originais e autênticos com os melhores preços do mercado!{% endblock %}">
+    <title>{% block title %}FlipStyleCompany | Streetwear{% endblock %}</title>
+    <meta name="description" content="{% block description %}Sua essência, nosso estilo. Desde 1995, a FlipStyle une a tradição com o que há de mais atual no streetwear. Orgulhosamente de Itararé, nossa missão é impulsionar a cultura local, apoiando atletas e eventos que fazem o nosso skate acontecer. Vista sua verdade!{% endblock %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
@@ -20,27 +20,35 @@
                     <li><a href="#">Dashboard</a></li>
                 {% else %}
                     <li class="has-submenu">
-                        <a href="#">Marcas</a>
+                        <a href="{% url 'products' %}">Marcas</a>
                         <button class="toggle-submenu" aria-label="Abrir submenu" aria-expanded="false">+</button>
                         <div class="submenu">
                             <div class="submenu-inner">
                                 <ul>
-                                    <li><a href="#">Avonts</a></li>
-                                    <li><a href="#">Hocks</a></li>
-                                    <li><a href="#">Öus</a></li>
-                                    <li><a href="#">Thrasher</a></li>
+                                    <li><a href="{% url 'products' %}?marca=avonts">Avonts</a></li>
+                                    <li><a href="{% url 'products' %}?marca=hocks">Hocks</a></li>
+                                    <li><a href="{% url 'products' %}?marca=ous">Öus</a></li>
+                                    <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
+                                    <li><a href="{% url 'products' %}?marca=santa_cruz">Santa Cruz</a></li>
+                                    <li><a href="{% url 'products' %}?marca=tesla">Tesla</a></li>
+                                    <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
+                                    <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
+                                    <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
+                                    <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
+                                    <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
+                                    <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
                                 </ul>
                             </div>
                         </div>
                     </li>
 
                     <li class="has-submenu">
-                        <a href="#">Roupas</a>
+                        <a href="{% url 'category' category_slug='roupas' %}">Roupas</a>
                         <button class="toggle-submenu" aria-label="Abrir submenu" aria-expanded="false">+</button>
                         <div class="submenu">
                             <div class="submenu-inner">
                                 <ul>
-                                    <li><a href="#">Camisetas</a></li>
+                                    <li><a href="{% url 'subcategory' subcategory_slug='camisetas' %}">Camisetas</a></li>
                                     <li><a href="#">Calças</a></li>
                                     <li><a href="#">Blusas</a></li>
                                     <li><a href="#">Bermudas</a></li>
@@ -64,7 +72,7 @@
                     </li>
 
                     <li class="has-submenu">
-                        <a href="#">Footwears</a>
+                        <a href="{% url 'subcategory' subcategory_slug='footwears' %}">Footwears</a>
                     </li>
                     
                     <li class="has-submenu">
@@ -75,14 +83,14 @@
 
             <div class="logo_center">
                 <a href="{% url 'home' %}" class="logo">
-                    <img src="{% static 'img/favicon_average.webp' %}" alt="Logo FlipStyleCompany">
+                    <img src="{% static 'img/favicon_average.webp' %}" alt="Logo FlipStyleCompany" width="60" height="60">
                 </a>
             </div>
             
             <div class="nav-right-spacer">
-                <form action="#" method="GET" class="search-form" id="searchForm">
+                <form action="{% url 'products' %}" method="GET" class="search-form" id="searchForm" value="{{ request.GET.search }}">
                     <div class="search-container">
-                        <input type="text" name="search" id="searchInput" placeholder="Digite o que você procura" aria-label="Buscar produto" autocomplete="off">
+                        <input type="text" name="search" id="searchInput" placeholder="Procure pelo nome" aria-label="Buscar produto" autocomplete="off">
                         <button type="submit" class="search-btn" id="submitSearch" aria-label="Executar busca">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="11" cy="11" r="8"></circle>
@@ -112,8 +120,8 @@
             <div class="footer-column">
                 <h4>Sobre</h4>
                 <ul>
-                    <li><a href="#">Quem somos</a></li>
-                    <li><a href="#">Política de Privacidade</a></li>
+                    <li><a href="{% url 'quem_somos' %}">Quem somos</a></li>
+                    <li><a href="{% url 'privacidade' %}">Política de Privacidade</a></li>
                 </ul>
             </div>
 
@@ -130,7 +138,7 @@
                     <a href="https://instagram.com/flipstylecompany" target="_blank" aria-label="Instagram">
                         <img src="{% static 'img/icons/instagram-brands-solid-full.svg' %}" alt="Instagram">
                     </a>
-                    <a href="https://wa.me/5515996100598" target="_blank" aria-label="WhatsApp">
+                    <a href="https://wa.me/5515996100598?text=Olá! Gostaria de mais informações sobre como comprar na loja." target="_blank" aria-label="WhatsApp">
                         <img src="{% static 'img/icons/whatsapp-brands-solid-full.svg' %}" alt="WhatsApp">
                     </a>
                 </div>

@@ -14,7 +14,7 @@
         <a href="#" class="banner-link carousel-item">
             <picture>
                 <source media="(max-width: 600px)" srcset="{% static 'img/banner-mobile-shapes.webp' %}">
-                <img src="{% static 'img/banner-desktop-shapes.webp' %}" width="1920" height="780" alt="Banner Shapes" class="banner-img">
+                <img src="{% static 'img/banner-desktop-shapes.webp' %}" width="1920" height="780" alt="Banner Shapes" class="banner-img" fetchpriority="high">
             </picture>
             <div class="banner-content">
                 <h1>SHAPES SKATEBOARDS!</h1>
@@ -22,7 +22,7 @@
             </div>
         </a>
         
-        <a href="#" class="banner-link carousel-item">
+        <a href="{% url 'subcategory' subcategory_slug='footwears' %}" class="banner-link carousel-item">
             <picture>
                 <source media="(max-width: 600px)" srcset="{% static 'img/banner-mobile-buts.webp' %}">
                 <img src="{% static 'img/banner-desktop-buts.webp' %}" width="1920" height="780" alt="Banner Buts" class="banner-img">
@@ -137,23 +137,22 @@
 </section>
 
 <section class="double-banner">
-    <a href="#" class="banner-box">
-        <img src="{% static 'img/Designsemnome.png' %}" alt="Banner 1" width="960" height="725">
-        <div class="banner-overlay">
-            <h3>Footwears</h3>
-            <p>Confira agora!</p>
-        </div>
-    </a>
-    
-    <a href="#" class="banner-box">
-        <img src="{% static 'img/Designsemnome2.png' %}" alt="Banner 2" width="960" height="725">
+    <a href="{% url 'subcategory' subcategory_slug='camisetas' %}" class="banner-box">
+        <img src="{% static 'img/Designsemnome2.webp' %}" alt="Banner 2" width="960" height="725">
         <div class="banner-overlay">
             <h3>Camisetas</h3>
             <p>Confira agora!</p>
         </div>
     </a>
+    
+    <a href="{% url 'subcategory' subcategory_slug='footwears' %}" class="banner-box">
+        <img src="{% static 'img/Designsemnome.webp' %}" alt="Banner 1" width="960" height="725">
+        <div class="banner-overlay">
+            <h3>Footwears</h3>
+            <p>Confira agora!</p>
+        </div>
+    </a>
 </section>
-
 <section class="products-section" id="categories-section">
     <div class="section-header">
         <h2 class="section-title">Categorias</h2>
@@ -165,7 +164,7 @@
 
     <div class="products-carousel" id="categoriesCarousel">
         {% for cat in categorias %}
-        <a href="#" class="product-card category-card">
+        <a href="{% url 'subcategory' subcategory_slug=cat.slug %}" class="product-card category-card">
             <div class="image-wrapper">
                 <img src="{% static cat.image %}" width="475" height="475" alt="{{ cat.name }}" class="product-img">
             </div>
@@ -175,7 +174,6 @@
         </a>
         {% endfor %}
     </div>
-
     <div class="carousel-pagination" id="catPagination"></div>
 </section>
 {% endblock %}
