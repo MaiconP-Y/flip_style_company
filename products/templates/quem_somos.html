@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/quem_somos.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="about-container">
+    <section class="about-hero">
+        <h1 class="hero-tagline">Flip Style Company</h1>
+        <p class="about-description">
+            Mais do que uma marca de roupas, a Flip Style Company nasceu em 1995 para representar a cultura urbana, o skate e a autenticidade. Unindo conforto, durabilidade e design minimalista em cada drop.
+        </p>
+        <h3>Avonts: Nossa Marca Autoral</h3>
+            <p>A Avonts é a nossa linha de drops exclusivos, desenvolvida com foco total em qualidade de costura, tecidos pesados e caimento premium.</p>
+    </section>
+
+    <section class="about-location">
+        <div class="location-info">
+            <h2>Visite Nosso Espaço</h2>
+            <p>Venha conhecer nossa loja, conferir as peças de perto e trocar uma ideia com a nossa equipe.</p>
+            <div class="address-box">
+                <strong>Endereço:</strong>
+                <p>R. Amazonas Ribas, 287 - Centro<br>Itararé - SP, 18460-051</p>
+            </div>
+            <div class="hours-box">
+                <strong>Horário de Funcionamento:</strong>
+                <p>Segunda a Sábado: 09:00 às 19:00</p>
+            </div>
+        </div>
+        
+        <div class="location-map">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3641.6316150694065!2d-49.3355782!3d-24.1144471!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94c3b56de3432d41%3A0x7178f6aacb4e9b46!2sFlip%20Style!5e0!3m2!1spt-BR!2sbr!4v1782262876838!5m2!1spt-BR!2sbr" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        </div>
+    </section>
+</main>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Política de Privacidade | Flip Style Company{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/privacidade.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="privacy-container">
+    <h1>Política de Privacidade</h1>
+
+    <p>A Flip Style Company opera este site como um catálogo vitrine de seus produtos. Valorizamos a transparência e queremos que você saiba como tratamos suas informações.</p>
+
+    <h2>1. Coleta de Dados</h2>
+    <p>Este site <strong>não coleta</strong>, armazena ou processa dados pessoais de usuários. Não utilizamos formulários de cadastro, sistemas de login ou processos de checkout que exijam a inserção de informações sensíveis dentro desta plataforma.</p>
+
+    <h2>2. Cookies e Rastreamento</h2>
+    <p>Não utilizamos cookies para rastreamento de comportamento ou análise de dados.</p>
+</main>
+{% endblock %}

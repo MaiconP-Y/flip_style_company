@@ -1,0 +1,77 @@
+/* ==========================================================================
+   QUEM SOMOS - FLIP STYLE & AVONTS
+   ========================================================================== */
+
+.about-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 80px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 80px;
+}
+
+/* --- HERO & MARCA --- */
+.about-hero {
+    text-align: left;
+    margin: 0 auto;
+}
+
+.hero-tagline {
+    font-size: 42px;
+    font-weight: 800;
+    margin-bottom: 24px;
+    color: var(--text-primary);
+}
+
+.about-description {
+    font-size: 20px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin-bottom: 40px;
+}
+
+.about-hero h3 {
+    font-size: 24px;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+
+/* --- LOCALIZAÇÃO --- */
+.about-location {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    background: #fff;
+    padding: 40px;
+    border-radius: 16px;
+    border: 1px solid #e5e5ea;
+}
+
+.location-info {
+    flex: 1;
+}
+
+.location-info h2 {
+    margin-bottom: 20px;
+}
+
+.address-box, .hours-box {
+    margin-top: 20px;
+}
+
+.location-map {
+    flex: 1;
+}
+
+.location-map iframe {
+    width: 100%;
+    border-radius: 8px;
+}
+
+/* --- RESPONSIVIDADE --- */
+@media (max-width: 768px) {
+    .about-pillars { grid-template-columns: 1fr; }
+    .about-location { flex-direction: column; }
+    .hero-tagline { font-size: 32px; }
+}

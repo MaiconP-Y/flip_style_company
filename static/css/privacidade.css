@@ -1,0 +1,34 @@
+/* ==========================================================================
+   ESTILO PRIVACIDADE - ESTÉTICA RAW/STREET
+   ========================================================================== */
+
+.privacy-container {
+    max-width: 850px;
+    margin: 60px auto;
+    padding: 0 20px;
+    color: #000000;
+}
+
+.privacy-container h1 {
+    font-size: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.privacy-container h2 {
+    font-size: 15px;
+    text-transform: uppercase;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+.privacy-container p {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 5px;
+    font-weight: 300;
+}
+
+.privacy-container strong {
+    font-weight: 700;
+}
