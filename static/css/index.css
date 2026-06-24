@@ -2,7 +2,7 @@
    RESET & CONFIGURAÇÕES BASE
    ========================================= */
 img, picture {
-    display: block;
+    display: inline;
     max-width: 100%;
     height: auto;
 }
@@ -141,7 +141,6 @@ img, picture {
 }
 
 .section-title {
-    font-family: 'Roboto Flex', sans-serif;
     font-weight: 700;
     font-size: 24px;
     text-transform: uppercase;

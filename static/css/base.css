@@ -28,10 +28,12 @@ header {
     position: sticky;
     top: 0;
     width: 100%;
+    height: 75px;
     z-index: 1000;
     background-color: var(--bg-nav);
     transition: transform 0.2s ease;
     will-change: transform;
+    align-items: center;
 }
 
 /* O segredo para o menu não subir nem bugar o fixed */
@@ -110,6 +112,7 @@ header:has(.nav-links.active) {
     margin-left: 20px;
 }
 
+
 .submenu::before {
     content: '';
     position: absolute;
@@ -139,7 +142,7 @@ header:has(.nav-links.active) {
 }
 
 .has-submenu:hover > a {
-    border-bottom: 1px solid var(--text-primary);
+    border-bottom: 2px solid #000000;
     padding-bottom: 27px;
 }
 
@@ -316,7 +319,17 @@ footer {
 .product-info h3 { font-size: 16px; margin: 0; color: #333333; }
 .product-price { font-size: 16px; font-weight: bold; color: #000000; margin: 0; }
 .product-installments { font-size: 13px; color: #86868b; }
-
+/* Ativa o grid de 4 linhas apenas em telas de PC (acima de 768px) */
+@media (min-width: 906px) {
+    .submenu-inner ul {
+        display: grid;
+        grid-auto-flow: column; /* Empilha de cima para baixo */
+        grid-template-rows: repeat(4, auto); /* Limite de 4 itens por coluna */
+    }
+    .submenu-inner li {
+        width: 200px;
+    }
+}
 @media (max-width: 1000px) {
     .footer-container {
         grid-template-columns: repeat(2, auto); /* Cria 3 colunas automáticas */
@@ -324,6 +337,9 @@ footer {
     }
 }
 @media (max-width: 905px) {
+    header {
+        height: 140px;
+    }
     .footer-container {
         grid-template-columns: repeat(1, auto); /* Cria 3 colunas automáticas */
         justify-content: left;
