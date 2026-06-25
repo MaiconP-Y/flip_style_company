@@ -11,79 +11,78 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-
     <header>
-        <nav class="nav-content" aria-label="Navegação Principal">
-            
+        <nav class="nav-content" aria-label="Navegação Principal">   
             <ul class="nav-links">
-                {% if user.is_authenticated %}
-                    <li><a href="#">Dashboard</a></li>
-                {% else %}
-                    <li class="has-submenu">
-                        <a href="{% url 'products' %}">Marcas</a>
-                        <button class="toggle-submenu" aria-label="Abrir submenu" aria-expanded="false">+</button>
-                        <div class="submenu">
-                            <div class="submenu-inner">
-                                <ul>
-                                    <li><a href="{% url 'products' %}?marca=avonts">Avonts</a></li>
-                                    <li><a href="{% url 'products' %}?marca=hocks">Hocks</a></li>
-                                    <li><a href="{% url 'products' %}?marca=ous">Öus</a></li>
-                                    <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
-                                    <li><a href="{% url 'products' %}?marca=santa_cruz">Santa Cruz</a></li>
-                                    <li><a href="{% url 'products' %}?marca=tesla">Tesla</a></li>
-                                    <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
-                                    <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
-                                    <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
-                                    <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
-                                    <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
-                                    <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
-                                </ul>
-                            </div>
+                <li class="has-submenu">
+                    <a href="{% url 'products' %}">Marcas</a>
+                    <button class="toggle-submenu" aria-label="Abrir submenu" aria-expanded="false">+</button>
+                    <div class="submenu">
+                        <div class="submenu-inner">
+                            <ul>
+                                <li><a href="{% url 'products' %}?marca=avonts">Avonts</a></li>
+                                <li><a href="{% url 'products' %}?marca=hocks">Hocks</a></li>
+                                <li><a href="{% url 'products' %}?marca=ous">Öus</a></li>
+                                <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
+                                <li><a href="{% url 'products' %}?marca=santa_cruz">Santa Cruz</a></li>
+                                <li><a href="{% url 'products' %}?marca=tesla">Tesla</a></li>
+                                <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
+                                <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
+                                <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
+                                <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
+                                <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
+                                <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
+                            </ul>
                         </div>
-                    </li>
+                    </div>
+                </li>
 
-                    <li class="has-submenu">
-                        <a href="{% url 'category' category_slug='roupas' %}">Roupas</a>
-                        <button class="toggle-submenu" aria-label="Abrir submenu" aria-expanded="false">+</button>
-                        <div class="submenu">
-                            <div class="submenu-inner">
-                                <ul>
-                                    <li><a href="{% url 'subcategory' subcategory_slug='camisetas' %}">Camisetas</a></li>
-                                    <li><a href="#">Calças</a></li>
-                                    <li><a href="#">Blusas</a></li>
-                                    <li><a href="#">Bermudas</a></li>
-                                </ul>
-                            </div>
+                <li class="has-submenu">
+                    <a href="{% url 'category' category_slug='roupas' %}">Roupas</a>
+                    <button class="toggle-submenu" aria-label="Abrir submenu" aria-expanded="false">+</button>
+                    <div class="submenu">
+                        <div class="submenu-inner">
+                            <ul>
+                                <li><a href="{% url 'subcategory' subcategory_slug='camisetas' %}">Camisetas</a></li>
+                                <li><a href="{% url 'subcategory' subcategory_slug='calcas' %}">Calças</a></li>
+                                <li><a href="{% url 'subcategory' subcategory_slug='blusas' %}">Blusas</a></li>
+                                <li><a href="{% url 'subcategory' subcategory_slug='bermudas' %}">Bermudas</a></li>
+                            </ul>
                         </div>
-                    </li>
-                    
-                    <li class="has-submenu">
-                        <a href="#">Acessórios</a>
-                        <button class="toggle-submenu" aria-label="Abrir submenu" aria-expanded="false">+</button>
-                        <div class="submenu">
-                            <div class="submenu-inner">
-                                <ul>
-                                    <li><a href="#">Toucas</a></li>
-                                    <li><a href="#">Bonés</a></li>
-                                    <li><a href="#">Meias</a></li>
-                                </ul>
-                            </div>
+                    </div>
+                </li>
+                
+                <li class="has-submenu">
+                    <a href="{% url 'category' category_slug='acessorios' %}">Acessórios</a>
+                    <button class="toggle-submenu" aria-label="Abrir submenu" aria-expanded="false">+</button>
+                    <div class="submenu">
+                        <div class="submenu-inner">
+                            <ul>
+                                <li><a href="{% url 'subcategory' subcategory_slug='toucas' %}">Toucas</a></li>
+                                <li><a href="{% url 'subcategory' subcategory_slug='bones' %}">Bonés</a></li>
+                                <li><a href="{% url 'subcategory' subcategory_slug='meias' %}">Meias</a></li>
+                            </ul>
                         </div>
-                    </li>
+                    </div>
+                </li>
 
-                    <li class="has-submenu">
-                        <a href="{% url 'subcategory' subcategory_slug='footwears' %}">Footwears</a>
-                    </li>
-                    
-                    <li class="has-submenu">
-                        <a href="#">Área SKT</a> 
-                    </li>
-                {% endif %}
+                <li class="has-submenu">
+                    <a href="{% url 'subcategory' subcategory_slug='footwears' %}">Footwears</a>
+                </li>
+                
+                <li class="has-submenu">
+                    <a href="{% url 'category' category_slug='area-skt' %}">Área SKT</a> 
+                </li>
             </ul>
 
             <div class="logo_center">
-                <a href="{% url 'home' %}" class="logo">
-                    <img src="{% static 'img/favicon_average.webp' %}" alt="Logo FlipStyleCompany" width="60" height="60">
+                <a href="{% url 'home' %}" class="logo" aria-label="Página Inicial">
+                    <img src="{% static 'img/favicon_average.webp' %}" 
+                        srcset="{% static 'img/favicon_average.webp' %} 1x"
+                        alt="Logo FlipStyleCompany" 
+                        width="60" 
+                        height="60"
+                        loading="eager">
                 </a>
             </div>
             
@@ -146,10 +145,10 @@
         </div>
         <div class="payment-methods">
             <img src="{% static 'img/icons/pix.svg' %}" alt="Pix" class="icon-smaller">
-            <img src="{% static 'img/icons/elo.svg' %}" alt="Elo">
-            <img src="{% static 'img/icons/hipercard.svg' %}" class="icon-big">
-            <img src="{% static 'img/icons/visa.svg' %}" class="icon-smaller">
-            <img src="{% static 'img/icons/master-icon.svg' %}" class="icon-smaller">
+            <img src="{% static 'img/icons/elo.svg' %}" alt="Elo" class="icon-smaller">
+            <img src="{% static 'img/icons/hipercard.svg' %}" alt="Hipercard" class="icon-big">
+            <img src="{% static 'img/icons/visa.svg' %}" alt="Visa" class="icon-smaller">
+            <img src="{% static 'img/icons/master-icon.svg' %}" alt="Mastercard" class="icon-smaller">
         </div>
 
         <div class="footer-bottom">
