@@ -128,6 +128,55 @@
     align-self: center;
 }
 /* Responsividade */
+.category-banner {
+    width: 100%;
+    padding: 40px 20px;
+    background-color: #ffffff;
+    text-align: center;
+    border: 1px solid #f0f0f0;
+
+}
+
+.category-banner h1 {
+    font-size: 20px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 0;
+    color: #333;
+}
+
+.pagination-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 40px 0px 0px 0px;
+}
+
+.nav-btn {
+    text-decoration: none;
+    color: #000;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+/* Esta é a mágica: ele fica invisível, mas ocupa o espaço */
+.nav-btn.hidden {
+    color: #9a9a9a;
+    pointer-events: none; /* Impede que o usuário clique nele mesmo invisível */
+}
+
+.nav-btn.disabled {
+    color: #ccc;
+    pointer-events: none;
+}
+
+.page-info {
+    font-size: 13px;
+    color: #666;
+    font-family: sans-serif;
+}
+
 @media (max-width: 1300px) {
     .products-grid {
         grid-template-columns: repeat(4, 1fr); 
@@ -151,21 +200,4 @@
     .tag-filtro {
         padding: 4px 15px;
     }
-}
-
-.category-banner {
-    width: 100%;
-    padding: 40px 20px;
-    background-color: #ffffff;
-    text-align: center;
-    border: 1px solid #f0f0f0;
-
-}
-
-.category-banner h1 {
-    font-size: 20px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin: 0;
-    color: #333;
 }

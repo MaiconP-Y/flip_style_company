@@ -79,7 +79,7 @@
     </div>
     <div class="products-grid">
         {% for produto in products %}
-        <a href="#" class="product-card">
+        <a href="{% url 'product_detail' produto.slug %}" class="product-card">
             {% if produto.images.all %}
             <div class="product-img-wrapper">
                 {% for img in produto.images.all|slice:":2" %}
@@ -95,7 +95,7 @@
             {% endif %}
             
             <div class="product-info">
-                <h3>{{ produto.name }}</h3>
+                <h3>{{ produto.brand.name }} - {{ produto.name }}</h3>
                 <p class="product-price">R$ {{ produto.price }}</p>
                 {% if produto.preco_parcelado %}
                 <p class="product-installments">
@@ -110,5 +110,20 @@
         </div>
         {% endfor %}
     </div>
+    <nav class="pagination-nav">
+        <a href="{% if page_obj.has_previous %}?{% query_transform page=page_obj.previous_page_number %}{% endif %}" 
+        class="nav-btn {% if not page_obj.has_previous %}hidden{% endif %}">
+        Anterior
+        </a>
+
+        <span class="page-info">
+            {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+        </span>
+
+        <a href="{% if page_obj.has_next %}?{% query_transform page=page_obj.next_page_number %}{% endif %}" 
+        class="nav-btn {% if not page_obj.has_next %}hidden{% endif %}">
+        Próximo
+        </a>
+    </nav>
 </main>
 {% endblock %}
