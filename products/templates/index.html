@@ -11,7 +11,7 @@
     <button class="btn-carousel-base next" id="bannerNext" aria-label="Próximo">&#10095;</button>
 
     <div class="carousel-inner" id="bannerInner">
-        <a href="#" class="banner-link carousel-item">
+        <a href="{% url 'category' category_slug='area-skt' %}" class="banner-link carousel-item">
             <picture>
                 <source media="(max-width: 600px)" srcset="{% static 'img/banner-mobile-shapes.webp' %}">
                 <img src="{% static 'img/banner-desktop-shapes.webp' %}" width="1920" height="780" alt="Banner Shapes" class="banner-img" fetchpriority="high">
@@ -33,7 +33,7 @@
             </div>
         </a>
 
-        <a href="#" class="banner-link carousel-item">
+        <a href="{% url 'products' %}?marca=thrasher" class="banner-link carousel-item" aria-label="Ver produtos da marca Thrasher">
             <picture>
                 <source media="(max-width: 600px)" srcset="{% static 'img/banner-mobile-shapes-thrasher.webp' %}">
                 <img src="{% static 'img/banner-desktop-shapes-thrasher.webp' %}" width="1920" height="780" alt="Banner Thrasher" class="banner-img">
@@ -58,23 +58,23 @@
     <div class="products-carousel-wrapper">
         <div class="products-carousel" id="productsCarousel">
             {% for produto in produtos %}
-            <a href="#" class="product-card">
+            <a href="{% url 'product_detail' produto.slug %}" class="product-card" aria-label="Ver detalhes de {{ produto.name }}">
                 {% if produto.images.all %}
                 <div class="product-img-wrapper">
                     {% for img in produto.images.all|slice:":2" %}
                         <img src="{{ img.image.url }}" 
-                            width="2000" 
-                            height="2000" 
+                            width="800" 
+                            height="800" 
                             alt="{{ produto.name }}" 
                             class="product-img {% if forloop.first %}primary-img{% else %}secondary-img{% endif %}"
-                            {% if not forloop.parentloop.first %}loading="lazy"{% endif %}
+                            loading="lazy"
                             decoding="async">
                     {% endfor %}
                 </div>
                 {% endif %}
                 
                 <div class="product-info">
-                    <h3>{{ produto.name }}</h3>
+                    <h3>{{ produto.brand.name }} - {{ produto.name }}</h3>
                     <p class="product-price">R$ {{ produto.price }}</p>
                     <p class="product-installments">
                         ou 12x de R$ {{ produto.preco_parcelado|floatformat:2 }} sem juros
@@ -90,28 +90,28 @@
 <section class="trust-bar-wrapper">
     <div class="trust-bar">
         <div class="trust-item">
-            <img src="{% static 'img/icons/credit-card-regular-full.svg' %}" alt="Parcelamento">
+            <img src="{% static 'img/icons/credit-card-regular-full.svg' %}" alt="Parcelamento sem juros">
             <div class="trust-text">
                 <strong>PARCELAMENTO</strong>
                 <span>Em até 12x sem juros</span>
             </div>
         </div>
         <div class="trust-item">
-            <img src="{% static 'img/icons/truck.svg' %}" alt="Frete">
+            <img src="{% static 'img/icons/truck.svg' %}" alt="Frete Grátis">
             <div class="trust-text">
                 <strong>FRETE GRÁTIS</strong>
                 <span>Acima de R$399,90</span>
             </div>
         </div>
         <div class="trust-item">
-            <img src="{% static 'img/icons/whatsapp-brands-solid-full.svg' %}" alt="WhatsApp">
+            <img src="{% static 'img/icons/whatsapp-brands-solid-full.svg' %}" alt="Atendimento via WhatsApp">
             <div class="trust-text">
                 <strong>ATENDIMENTO</strong>
                 <span>Via WhatsApp</span>
             </div>
         </div>
         <div class="trust-item">
-            <img src="{% static 'img/icons/circle-check.svg' %}" alt="Segurança">
+            <img src="{% static 'img/icons/circle-check.svg' %}" alt="Site Seguro">
             <div class="trust-text">
                 <strong>SITE SEGURO</strong>
                 <span>Compre tranquilo</span>
@@ -125,11 +125,13 @@
         <button id="brandsPrev" class="btn-carousel-page btn-carousel-positioned" aria-label="Anterior">&#10094;</button>
         
         <div class="carousel-inner" id="brandsInner">
-            {% for marca in marcas %}
-                <a href="#" class="brand-item">
-                    <img src="{% static marca.image %}" alt="{{ marca.name }}" class="brand-img" width="100" height="100">
-                </a>
-            {% endfor %}
+            <a href="{% url 'products' %}?marca=avonts" class="brand-item" aria-label="Ver produtos Avonts"><img src="{% static 'img/brands/AVONTS.webp' %}" alt="Avonts" class="brand-img" width="100" height="100" loading="lazy"></a>
+            <a href="{% url 'products' %}?marca=hocks" class="brand-item" aria-label="Ver produtos Hocks"><img src="{% static 'img/brands/HOCKS.webp' %}" alt="Hocks" class="brand-img" width="100" height="100" loading="lazy"></a>
+            <a href="{% url 'products' %}?marca=new" class="brand-item" aria-label="Ver produtos New"><img src="{% static 'img/brands/NEW.webp' %}" alt="New" class="brand-img" width="100" height="100" loading="lazy"></a>
+            <a href="{% url 'products' %}?marca=ous" class="brand-item" aria-label="Ver produtos Öus"><img src="{% static 'img/brands/OUS.webp' %}" alt="Öus" class="brand-img" width="100" height="100" loading="lazy"></a>
+            <a href="{% url 'products' %}?marca=santa-cruz" class="brand-item" aria-label="Ver produtos Santa Cruz"><img src="{% static 'img/brands/SANTA_CRUZ.webp' %}" alt="Santa Cruz" class="brand-img" width="100" height="100" loading="lazy"></a>
+            <a href="{% url 'products' %}?marca=tesla" class="brand-item" aria-label="Ver produtos Tesla"><img src="{% static 'img/brands/TESLA.webp' %}" alt="Tesla" class="brand-img" width="100" height="100" loading="lazy"></a>
+            <a href="{% url 'products' %}?marca=thrasher" class="brand-item" aria-label="Ver produtos Thrasher"><img src="{% static 'img/brands/THRASHER.webp' %}" alt="Thrasher" class="brand-img" width="100" height="100" loading="lazy"></a>
         </div>
 
         <button id="brandsNext" class="btn-carousel-page btn-carousel-positioned" aria-label="Próximo">&#10095;</button>
@@ -138,7 +140,15 @@
 
 <section class="double-banner">
     <a href="{% url 'subcategory' subcategory_slug='camisetas' %}" class="banner-box">
-        <img src="{% static 'img/Designsemnome2.webp' %}" alt="Banner 2" width="960" height="725">
+        <picture>
+            <source media="(max-width: 905px)" srcset="{% static 'img/double-banner-camiseta-mobile.webp' %}">
+            
+            <img src="{% static 'img/double-banner-camiseta-desktop.webp' %}" 
+                alt="Banner de Camisetas" 
+                width="960" height="725" 
+                loading="lazy" decoding="async">
+        </picture>
+
         <div class="banner-overlay">
             <h3>Camisetas</h3>
             <p>Confira agora!</p>
@@ -146,33 +156,55 @@
     </a>
     
     <a href="{% url 'subcategory' subcategory_slug='footwears' %}" class="banner-box">
-        <img src="{% static 'img/Designsemnome.webp' %}" alt="Banner 1" width="960" height="725">
+        <picture>
+            <source media="(max-width: 905px)" srcset="{% static 'img/double-banner-foot-mobile.webp' %}">
+            
+            <img src="{% static 'img/double-banner-foot-desktop.webp' %}" 
+                alt="Banner de Camisetas" 
+                width="960" height="725" 
+                loading="lazy" decoding="async">
+        </picture>
         <div class="banner-overlay">
             <h3>Footwears</h3>
             <p>Confira agora!</p>
         </div>
     </a>
 </section>
+
 <section class="products-section" id="categories-section">
     <div class="section-header">
         <h2 class="section-title">Categorias</h2>
         <div class="carousel-controls">
-            <button id="catPrev" class="btn-carousel-page">&#10094;</button>
-            <button id="catNext" class="btn-carousel-page">&#10095;</button>
+            <button id="catPrev" class="btn-carousel-page" aria-label="Anterior">&#10094;</button>
+            <button id="catNext" class="btn-carousel-page" aria-label="Próximo">&#10095;</button>
         </div>
     </div>
 
     <div class="products-carousel" id="categoriesCarousel">
-        {% for cat in categorias %}
-        <a href="{% url 'subcategory' subcategory_slug=cat.slug %}" class="product-card category-card">
-            <div class="image-wrapper">
-                <img src="{% static cat.image %}" width="475" height="475" alt="{{ cat.name }}" class="product-img">
-            </div>
-            <div class="product-info" style="text-align: center;">
-                <h3>{{ cat.name }}</h3>
-            </div>
+        <a href="{% url 'subcategory' subcategory_slug='calcas' %}" class="product-card category-card">
+            <div class="image-wrapper"><img src="{% static 'img/categories/calcas.webp' %}" width="475" height="475" alt="Ir para calças" class="product-img" loading="lazy" decoding="async"></div>
+            <div class="product-info" style="text-align: center;"><h3>Calças</h3></div>
         </a>
-        {% endfor %}
+        <a href="{% url 'subcategory' subcategory_slug='bones' %}" class="product-card category-card">
+            <div class="image-wrapper"><img src="{% static 'img/categories/bones.webp' %}" width="475" height="475" alt="Ir para bonés" class="product-img" loading="lazy" decoding="async"></div>
+            <div class="product-info" style="text-align: center;"><h3>Bonés</h3></div>
+        </a>
+        <a href="{% url 'subcategory' subcategory_slug='toucas' %}" class="product-card category-card">
+            <div class="image-wrapper"><img src="{% static 'img/categories/toucas.webp' %}" width="475" height="475" alt="Ir para toucas" class="product-img" loading="lazy" decoding="async"></div>
+            <div class="product-info" style="text-align: center;"><h3>Toucas</h3></div>
+        </a>
+        <a href="{% url 'subcategory' subcategory_slug='bermudas' %}" class="product-card category-card">
+            <div class="image-wrapper"><img src="{% static 'img/categories/bermudas.webp' %}" width="475" height="475" alt="Ir para bermudas" class="product-img" loading="lazy" decoding="async"></div>
+            <div class="product-info" style="text-align: center;"><h3>Bermudas</h3></div>
+        </a>
+        <a href="{% url 'subcategory' subcategory_slug='meias' %}" class="product-card category-card">
+            <div class="image-wrapper"><img src="{% static 'img/categories/meias.webp' %}" width="475" height="475" alt="Ir para meias" class="product-img" loading="lazy" decoding="async"></div>
+            <div class="product-info" style="text-align: center;"><h3>Meias</h3></div>
+        </a>
+        <a href="{% url 'subcategory' subcategory_slug='blusas' %}" class="product-card category-card">
+            <div class="image-wrapper"><img src="{% static 'img/categories/moletons.webp' %}" width="475" height="475" alt="Ir para blusas" class="product-img" loading="lazy" decoding="async"></div>
+            <div class="product-info" style="text-align: center;"><h3>Blusas</h3></div>
+        </a>
     </div>
     <div class="carousel-pagination" id="catPagination"></div>
 </section>
