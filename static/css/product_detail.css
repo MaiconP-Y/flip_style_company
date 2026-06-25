@@ -1,0 +1,19 @@
+/* Container da página */
+.product-detail-page {
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* A classe que você vai usar para a imagem */
+.detail-main-img {
+    width: 900px;       /* Ocupa o espaço que você definir no container */
+    height: auto;      /* Mantém a proporção original */
+    display: block;
+    
+    /* Configuração para máxima nitidez */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    
+    /* Opcional: arredondamento leve estilo Apple */
+    border-radius: 8px;
+}

@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from .models import Product
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from .models import Product, Color, Size, Brand
 
 def home(request):
@@ -10,37 +10,16 @@ def home(request):
         variants__stock__gt=0
     ).distinct().prefetch_related('images')[:10]
 
-    # Em views.py, dentro da função home()
-    categorias = [
-        {'name': 'Calças', 'image': 'img/categories/calcas.webp', 'slug': 'calcas'},
-        {'name': 'Bonés', 'image': 'img/categories/bones.webp', 'slug': 'bones'},
-        {'name': 'Toucas', 'image': 'img/categories/toucas.webp', 'slug': 'toucas'},
-        {'name': 'Bermudas', 'image': 'img/categories/bermudas.webp', 'slug': 'bermudas'},
-        {'name': 'Meias', 'image': 'img/categories/meias.webp', 'slug': 'meias'},
-        {'name': 'Blusas', 'image': 'img/categories/moletons.webp', 'slug': 'blusas'},
-    ]
-
-    marcas = [
-        {'name': 'Avonts', 'image': 'img/brands/AVONTS.webp'},
-        {'name': 'Hocks', 'image': 'img/brands/HOCKS.webp'},
-        {'name': 'New', 'image': 'img/brands/NEW.webp'},
-        {'name': 'Öus', 'image': 'img/brands/OUS.webp'},
-        {'name': 'Santa Cruz', 'image': 'img/brands/SANTA_CRUZ.webp'},
-        {'name': 'Tesla', 'image': 'img/brands/TESLA.webp'},
-        {'name': 'Thrasher', 'image': 'img/brands/THRASHER.webp'},
-    ]
-    
     # Renderiza enviando os três conjuntos de dados
     return render(request, 'index.html', {
         'produtos': produtos_destaque,
-        'categorias': categorias,
-        'marcas': marcas # Enviando para o template
     })
 
 class ProductsListView(ListView):
     model = Product
     context_object_name = 'products'
     template_name = 'products.html'
+    paginate_by = 20
     
     def get_queryset(self):
         queryset = Product.objects.all().select_related('brand').prefetch_related('images', 'variants__size')
@@ -118,3 +97,8 @@ def QuemSomosView(request):
 
 def politica_privacidade(request):
     return render(request, 'politica-de-privacidade.html')
+
+class ProductDetailView(DetailView):
+    model = Product
+    context_object_name = 'product'
+    template_name = 'product_detail.html'

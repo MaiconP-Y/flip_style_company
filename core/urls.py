@@ -2,7 +2,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
-from products.views import home, ProductsListView, QuemSomosView, politica_privacidade
+from products.views import home, ProductsListView, QuemSomosView, politica_privacidade, ProductDetailView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -11,9 +11,8 @@ urlpatterns = [
     path('politica-de-privacidade/', politica_privacidade, name='privacidade'),
     path('produtos/', ProductsListView.as_view(), name='products'),
     path('produtos/categoria/<slug:category_slug>/', ProductsListView.as_view(), name='category'),
-    
-    # Quando clicar na Subcategoria (Ex: /produtos/sub/camisetas/)
     path('produtos/sub/<slug:subcategory_slug>/', ProductsListView.as_view(), name='subcategory'),
+    path('produto/<slug:slug>/', ProductDetailView.as_view(), name='product_detail'),
 ]
 
 # Apenas adicione as rotas de mídia se estivermos em desenvolvimento

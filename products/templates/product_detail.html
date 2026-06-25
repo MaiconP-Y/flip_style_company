@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/product_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="product-detail-page">
+    <div class="product-info">
+        <h1>{{ produto.brand.name }} - {{ produto.name }}</h1>
+        <p class="price">R$ {{ product.price }}</p>
+    </div>
+
+    <div class="product-gallery">
+        {% for img in product.images.all %}
+            <img src="{{ img.image.url }}" alt="{{ product.name }}" class="detail-main-img">
+        {% endfor %}
+    </div>
+    <div class="product-description">
+        <h3>Descrição</h3>
+        <p>{{ product.description|linebreaks }}</p>
+    </div>
+    <a href="{% url 'products' %}">Voltar para a lista</a>
+</div>
+{% endblock %}
