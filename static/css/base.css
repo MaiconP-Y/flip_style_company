@@ -226,7 +226,6 @@ footer {
     background-color: #0b0e11;
     color: #a1a1a6;
     padding: 60px 30px;
-    margin-top: 50px;
 }
 
 .footer-container {
@@ -318,7 +317,7 @@ footer {
 .product-info { padding: 15px; display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
 .product-info h3 { font-size: 16px; margin: 0; color: #333333; }
 .product-price { font-size: 16px; font-weight: bold; color: #000000; margin: 0; }
-.product-installments { font-size: 13px; color: #86868b; }
+.product-installments { font-size: 13px; color: #4c4c4c; }
 /* Ativa o grid de 4 linhas apenas em telas de PC (acima de 768px) */
 @media (min-width: 906px) {
     .submenu-inner ul {

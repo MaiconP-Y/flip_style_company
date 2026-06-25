@@ -188,10 +188,9 @@ img, picture {
 }
 
 .carousel-dot {
-    width: 10px;
-    height: 10px;
-    padding: 0;
-    border-radius: 50%;
+    width: 30px;
+    height: 7px;
+    border-radius: 20%;
     border: 1px solid #000000;
     background-color: transparent;
     cursor: pointer;
