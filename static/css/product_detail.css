@@ -1,19 +1,277 @@
-/* Container da página */
-.product-detail-page {
-    margin: 0 auto;
-    padding: 20px;
+/* =========================================
+   CONTAINER PRINCIPAL (GRID)
+   ========================================= */
+.product-detail-container {
+    max-width: 1300px;
+    margin: 40px auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
 }
 
-/* A classe que você vai usar para a imagem */
-.detail-main-img {
-    width: 900px;       /* Ocupa o espaço que você definir no container */
-    height: auto;      /* Mantém a proporção original */
-    display: block;
-    
-    /* Configuração para máxima nitidez */
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-    
-    /* Opcional: arredondamento leve estilo Apple */
+@media (min-width: 906px) {
+    .product-detail-container {
+        /* Proporção 55% Galeria / 45% Info */
+        grid-template-columns: 1.2fr 1fr;
+        gap: 60px;
+        align-items: start; /* Vital para o position sticky funcionar */
+    }
+}
+
+/* =========================================
+   LADO ESQUERDO: GALERIA (CORRIGIDO PARA MOBILE)
+   ========================================= */
+.product-gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%; /* Garante que não passe do limite da tela */
+}
+
+@media (min-width: 906px) {
+    .product-gallery {
+        position: sticky;
+        top: 95px; 
+    }
+}
+
+.gallery-main {
+    width: 100%;
+    max-width: 100%;
+    aspect-ratio: 1 / 1;
+    background-color: #ffffff;
     border-radius: 8px;
+    overflow: hidden;
+    cursor: zoom-in;
+}
+
+.gallery-main.zoomed {
+    cursor: crosshair;
+}
+
+.main-img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    display: block;
+    transform-origin: center center;
+    transition: transform 0.15s ease-out;
+    will-change: transform;
+    pointer-events: none; /* evita flickering no mousemove */
+}
+
+.gallery-main.zoomed .main-img {
+    transform: scale(2.2);
+}
+
+/* Scroll nativo invisível para miniaturas */
+.gallery-thumbnails {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none; /* Firefox */
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+}
+
+.gallery-thumbnails::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
+.thumb-btn {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    width: 80px;
+    height: 80px;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    padding: 0;
+    background: #f8f8f8;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.2s ease;
+}
+
+.thumb-btn.active, .thumb-btn:hover {
+    border-color: #000000;
+}
+
+.thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* =========================================
+   LADO DIREITO: INFORMAÇÕES
+   ========================================= */
+.product-info-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    width: 100%;
+}
+
+.brand-badge {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #666;
+    font-weight: 600;
+}
+
+.product-title {
+    font-size: clamp(24px, 4vw, 32px); /* Tipografia fluida */
+    font-weight: 700;
+    margin: 8px 0 15px;
+    line-height: 1.2;
+    color: #1d1d1f;
+}
+
+.price-block {
+    display: flex;
+    flex-direction: column;
+}
+
+.price-block .price {
+    font-size: 28px;
+    font-weight: 700;
+    color: #000;
+}
+
+.price-block .installments {
+    font-size: 14px;
+    color: #666;
+    margin-top: 2px;
+}
+
+/* =========================================
+   SELETOR DE TAMANHO (NATIVO & SEM JS)
+   ========================================= */
+.size-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.size-header h3 {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #1d1d1f;
+}
+
+.size-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+}
+
+.size-option {
+    position: relative;
+}
+
+/* O label vira o botão visual */
+.size-option h3 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+    width: 40px;
+    border: 1px solid #d2d2d7;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1d1d1f;
+    background: #ffffff;
+}
+
+/* =========================================
+   BOTÕES DE AÇÃO (CTA)
+   ========================================= */
+.add-to-cart-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 10px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #e5e5ea;
+}
+
+.btn-whatsapp-buy {
+    width: 100%;
+    height: 54px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-whatsapp-buy {
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid #000000;
+}
+
+.btn-whatsapp-buy:hover {
+    background: #f5f5f7;
+}
+
+/* =========================================
+   DESCRIÇÃO DO PRODUTO
+   ========================================= */
+.product-description h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #1d1d1f;
+}
+
+.desc-content {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #4c4c4c;
+}
+
+.desc-content p {
+    margin-bottom: 12px;
+}
+
+/* =========================================
+   PRODUTOS RECOMENDADOS
+   ========================================= */
+.recommended-section {
+    max-width: 1300px;
+    margin: 0 auto 60px;
+    padding: 0 20px;
+}
+
+.recommended-section h2 {
+    font-size: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.recommended-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+@media (max-width: 900px) {
+    .recommended-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }

@@ -1,26 +1,196 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block title %}{{ product.name }} - FlipStyleCompany{% endblock %}
+{% block description %}Compre {{ product.name }} da marca {{ product.brand.name }} na FlipStyleCompany.{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/product_detail.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="product-detail-page">
-    <div class="product-info">
-        <h1>{{ produto.brand.name }} - {{ produto.name }}</h1>
-        <p class="price">R$ {{ product.price }}</p>
+<div class="product-detail-container">
+    
+    <div class="product-gallery">
+        <div class="gallery-main" id="zoomContainer">
+            {% if product.images.all %}
+                <img src="{{ product.images.first.image.url }}" 
+                     alt="{{ product.name }}" 
+                     id="mainImage" 
+                     class="main-img"
+                     fetchpriority="high">
+            {% else %}
+                <div class="no-image">Sem Imagem</div>
+            {% endif %}
+        </div>
+
+        {% if product.images.count > 1 %}
+        <div class="gallery-thumbnails">
+            {% for img in product.images.all %}
+                <button type="button" class="thumb-btn" aria-label="Ver imagem {{ forloop.counter }}">
+                    <img src="{{ img.image_thumbnail.url }}" 
+                         data-full-src="{{ img.image.url }}"
+                         alt="Miniatura {{ product.name }}" 
+                         class="thumb-img"
+                         loading="lazy"
+                         decoding="async">
+                </button>
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
 
-    <div class="product-gallery">
-        {% for img in product.images.all %}
-            <img src="{{ img.image.url }}" alt="{{ product.name }}" class="detail-main-img">
+    <div class="product-info-panel">
+        <div class="info-header">
+            <span class="brand-badge">{{ product.brand.name }}</span>
+            <h1 class="product-title">{{ product.name }}</h1>
+            
+            <div class="price-block">
+                <span class="price">R$ {{ product.price }}</span>
+                <span class="installments">ou 12x de R$ {{ product.preco_parcelado|floatformat:2|default:"--" }} s/ juros</span>
+            </div>
+        </div>
+
+        <form class="add-to-cart-form">
+            <div class="size-selector">
+                <div class="size-header">
+                    <h3>Tamanhos</h3>
+                </div>
+                
+                <div class="size-grid">
+                    {% for variant in product.variants.all %}
+                        {% if variant.stock > 0 %}
+                            <div class="size-option">
+                                <h3>{{ variant.size.name }}</h3>
+                            </div>
+                        {% else %}
+                            <div class="size-option disabled">
+                                <h3>Esgotado</h3>
+                            </div>
+                        {% endif %}
+                    {% empty %}
+                        <p class="no-stock">Produto indisponível no momento.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <a href="https://wa.me/5515996100598?text=Olá! Tenho interesse no produto: {{ product.brand.name }} - {{ product.name }}" 
+               target="_blank" 
+               class="btn-whatsapp-buy">
+                Comprar via WhatsApp
+                <img src="{% static 'img/icons/whatsapp-brands-solid-full.svg' %}" alt="WhatsApp" width="25px" height="25px">
+            </a>
+        </form>
+
+        <div class="product-description">
+            <h3>Detalhes do Produto</h3>
+            <div class="desc-content">
+                {{ product.description|linebreaks }}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if produtos_recomendados %}
+<section class="recommended-section">
+    <h2>Você pode gostar</h2>
+    <div class="recommended-grid">
+        {% for produto in produtos_recomendados %}
+        <a href="{% url 'product_detail' produto.slug %}" class="product-card" aria-label="Ver detalhes de {{ produto.name }}">
+            {% if produto.images.all %}
+            <div class="product-img-wrapper">
+                {% for img in produto.images.all|slice:":2" %}
+                    <img src="{{ img.image_thumbnail.url }}"
+                         width="600"
+                         height="600"
+                         alt="{{ produto.name }}"
+                         class="product-img {% if forloop.first %}primary-img{% else %}secondary-img{% endif %}"
+                         loading="lazy"
+                         decoding="async">
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div class="product-info">
+                <h3>{{ produto.brand.name }} - {{ produto.name }}</h3>
+                <p class="product-price">R$ {{ produto.price }}</p>
+                <p class="product-installments">ou 12x de R$ {{ produto.preco_parcelado|floatformat:2 }} sem juros</p>
+            </div>
+        </a>
         {% endfor %}
     </div>
-    <div class="product-description">
-        <h3>Descrição</h3>
-        <p>{{ product.description|linebreaks }}</p>
-    </div>
-    <a href="{% url 'products' %}">Voltar para a lista</a>
-</div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- 1. Galeria: troca de imagem por miniatura ---
+        const mainImage = document.getElementById('mainImage');
+        const thumbBtns = document.querySelectorAll('.thumb-btn');
+
+        thumbBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const fullSrc = this.querySelector('.thumb-img')?.dataset.fullSrc;
+                if (fullSrc && mainImage) {
+                    mainImage.src = fullSrc;
+                    thumbBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        thumbBtns[0]?.classList.add('active');
+
+        // --- 2. Zoom: mouse (desktop) + touch (mobile) ---
+        const zoomContainer = document.getElementById('zoomContainer');
+        if (!zoomContainer || !mainImage) return;
+
+        function applyZoom(x, y) {
+            const { width, height } = zoomContainer.getBoundingClientRect();
+            const px = ((x / width) * 100).toFixed(2);
+            const py = ((y / height) * 100).toFixed(2);
+            mainImage.style.transformOrigin = `${px}% ${py}%`;
+        }
+
+        function getRelativePos(e) {
+            const rect = zoomContainer.getBoundingClientRect();
+            const src = e.touches ? e.touches[0] : e;
+            return { x: src.clientX - rect.left, y: src.clientY - rect.top };
+        }
+
+        // Desktop
+        zoomContainer.addEventListener('mouseenter', () => {
+            zoomContainer.classList.add('zoomed');
+        });
+
+        zoomContainer.addEventListener('mousemove', (e) => {
+            const { x, y } = getRelativePos(e);
+            applyZoom(x, y);
+        });
+
+        zoomContainer.addEventListener('mouseleave', () => {
+            zoomContainer.classList.remove('zoomed');
+            mainImage.style.transformOrigin = 'center center';
+        });
+
+        // Mobile
+        zoomContainer.addEventListener('touchstart', (e) => {
+            zoomContainer.classList.add('zoomed');
+            const { x, y } = getRelativePos(e);
+            applyZoom(x, y);
+        }, { passive: true });
+
+        zoomContainer.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const { x, y } = getRelativePos(e);
+            applyZoom(x, y);
+        }, { passive: false });
+
+        zoomContainer.addEventListener('touchend', () => {
+            zoomContainer.classList.remove('zoomed');
+            mainImage.style.transformOrigin = 'center center';
+        });
+    });
+</script>
 {% endblock %}

@@ -102,3 +102,19 @@ class ProductDetailView(DetailView):
     model = Product
     context_object_name = 'product'
     template_name = 'product_detail.html'
+
+    def get_queryset(self):
+        return Product.objects.all().select_related('brand').prefetch_related('images', 'variants__size')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        produto_atual = self.object
+
+        # Busca os 5 últimos produtos da mesma subcategoria, excluindo o produto atual
+        context['produtos_recomendados'] = Product.objects.filter(
+            subcategory=produto_atual.subcategory
+        ).exclude(
+            id=produto_atual.id
+        ).prefetch_related('images').order_by('-id')[:4]
+
+        return context
