@@ -84,8 +84,8 @@
             <div class="product-img-wrapper">
                 {% for img in produto.images.all|slice:":2" %}
                     <img src="{{ img.image.url }}" 
-                         width="800" 
-                         height="800" 
+                         width="600"
+                         height="600" 
                          alt="{{ produto.name }}" 
                          class="product-img {% if forloop.first %}primary-img{% else %}secondary-img{% endif %}"
                          {% if not forloop.parentloop.first %}loading="lazy"{% endif %}
@@ -97,11 +97,9 @@
             <div class="product-info">
                 <h3>{{ produto.brand.name }} - {{ produto.name }}</h3>
                 <p class="product-price">R$ {{ produto.price }}</p>
-                {% if produto.preco_parcelado %}
                 <p class="product-installments">
-                    12x de R$ {{ produto.preco_parcelado|floatformat:2 }} sem juros
+                        ou 12x de R$ {{ produto.preco_parcelado|floatformat:2 }} sem juros
                 </p>
-                {% endif %}
             </div>
         </a>
         {% empty %}
