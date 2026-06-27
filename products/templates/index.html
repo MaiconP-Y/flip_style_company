@@ -62,9 +62,9 @@
                 {% if produto.images.all %}
                 <div class="product-img-wrapper">
                     {% for img in produto.images.all|slice:":2" %}
-                        <img src="{{ img.image.url }}" 
-                            width="800" 
-                            height="800" 
+                        <img src="{{ img.image_thumbnail.url }}" 
+                            width="600" 
+                            height="600" 
                             alt="{{ produto.name }}" 
                             class="product-img {% if forloop.first %}primary-img{% else %}secondary-img{% endif %}"
                             loading="lazy"

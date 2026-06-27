@@ -4,6 +4,10 @@ from django.db.models.signals import post_delete
 from django.dispatch import receiver
 import os
 
+from io import BytesIO
+from django.core.files.base import ContentFile
+from PIL import Image, ImageOps
+
 class Category(models.Model):
     name = models.CharField(max_length=20)
     slug = models.SlugField(unique=True)
@@ -118,17 +122,42 @@ class ProductVariant(models.Model):
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='products/')
+    image_thumbnail = models.ImageField(upload_to='products/thumbnails/', blank=True, null=True)
 
     class Meta:
         verbose_name = "Imagem do Produto"
         verbose_name_plural = "Imagens dos Produtos"
 
+    def save(self, *args, **kwargs):
+        if self.image and hasattr(self.image, 'file'):
+            img_original = Image.open(self.image)
+            
+            # Extraímos apenas o nome base para evitar caminhos duplicados
+            nome_original = os.path.basename(self.image.name)
+            nome_base = os.path.splitext(nome_original)[0]
+
+            # 1. SALVA A IMAGEM PRINCIPAL (Redimensionada, mantendo proporção original)
+            img_principal = img_original.copy()
+            img_principal.thumbnail((2000, 2000), Image.Resampling.LANCZOS) # Exemplo: 1200px máx
+            buffer_grande = BytesIO()
+            img_principal.save(buffer_grande, format='WEBP', quality=90)
+            self.image.save(f"{nome_base}.webp", ContentFile(buffer_grande.getvalue()), save=False)
+
+            # 2. CRIA E SALVA O THUMBNAIL (600x600 proporcional)
+            img_thumb = img_original.copy()
+            img_thumb.thumbnail((600, 600), Image.Resampling.LANCZOS)
+            buffer_pequeno = BytesIO()
+            img_thumb.save(buffer_pequeno, format='WEBP', quality=85)
+            
+            # Aqui forçamos o caminho limpo no banco de dados
+            nome_arquivo_thumb = f"{nome_base}_600.webp"
+            self.image_thumbnail.name = os.path.join('products/thumbnails/', nome_arquivo_thumb)
+            self.image_thumbnail.save(nome_arquivo_thumb, ContentFile(buffer_pequeno.getvalue()), save=False)
+
+        super().save(*args, **kwargs)
+
 @receiver(post_delete, sender=ProductImage)
 def delete_product_image_file(sender, instance, **kwargs):
-    """
-    Sinal que garante a limpeza do disco após a remoção do registro.
-    Seguindo o padrão do 'post_delete' da documentação.
-    """
-    # Verificamos se o arquivo existe e o removemos
-    if instance.image and os.path.isfile(instance.image.path):
-        os.remove(instance.image.path)
+    for field in [instance.image, instance.image_thumbnail]:
+        if field and os.path.isfile(field.path):
+            os.remove(field.path)
