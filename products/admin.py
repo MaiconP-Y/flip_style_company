@@ -1,13 +1,8 @@
 from django.contrib import admin
 from .models import Category, Subcategory, Brand, Color, Size, Product, ProductVariant, ProductImage
 
-# Mude o título da aba do navegador
 admin.site.site_title = "FlipStyle Admin"
-
-# Mude o título principal na página (o que você mostrou na imagem)
 admin.site.site_header = "FlipStyle"
-
-# Mude o título da página de índice do admin
 admin.site.index_title = "Bem-vindo ao Painel da FlipStyle"
 
 class ProductImageInline(admin.TabularInline):
