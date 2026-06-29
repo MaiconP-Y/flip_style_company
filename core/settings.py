@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'products',
     'accounts',
+    'adminsortable2',
 ]
 
 MIDDLEWARE = [

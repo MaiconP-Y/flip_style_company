@@ -1,9 +1,19 @@
 from django.contrib import admin
-from .models import Category, Subcategory, Brand, Color, Size, Product, ProductVariant, ProductImage
+from .models import Category, SizeGuide, Subcategory, Brand, Color, Size, Product, ProductVariant, ProductImage
 
 admin.site.site_title = "FlipStyle Admin"
 admin.site.site_header = "FlipStyle"
 admin.site.index_title = "Bem-vindo ao Painel da FlipStyle"
+
+@admin.register(SizeGuide)
+class SizeGuideAdmin(admin.ModelAdmin):
+    list_display = ('brand', 'subcategory', 'has_image') # 'has_image' é um atalho visual
+    list_filter = ('brand', 'subcategory')
+
+    def has_image(self, obj):
+        return bool(obj.guide_image)
+    has_image.boolean = True
+    has_image.short_description = "Tem Imagem?"
 
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
@@ -13,6 +23,7 @@ class ProductImageInline(admin.TabularInline):
 class ProductVariantInline(admin.TabularInline):
     model = ProductVariant
     extra = 1
+    fields = ('size', 'stock', 'order')
     
 
 # 2. Único registro para o modelo Product
