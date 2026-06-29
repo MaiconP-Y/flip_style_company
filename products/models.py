@@ -59,8 +59,8 @@ class Color(models.Model):
 
 class Product(models.Model):
     subcategory = models.ForeignKey(Subcategory, on_delete=models.PROTECT, related_name='products')
-    brand = models.ForeignKey(Brand, on_delete=models.PROTECT, related_name='products')
-    color = models.ForeignKey(Color, on_delete=models.PROTECT, related_name='products')
+    brand = models.ForeignKey(Brand, on_delete=models.PROTECT, null=True, related_name='products')
+    color = models.ForeignKey(Color, on_delete=models.PROTECT, null=True, blank=True, related_name='products')
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True)
     description = models.TextField(blank=True)
@@ -73,7 +73,14 @@ class Product(models.Model):
         verbose_name_plural = "Produtos"
 
     def __str__(self):
-        return f"[{self.brand.name}] {self.name} - {self.color.name}"
+        # O Django trata o __str__ como uma representação de debug.
+        # Prefira exibir apenas o que existe.
+        parts = [self.name]
+        if self.brand:
+            parts.insert(0, f"[{self.brand.name}]")
+        if self.color:
+            parts.append(f" - {self.color.name}")
+        return " ".join(parts)
 
     @property
     def available_sizes(self):
@@ -110,11 +117,13 @@ class ProductVariant(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='variants')
     size = models.ForeignKey(Size, on_delete=models.PROTECT, related_name='variants')
     stock = models.PositiveIntegerField(default=0)
+    order = models.PositiveIntegerField(default=0, verbose_name="Ordem")
 
     class Meta:
         verbose_name = "Variante de Produto"
         verbose_name_plural = "Variantes de Produtos"
         unique_together = ('product', 'size')
+        ordering = ['order']
 
     def __str__(self):
         return f"{self.product.name} - Tam: {self.size.name} (Estoque: {self.stock})"
@@ -161,3 +170,30 @@ def delete_product_image_file(sender, instance, **kwargs):
     for field in [instance.image, instance.image_thumbnail]:
         if field and os.path.isfile(field.path):
             os.remove(field.path)
+
+DEFAULT_MARKDOWN = """| BR | CM |
+| :---: | :---: |
+| 34 | 22.8 |
+| 35 | 23.5 |
+| 40 | 26.8 |
+| 44 | 29 |
+"""
+
+class SizeGuide(models.Model):
+    brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name='size_guides', verbose_name="Marca")
+    subcategory = models.ForeignKey(Subcategory, on_delete=models.CASCADE, related_name='size_guides', verbose_name="Subcategoria")
+    guide_text = models.TextField(
+        verbose_name="Texto (Markdown)", 
+        blank=True, 
+        null=True, 
+        default=DEFAULT_MARKDOWN,
+        help_text="Monte sua tabela seguindo o modelo."
+    )
+    guide_image = models.ImageField(upload_to='size_guides/', blank=True, null=True, verbose_name="Imagem da Tabela")
+    class Meta:
+        verbose_name = "Guia de Medida"
+        verbose_name_plural = "Guias de Medidas"
+        # Garante apenas UMA tabela para a combinação exata de Marca + Subcategoria (ex: Vans + Camisetas)
+        unique_together = ('brand', 'subcategory') 
+    def __str__(self):
+        return f"Tabela {self.brand.name} - {self.subcategory.name}"
