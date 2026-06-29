@@ -22,16 +22,16 @@
                             <ul>
                                 <li><a href="{% url 'products' %}?marca=avonts">Avonts</a></li>
                                 <li><a href="{% url 'products' %}?marca=hocks">Hocks</a></li>
+                                <li><a href="{% url 'products' %}?marca=new-skt">New</a></li>
                                 <li><a href="{% url 'products' %}?marca=ous">Öus</a></li>
                                 <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
-                                <li><a href="{% url 'products' %}?marca=santa_cruz">Santa Cruz</a></li>
+                                <li><a href="{% url 'products' %}?marca=santa-cruz">Santa Cruz</a></li>
                                 <li><a href="{% url 'products' %}?marca=tesla">Tesla</a></li>
-                                <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
-                                <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
-                                <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
-                                <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
-                                <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
-                                <li><a href="{% url 'products' %}?marca=thrasher">Thrasher</a></li>
+                                <li><a href="{% url 'products' %}?marca=pixain">Pixain</a></li>
+                                <li><a href="{% url 'products' %}?marca=xxl">XXL</a></li>
+                                <li><a href="{% url 'products' %}?marca=mad-rats">Mad Rats</a></li>
+                                <li><a href="{% url 'products' %}?marca=brothas">Brothas</a></li>
+                                <li><a href="{% url 'products' %}?marca=stamp">Stamp</a></li>
                             </ul>
                         </div>
                     </div>
@@ -53,25 +53,11 @@
                 </li>
                 
                 <li class="has-submenu">
-                    <a href="{% url 'category' category_slug='acessorios' %}">Acessórios</a>
-                    <button class="toggle-submenu" aria-label="Abrir submenu" aria-expanded="false">+</button>
-                    <div class="submenu">
-                        <div class="submenu-inner">
-                            <ul>
-                                <li><a href="{% url 'subcategory' subcategory_slug='toucas' %}">Toucas</a></li>
-                                <li><a href="{% url 'subcategory' subcategory_slug='bones' %}">Bonés</a></li>
-                                <li><a href="{% url 'subcategory' subcategory_slug='meias' %}">Meias</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </li>
-
-                <li class="has-submenu">
-                    <a href="{% url 'subcategory' subcategory_slug='footwears' %}">Footwears</a>
+                    <a href="{% url 'category' category_slug='area-skt' %}">Área SKT</a> 
                 </li>
                 
                 <li class="has-submenu">
-                    <a href="{% url 'category' category_slug='area-skt' %}">Área SKT</a> 
+                    <a href="{% url 'subcategory' subcategory_slug='footwears' %}">Footwears</a>
                 </li>
             </ul>
 

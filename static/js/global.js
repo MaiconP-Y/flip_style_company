@@ -48,6 +48,11 @@ function initGlobalSearch() {
     }
 }
 
+function toggleScrollLock(active) {
+    document.documentElement.classList.toggle('scroll-lock', active);
+    document.body.classList.toggle('scroll-lock', active);
+}
+
 function initResponsiveMenu() {
     const menuToggle = document.querySelector('.menu-toggle');
     const navLinks = document.querySelector('.nav-links');
@@ -56,11 +61,6 @@ function initResponsiveMenu() {
     const overlay = document.getElementById('js-menu-overlay');
 
     const isMobile = () => window.matchMedia("(max-width: 905px)").matches;
-
-    function toggleScrollLock(active) {
-        document.documentElement.classList.toggle('scroll-lock', active);
-        document.body.classList.toggle('scroll-lock', active);
-    }
 
     function fecharMenuMobile() {
         if (!navLinks) return;
