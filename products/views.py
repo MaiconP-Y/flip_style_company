@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from .models import Product
 from django.views.generic import ListView, DetailView
-from .models import Product, Color, Size, Brand
+from .models import Product, Color, Size, Brand, SizeGuide
 
 def home(request):
     # 1. Busca os produtos de destaque
@@ -65,30 +65,38 @@ class ProductsListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # Contexto base
-        context['marcas'] = Brand.objects.all().order_by('name')
-        context['cores'] = Color.objects.all()
-        
-        # Slugs para o template
+        # 1. Captura as variáveis da URL e da QueryString (?marca=...)
+        category_slug = self.kwargs.get('category_slug')
         sub_slug = self.kwargs.get('subcategory_slug')
-        context['category_slug'] = self.kwargs.get('category_slug')
+        brand_slug = self.request.GET.get('marca')  # Captura o ?marca= da URL
+        
+        context['category_slug'] = category_slug
         context['subcategory_slug'] = sub_slug
         
-        # Lógica inteligente de filtro de tamanhos
-        todos_tamanhos = Size.objects.all().order_by('order')
+        # 2. Criamos as consultas base para Tamanhos e Cores
+        tamanhos_qs = Size.objects.all()
+        cores_qs = Color.objects.all()
         
-        tamanhos_letras = ['camisetas', 'blusas'] 
-        tamanhos_numeros = ['footwears', 'calcas']
-
-        if sub_slug in tamanhos_letras:
-            # Filtra apenas letras (P, M, G...)
-            context['tamanhos'] = [s for s in todos_tamanhos if not s.name.isdigit()]
-        elif sub_slug in tamanhos_numeros:
-            # Filtra apenas números (38, 40, 42...)
-            context['tamanhos'] = [s for s in todos_tamanhos if s.name.isdigit()]
-        else:
-            # Se não estiver em nenhuma, mostra todos (ou o que fizer sentido para você)
-            context['tamanhos'] = todos_tamanhos
+        # 3. Aplicamos o funil de Categorias/Subcategorias se existirem
+        if sub_slug:
+            tamanhos_qs = tamanhos_qs.filter(variants__product__subcategory__slug=sub_slug)
+            cores_qs = cores_qs.filter(products__subcategory__slug=sub_slug)
+            
+        elif category_slug:
+            tamanhos_qs = tamanhos_qs.filter(variants__product__subcategory__category__slug__iexact=category_slug)
+            cores_qs = cores_qs.filter(products__subcategory__category__slug__iexact=category_slug)
+            
+        # 4. AQUI ESTÁ O QUE VOCÊ QUERIA: Se o usuário filtrou por marca, restringe ainda mais!
+        if brand_slug:
+            tamanhos_qs = tamanhos_qs.filter(variants__product__brand__slug=brand_slug)
+            cores_qs = cores_qs.filter(products__brand__slug=brand_slug)
+            
+        # 5. Entrega os contextos limpos, ordenados e sem duplicadas pro HTML
+        context['tamanhos'] = tamanhos_qs.distinct().order_by('order')
+        context['cores'] = cores_qs.distinct()
+        
+        # Mantém suas marcas estáticas livres (ou traz todas do banco)
+        context['marcas'] = Brand.objects.all().order_by('name')
         
         return context
     
