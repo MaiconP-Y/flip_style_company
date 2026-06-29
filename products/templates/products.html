@@ -21,21 +21,18 @@
     {% if request.GET.cor or request.GET.tamanho or request.GET.marca %}
         <div class="filtros-ativos">            
             {% if request.GET.cor %}
-                {# Remove a cor da URL, mas preserva tamanho, marca, etc #}
                 <a href="?{% query_transform cor=None %}" class="tag-filtro">
                     {{ request.GET.cor|title }} <span>&times;</span>
                 </a>
             {% endif %}
             
             {% if request.GET.tamanho %}
-                {# Remove o tamanho da URL, mas preserva cor, marca, etc #}
                 <a href="?{% query_transform tamanho=None %}" class="tag-filtro">
                     {{ request.GET.tamanho }} <span>&times;</span>
                 </a>
             {% endif %}
 
             {% if request.GET.marca %}
-                {# Caso queira dar a opção de remover a marca ativa também #}
                 <a href="?{% query_transform marca=None %}" class="tag-filtro">
                     {{ request.GET.marca|title }} <span>&times;</span>
                 </a>
@@ -96,7 +93,7 @@
             
             <div class="product-info">
                 <h3>{{ produto.brand.name }} - {{ produto.name }}</h3>
-                <p class="product-price">R$ {{ produto.price }}</p>
+                <p class="product-price">R$ {{ produto.price }}<span class="pix-discount"> no Pix 5% off</span></p>
                 <p class="product-installments">
                         ou 12x de R$ {{ produto.preco_parcelado|floatformat:2 }} sem juros
                 </p>

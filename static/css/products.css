@@ -105,11 +105,11 @@
 }
 
 .tag-filtro {
+    text-transform: uppercase;
     background: #000;
     color: #fff;
     padding: 5px 12px;
     border-radius: 15px;
-    text-decoration: none;
     font-size: 14px;
     display: flex;
     align-items: center;
