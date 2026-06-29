@@ -11,17 +11,6 @@
     <button class="btn-carousel-base next" id="bannerNext" aria-label="Próximo">&#10095;</button>
 
     <div class="carousel-inner" id="bannerInner">
-        <a href="{% url 'category' category_slug='area-skt' %}" class="banner-link carousel-item">
-            <picture>
-                <source media="(max-width: 600px)" srcset="{% static 'img/banner-mobile-shapes.webp' %}">
-                <img src="{% static 'img/banner-desktop-shapes.webp' %}" width="1920" height="780" alt="Banner Shapes" class="banner-img" fetchpriority="high">
-            </picture>
-            <div class="banner-content">
-                <h1>SHAPES SKATEBOARDS!</h1>
-                <p>Confira agora!</p>
-            </div>
-        </a>
-        
         <a href="{% url 'subcategory' subcategory_slug='footwears' %}" class="banner-link carousel-item">
             <picture>
                 <source media="(max-width: 600px)" srcset="{% static 'img/banner-mobile-buts.webp' %}">
@@ -29,6 +18,17 @@
             </picture>
             <div class="banner-content">
                 <h1>VÁRIOS BUTS!</h1>
+                <p>Confira agora!</p>
+            </div>
+        </a>
+        
+        <a href="{% url 'category' category_slug='area-skt' %}" class="banner-link carousel-item">
+            <picture>
+                <source media="(max-width: 600px)" srcset="{% static 'img/banner-mobile-shapes.webp' %}">
+                <img src="{% static 'img/banner-desktop-shapes.webp' %}" width="1920" height="780" alt="Banner Shapes" class="banner-img" fetchpriority="high">
+            </picture>
+            <div class="banner-content">
+                <h1>SHAPES SKATEBOARDS!</h1>
                 <p>Confira agora!</p>
             </div>
         </a>
@@ -75,7 +75,7 @@
                 
                 <div class="product-info">
                     <h3>{{ produto.brand.name }} - {{ produto.name }}</h3>
-                    <p class="product-price">R$ {{ produto.price }}</p>
+                    <p class="product-price">R$ {{ produto.price }}<span class="pix-discount"> no Pix 5% off</span></p>
                     <p class="product-installments">
                         ou 12x de R$ {{ produto.preco_parcelado|floatformat:2 }} sem juros
                     </p>
@@ -100,7 +100,7 @@
             <img src="{% static 'img/icons/truck.svg' %}" alt="Frete Grátis">
             <div class="trust-text">
                 <strong>FRETE GRÁTIS</strong>
-                <span>Acima de R$399,90</span>
+                <span>Acima de R$499,90</span>
             </div>
         </div>
         <div class="trust-item">
@@ -127,10 +127,15 @@
         <div class="carousel-inner" id="brandsInner">
             <a href="{% url 'products' %}?marca=avonts" class="brand-item" aria-label="Ver produtos Avonts"><img src="{% static 'img/brands/AVONTS.webp' %}" alt="Avonts" class="brand-img" width="100" height="100" loading="lazy"></a>
             <a href="{% url 'products' %}?marca=hocks" class="brand-item" aria-label="Ver produtos Hocks"><img src="{% static 'img/brands/HOCKS.webp' %}" alt="Hocks" class="brand-img" width="100" height="100" loading="lazy"></a>
-            <a href="{% url 'products' %}?marca=new" class="brand-item" aria-label="Ver produtos New"><img src="{% static 'img/brands/NEW.webp' %}" alt="New" class="brand-img" width="100" height="100" loading="lazy"></a>
+            <a href="{% url 'products' %}?marca=new-skt" class="brand-item" aria-label="Ver produtos New"><img src="{% static 'img/brands/NEW-SKT.webp' %}" alt="New" class="brand-img" width="100" height="100" loading="lazy"></a>
             <a href="{% url 'products' %}?marca=ous" class="brand-item" aria-label="Ver produtos Öus"><img src="{% static 'img/brands/OUS.webp' %}" alt="Öus" class="brand-img" width="100" height="100" loading="lazy"></a>
-            <a href="{% url 'products' %}?marca=santa-cruz" class="brand-item" aria-label="Ver produtos Santa Cruz"><img src="{% static 'img/brands/SANTA_CRUZ.webp' %}" alt="Santa Cruz" class="brand-img" width="100" height="100" loading="lazy"></a>
+            <a href="{% url 'products' %}?marca=santa-cruz" class="brand-item" aria-label="Ver produtos Santa Cruz"><img src="{% static 'img/brands/SANTA-CRUZ.webp' %}" alt="Santa Cruz" class="brand-img" width="100" height="100" loading="lazy"></a>
             <a href="{% url 'products' %}?marca=tesla" class="brand-item" aria-label="Ver produtos Tesla"><img src="{% static 'img/brands/TESLA.webp' %}" alt="Tesla" class="brand-img" width="100" height="100" loading="lazy"></a>
+            <a href="{% url 'products' %}?marca=pixain" class="brand-item" aria-label="Ver produtos Pixain"><img src="{% static 'img/brands/PIXAIN.webp' %}" alt="Pixain" class="brand-img" width="100" height="100" loading="lazy"></a>
+            <a href="{% url 'products' %}?marca=xxl" class="brand-item" aria-label="Ver produtos XXL"><img src="{% static 'img/brands/XXL.webp' %}" alt="XXL" class="brand-img" width="100" height="100" loading="lazy"></a>
+            <a href="{% url 'products' %}?marca=mad-rats" class="brand-item" aria-label="Ver produtos Mad Rats"><img src="{% static 'img/brands/MAD-RATS.webp' %}" alt="Mad Rats" class="brand-img" width="100" height="100" loading="lazy"></a>
+            <a href="{% url 'products' %}?marca=brothas" class="brand-item" aria-label="Ver produtos Brothas"><img src="{% static 'img/brands/BROTHAS.webp' %}" alt="Brothas" class="brand-img" width="100" height="100" loading="lazy"></a>
+            <a href="{% url 'products' %}?marca=stamp" class="brand-item" aria-label="Ver produtos Stamp"><img src="{% static 'img/brands/STAMP.webp' %}" alt="Stamp" class="brand-img" width="100" height="100" loading="lazy"></a>
             <a href="{% url 'products' %}?marca=thrasher" class="brand-item" aria-label="Ver produtos Thrasher"><img src="{% static 'img/brands/THRASHER.webp' %}" alt="Thrasher" class="brand-img" width="100" height="100" loading="lazy"></a>
         </div>
 
@@ -185,25 +190,17 @@
             <div class="image-wrapper"><img src="{% static 'img/categories/calcas.webp' %}" width="475" height="475" alt="Ir para calças" class="product-img" loading="lazy" decoding="async"></div>
             <div class="product-info" style="text-align: center;"><h3>Calças</h3></div>
         </a>
-        <a href="{% url 'subcategory' subcategory_slug='bones' %}" class="product-card category-card">
-            <div class="image-wrapper"><img src="{% static 'img/categories/bones.webp' %}" width="475" height="475" alt="Ir para bonés" class="product-img" loading="lazy" decoding="async"></div>
-            <div class="product-info" style="text-align: center;"><h3>Bonés</h3></div>
-        </a>
-        <a href="{% url 'subcategory' subcategory_slug='toucas' %}" class="product-card category-card">
-            <div class="image-wrapper"><img src="{% static 'img/categories/toucas.webp' %}" width="475" height="475" alt="Ir para toucas" class="product-img" loading="lazy" decoding="async"></div>
-            <div class="product-info" style="text-align: center;"><h3>Toucas</h3></div>
-        </a>
         <a href="{% url 'subcategory' subcategory_slug='bermudas' %}" class="product-card category-card">
             <div class="image-wrapper"><img src="{% static 'img/categories/bermudas.webp' %}" width="475" height="475" alt="Ir para bermudas" class="product-img" loading="lazy" decoding="async"></div>
             <div class="product-info" style="text-align: center;"><h3>Bermudas</h3></div>
         </a>
-        <a href="{% url 'subcategory' subcategory_slug='meias' %}" class="product-card category-card">
-            <div class="image-wrapper"><img src="{% static 'img/categories/meias.webp' %}" width="475" height="475" alt="Ir para meias" class="product-img" loading="lazy" decoding="async"></div>
-            <div class="product-info" style="text-align: center;"><h3>Meias</h3></div>
-        </a>
         <a href="{% url 'subcategory' subcategory_slug='blusas' %}" class="product-card category-card">
             <div class="image-wrapper"><img src="{% static 'img/categories/moletons.webp' %}" width="475" height="475" alt="Ir para blusas" class="product-img" loading="lazy" decoding="async"></div>
             <div class="product-info" style="text-align: center;"><h3>Blusas</h3></div>
+        </a>
+        <a href="{% url 'subcategory' subcategory_slug='area-skt' %}" class="product-card category-card">
+            <div class="image-wrapper"><img src="{% static 'img/categories/area-skt.webp' %}" width="475" height="475" alt="Ir para blusas" class="product-img" loading="lazy" decoding="async"></div>
+            <div class="product-info" style="text-align: center;"><h3>Área SKT</h3></div>
         </a>
     </div>
     <div class="carousel-pagination" id="catPagination"></div>

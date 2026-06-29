@@ -112,12 +112,6 @@ img, picture {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.banner-home .btn-carousel-base:hover {
-    color: #000000;
-    background: rgba(255, 255, 255, 0.8);
 }
 
 .prev { left: 10px; }
