@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-
+{% load markdown_tags %}
 {% block title %}{{ product.name }} - FlipStyleCompany{% endblock %}
 {% block description %}Compre {{ product.name }} da marca {{ product.brand.name }} na FlipStyleCompany.{% endblock %}
 
@@ -46,7 +46,7 @@
             <h1 class="product-title">{{ product.name }}</h1>
             
             <div class="price-block">
-                <span class="price">R$ {{ product.price }}</span>
+                <span class="price">R$ {{ product.price }}<span class="pix-discount"> no Pix 5% off</span></span>
                 <span class="installments">ou 12x de R$ {{ product.preco_parcelado|floatformat:2|default:"--" }} s/ juros</span>
             </div>
         </div>
@@ -54,7 +54,12 @@
         <form class="add-to-cart-form">
             <div class="size-selector">
                 <div class="size-header">
-                    <h3>Tamanhos</h3>
+                    <h3>Tamanhos disponíveis</h3>
+                    {% if tabela_medidas %}
+                    <button type="button" class="size-guide-btn" id="openSizeGuide" aria-haspopup="dialog">
+                        Guia de medidas
+                    </button>
+                    {% endif %}
                 </div>
                 
                 <div class="size-grid">
@@ -80,14 +85,51 @@
                 Comprar via WhatsApp
                 <img src="{% static 'img/icons/whatsapp-brands-solid-full.svg' %}" alt="WhatsApp" width="25px" height="25px">
             </a>
+            <div class="product-trust-bar">
+                <div class="product-trust-item">
+                    <img src="{% static 'img/icons/credit-card-regular-full.svg' %}" alt="Parcelamento" width="22" height="22">
+                    <p><strong>Parcelamento</strong> em até 12x sem juros</p>
+                </div>
+                <div class="product-trust-item">
+                    <img src="{% static 'img/icons/truck.svg' %}" alt="Frete Grátis" width="22" height="22">
+                    <p><strong>Frete grátis</strong> acima de R$ 499,90 - Sul e Sudeste</p>
+                </div>
+            </div>
         </form>
 
-        <div class="product-description">
-            <h3>Detalhes do Produto</h3>
-            <div class="desc-content">
-                {{ product.description|linebreaks }}
+        {% if product.description %}
+            <div class="product-description">
+                <h3>Detalhes do Produto</h3>
+                <div class="desc-content">
+                    {{ product.description|linebreaks }}
+                </div>
             </div>
-        </div>
+        {% endif %}
+        
+        {% if tabela_medidas %}
+        <dialog id="sizeGuideModal" class="size-guide-dialog" aria-label="Tabela de Medidas {{ product.brand.name }}">
+            <div class="dialog-inner">
+                <div class="dialog-header">
+                    <h3>Tabela de Medidas — {{ product.brand.name }}</h3>
+                    <button type="button" class="dialog-close" id="closeSizeGuide" aria-label="Fechar">✕</button>
+                </div>
+                <div class="dialog-body">
+                    {% if tabela_medidas.guide_image %}
+                        <img src="{{ tabela_medidas.guide_image.url }}"
+                             alt="Tabela de Medidas {{ product.brand.name }}"
+                             class="dialog-img"
+                             loading="lazy"
+                             decoding="async"
+                             width="1900">
+                    {% else %}
+                        <div class="markdown-table">
+                            {{ tabela_medidas.guide_text|markdown|safe }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </dialog>
+        {% endif %}
     </div>
 </div>
 
@@ -191,6 +233,25 @@
             zoomContainer.classList.remove('zoomed');
             mainImage.style.transformOrigin = 'center center';
         });
+
+        // --- 3. Modal de tabela de medidas (dialog nativo) ---
+        const sizeGuideModal = document.getElementById('sizeGuideModal');
+        document.getElementById('openSizeGuide')?.addEventListener('click', () => {
+            sizeGuideModal?.showModal();
+            toggleScrollLock(true);
+        });
+        document.getElementById('closeSizeGuide')?.addEventListener('click', () => {
+            sizeGuideModal?.close();
+            toggleScrollLock(false);
+        });
+        sizeGuideModal?.addEventListener('click', e => {
+            if (e.target === sizeGuideModal) {
+                sizeGuideModal.close();
+                toggleScrollLock(false);
+            }
+        });
+        // garante reset se fechar via Escape
+        sizeGuideModal?.addEventListener('close', () => toggleScrollLock(false));
     });
 </script>
 {% endblock %}
