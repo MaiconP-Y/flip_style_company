@@ -117,12 +117,42 @@ class ProductDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         produto_atual = self.object
-
-        # Busca os 5 últimos produtos da mesma subcategoria, excluindo o produto atual
-        context['produtos_recomendados'] = Product.objects.filter(
+        
+        # 1. Busca a tabela vinculada exatamente à MARCA E à SUBCATEGORIA do produto
+        try:
+            context['tabela_medidas'] = SizeGuide.objects.get(
+                brand=produto_atual.brand,
+                subcategory=produto_atual.subcategory
+            )
+        except SizeGuide.DoesNotExist:
+            context['tabela_medidas'] = None
+            
+        # 2. Busca os produtos recomendados da mesma subcategoria (convertido para lista)
+        recomendados = list(Product.objects.filter(
             subcategory=produto_atual.subcategory
         ).exclude(
             id=produto_atual.id
-        ).prefetch_related('images').order_by('-id')[:4]
+        ).prefetch_related('images').order_by('-id')[:4])
+        
+        # 3. Se não alcançou os 4 produtos, preenche o restante com produtos de destaque
+        total_desejado = 4
+        if len(recomendados) < total_desejado:
+            vagas_restantes = total_desejado - len(recomendados)
+            
+            # Coleta os IDs de produtos que JÁ estão nos recomendados + o ID do produto atual
+            # para garantir que os destaques não tragam duplicatas
+            ids_excluidos = [p.id for p in recomendados] + [produto_atual.id]
+            
+            destaques_completarem = Product.objects.filter(
+                is_featured=True,
+                variants__stock__gt=0
+            ).exclude(
+                id__in=ids_excluidos
+            ).distinct().prefetch_related('images')[:vagas_restantes]
+            
+            # Une as duas listas
+            recomendados.extend(list(destaques_completarem))
+            
+        context['produtos_recomendados'] = recomendados
 
         return context
