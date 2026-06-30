@@ -3,7 +3,7 @@ from .models import Category, SizeGuide, Subcategory, Brand, Color, Size, Produc
 
 admin.site.site_title = "FlipStyle Admin"
 admin.site.site_header = "FlipStyle"
-admin.site.index_title = "Bem-vindo ao Painel da FlipStyle"
+admin.site.index_title = "Painel FlipStyle"
 
 @admin.register(SizeGuide)
 class SizeGuideAdmin(admin.ModelAdmin):

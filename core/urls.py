@@ -5,7 +5,7 @@ from django.urls import path
 from products.views import home, ProductsListView, QuemSomosView, politica_privacidade, ProductDetailView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('c-cyber-control/', admin.site.urls),
     path('', home, name='home'),
     path('quem_somos/', QuemSomosView, name='quem_somos'),
     path('politica-de-privacidade/', politica_privacidade, name='privacidade'),
