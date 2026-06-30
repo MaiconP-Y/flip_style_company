@@ -118,6 +118,8 @@ class ProductVariant(models.Model):
     size = models.ForeignKey(Size, on_delete=models.PROTECT, related_name='variants')
     stock = models.PositiveIntegerField(default=0)
     order = models.PositiveIntegerField(default=0, verbose_name="Ordem")
+    sku = models.CharField(max_length=100, unique=True, null=True, blank=True, verbose_name="SKU")
+    barcode = models.CharField(max_length=50, unique=True, null=True, blank=True, verbose_name="Código de Barras")
 
     class Meta:
         verbose_name = "Variante de Produto"
@@ -165,11 +167,6 @@ class ProductImage(models.Model):
 
         super().save(*args, **kwargs)
 
-@receiver(post_delete, sender=ProductImage)
-def delete_product_image_file(sender, instance, **kwargs):
-    for field in [instance.image, instance.image_thumbnail]:
-        if field and os.path.isfile(field.path):
-            os.remove(field.path)
 
 DEFAULT_MARKDOWN = """| BR | CM |
 | :---: | :---: |
@@ -197,3 +194,19 @@ class SizeGuide(models.Model):
         unique_together = ('brand', 'subcategory') 
     def __str__(self):
         return f"Tabela {self.brand.name} - {self.subcategory.name}"
+
+@receiver(post_delete, sender=ProductImage)
+@receiver(post_delete, sender=SizeGuide)
+def delete_orphaned_image_files(sender, instance, **kwargs):
+    """Garante a limpeza de arquivos físicos ao deletar instâncias do banco."""
+    # Lista de campos de imagem possíveis dinamicamente
+    fields_to_check = []
+    
+    if isinstance(instance, ProductImage):
+        fields_to_check = [instance.image, instance.image_thumbnail]
+    elif isinstance(instance, SizeGuide):
+        fields_to_check = [instance.guide_image]
+
+    for field in fields_to_check:
+        if field and os.path.isfile(field.path):
+            os.remove(field.path)
