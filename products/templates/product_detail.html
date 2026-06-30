@@ -68,10 +68,6 @@
                             <div class="size-option">
                                 <h3>{{ variant.size.name }}</h3>
                             </div>
-                        {% else %}
-                            <div class="size-option disabled">
-                                <h3>Esgotado</h3>
-                            </div>
                         {% endif %}
                     {% empty %}
                         <p class="no-stock">Produto indisponível no momento.</p>
@@ -92,7 +88,11 @@
                 </div>
                 <div class="product-trust-item">
                     <img src="{% static 'img/icons/truck.svg' %}" alt="Frete Grátis" width="22" height="22">
-                    <p><strong>Frete grátis</strong> acima de R$ 499,90 - Sul e Sudeste</p>
+                    <p><strong>Frete grátis</strong> acima de R$ 499,90</p>
+                </div>
+                <div class="product-trust-item">
+                    <img src="{% static 'img/icons/desconto.svg' %}" alt="Desconto no pix" width="22" height="22">
+                    <p><strong>Desconto</strong> de 5% no Pix!</p>
                 </div>
             </div>
         </form>
@@ -164,94 +164,7 @@
 {% endif %}
 {% endblock %}
 
+
 {% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // --- 1. Galeria: troca de imagem por miniatura ---
-        const mainImage = document.getElementById('mainImage');
-        const thumbBtns = document.querySelectorAll('.thumb-btn');
-
-        thumbBtns.forEach(btn => {
-            btn.addEventListener('click', function () {
-                const fullSrc = this.querySelector('.thumb-img')?.dataset.fullSrc;
-                if (fullSrc && mainImage) {
-                    mainImage.src = fullSrc;
-                    thumbBtns.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                }
-            });
-        });
-
-        thumbBtns[0]?.classList.add('active');
-
-        // --- 2. Zoom: mouse (desktop) + touch (mobile) ---
-        const zoomContainer = document.getElementById('zoomContainer');
-        if (!zoomContainer || !mainImage) return;
-
-        function applyZoom(x, y) {
-            const { width, height } = zoomContainer.getBoundingClientRect();
-            const px = ((x / width) * 100).toFixed(2);
-            const py = ((y / height) * 100).toFixed(2);
-            mainImage.style.transformOrigin = `${px}% ${py}%`;
-        }
-
-        function getRelativePos(e) {
-            const rect = zoomContainer.getBoundingClientRect();
-            const src = e.touches ? e.touches[0] : e;
-            return { x: src.clientX - rect.left, y: src.clientY - rect.top };
-        }
-
-        // Desktop
-        zoomContainer.addEventListener('mouseenter', () => {
-            zoomContainer.classList.add('zoomed');
-        });
-
-        zoomContainer.addEventListener('mousemove', (e) => {
-            const { x, y } = getRelativePos(e);
-            applyZoom(x, y);
-        });
-
-        zoomContainer.addEventListener('mouseleave', () => {
-            zoomContainer.classList.remove('zoomed');
-            mainImage.style.transformOrigin = 'center center';
-        });
-
-        // Mobile
-        zoomContainer.addEventListener('touchstart', (e) => {
-            zoomContainer.classList.add('zoomed');
-            const { x, y } = getRelativePos(e);
-            applyZoom(x, y);
-        }, { passive: true });
-
-        zoomContainer.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            const { x, y } = getRelativePos(e);
-            applyZoom(x, y);
-        }, { passive: false });
-
-        zoomContainer.addEventListener('touchend', () => {
-            zoomContainer.classList.remove('zoomed');
-            mainImage.style.transformOrigin = 'center center';
-        });
-
-        // --- 3. Modal de tabela de medidas (dialog nativo) ---
-        const sizeGuideModal = document.getElementById('sizeGuideModal');
-        document.getElementById('openSizeGuide')?.addEventListener('click', () => {
-            sizeGuideModal?.showModal();
-            toggleScrollLock(true);
-        });
-        document.getElementById('closeSizeGuide')?.addEventListener('click', () => {
-            sizeGuideModal?.close();
-            toggleScrollLock(false);
-        });
-        sizeGuideModal?.addEventListener('click', e => {
-            if (e.target === sizeGuideModal) {
-                sizeGuideModal.close();
-                toggleScrollLock(false);
-            }
-        });
-        // garante reset se fechar via Escape
-        sizeGuideModal?.addEventListener('close', () => toggleScrollLock(false));
-    });
-</script>
+<script src="{% static 'js/detail.js' %}"></script>
 {% endblock %}

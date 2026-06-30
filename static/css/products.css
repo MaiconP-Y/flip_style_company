@@ -177,6 +177,10 @@
     font-family: sans-serif;
 }
 
+.empty-state {
+    height: 100px;
+}
+
 @media (max-width: 1300px) {
     .products-grid {
         grid-template-columns: repeat(4, 1fr); 

@@ -215,9 +215,8 @@ header:has(.nav-links.active) {
 }
 
 .whatsapp-float img {
-    width: 80%; 
+    width: 57%; 
     height: auto;
-    filter: brightness(0) invert(1);
 }
 
 /* Footer */
@@ -258,7 +257,7 @@ footer {
 }
 
 .social-links { display: flex; gap: 15px; margin-top: 10px; }
-.social-links img { width: 40px; height: 40px; filter: brightness(0) invert(1); }
+.social-links img { width: 30px; height: 30px; }
 
 .payment-methods {
     display: flex;

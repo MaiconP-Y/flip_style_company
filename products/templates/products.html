@@ -2,6 +2,9 @@
 {% load static %}
 {% load query_transform %}
 
+{% block title %}
+    {{ brand_name|default:subcategory_name|default:category_name|default:"Produtos" }} | Flip Style Company
+{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/products.css' %}">
 {% endblock %}
@@ -9,11 +12,7 @@
 {% block content %}
 <div class="category-banner">
     <h1>
-        {% if request.GET.marca %}
-            {{ request.GET.marca|title }}
-        {% else %}
-            {{ subcategory_slug|default:category_slug|default:"Coleção Completa"|title }}
-        {% endif %}
+        {{ brand_name|default:subcategory_name|default:category_name|default:"Coleção Completa" }}
     </h1>
 </div>
 

@@ -270,12 +270,20 @@ img, picture {
     display: flex;
     align-items: center;
     gap: 12px;
-    justify-content: center; 
+    justify-content: center;
 }
 
 .trust-item img {
     width: 30px;
-    height: 30px;
+    height: auto;
+}
+
+.trust-item img[alt="Atendimento via WhatsApp"] {
+    width: 27px;
+}
+
+.trust-item img[alt="Site Seguro"] {
+    width: 32px;
 }
 
 .trust-text {
