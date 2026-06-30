@@ -23,7 +23,6 @@ services:
     container_name: flipstyle_app
     restart: always
     volumes:
-      - .:/app
       - ./media:/app/media
       - staticfiles_volume:/app/staticfiles
     env_file: .env
