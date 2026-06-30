@@ -178,7 +178,7 @@
 }
 
 .empty-state {
-    height: 100px;
+    height: 250px;
 }
 
 @media (max-width: 1300px) {
