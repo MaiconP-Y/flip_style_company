@@ -41,8 +41,11 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = True
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv(), default='127.0.0.1,localhost')
-CSRF_TRUSTED_ORIGINS = ['https://flipstylecompany.com.br', 'https://www.flipstylecompany.com.br']
-
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS', 
+    default='http://localhost:8000,http://127.0.0.1:8000', 
+    cast=Csv()
+)
 
 INSTALLED_APPS = [
     'django.contrib.admin',

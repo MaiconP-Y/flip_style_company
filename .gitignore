@@ -13,5 +13,6 @@ media/
 
 # Ambientes Virtuais
 venv/
-
+docker-compose.override.yml
+nginx.local.conf
 .gunicorn
