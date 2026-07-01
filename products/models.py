@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 import os
+from decimal import Decimal
 
 from io import BytesIO
 from django.core.files.base import ContentFile
@@ -92,6 +93,12 @@ class Product(models.Model):
     @property
     def preco_parcelado(self):
         return self.price / 12
+
+    @property
+    def get_pix_price(self):
+        if self.price:
+            return (self.price * Decimal('0.95')).quantize(Decimal('0.01'))
+        return Decimal('0.00')
 
 
 class Size(models.Model):
