@@ -46,8 +46,8 @@
             <h1 class="product-title">{{ product.name }}</h1>
             
             <div class="price-block">
-                <span class="price">R$ {{ product.price }}<span class="pix-discount"> no Pix 5% off</span></span>
-                <span class="installments">ou 12x de R$ {{ product.preco_parcelado|floatformat:2|default:"--" }} s/ juros</span>
+                <span class="price">R$ {{ product.get_pix_price }}<span class="pix-discount"> no Pix 5% off</span></span>
+                <span class="installments">Ou R$ {{ product.price }} em 12x de R$ {{ product.preco_parcelado|floatformat:2 }} sem juros</span>
             </div>
         </div>
 
