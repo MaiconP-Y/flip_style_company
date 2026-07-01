@@ -258,6 +258,10 @@ footer {
 
 .social-links { display: flex; gap: 15px; margin-top: 10px; }
 .social-links img { width: 30px; height: 30px; }
+.icon-facebook {
+    width: 28px;
+    height: 28px;
+}
 
 .payment-methods {
     display: flex;
@@ -319,12 +323,21 @@ footer {
 .product-installments { font-size: 13px; color: #4c4c4c; }
 .pix-discount {
     font-size: 0.85rem;      /* Tamanho menor para não poluir */
-    color: #00a859;          /* Uma cor verde que remete ao Pix */
+    color: #00551c;        /* Uma cor verde que remete ao Pix */
     font-weight: 600;        /* Levemente mais fino que o preço principal */
     margin-left: 5px;        /* Espaçamento sutil */
     display: inline-block;   /* Garante o comportamento correto do alinhamento */
 }
 
+@media (max-width: 440px) {
+    .pix-discount-mini {
+        font-size: 0.85rem;      /* Tamanho menor para não poluir */
+        color: #00551c;        /* Uma cor verde que remete ao Pix */
+        font-weight: 600;        /* Levemente mais fino que o preço principal */
+        margin-left: 0px;        /* Espaçamento sutil */
+        display: inline-block;
+    } 
+}
 /* Ativa o grid de 4 linhas apenas em telas de PC (acima de 768px) */
 @media (min-width: 906px) {
     .submenu-inner ul {

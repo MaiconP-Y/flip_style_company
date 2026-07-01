@@ -92,9 +92,9 @@
             
             <div class="product-info">
                 <h3>{{ produto.brand.name }} - {{ produto.name }}</h3>
-                <p class="product-price">R$ {{ produto.price }}<span class="pix-discount"> no Pix 5% off</span></p>
+                <p class="product-price">R$ {{ produto.get_pix_price }}<span class="pix-discount-mini"> no Pix 5% off</span></p>
                 <p class="product-installments">
-                        ou 12x de R$ {{ produto.preco_parcelado|floatformat:2 }} sem juros
+                    Ou R$ {{ produto.price }} em 12x de R$ {{ produto.preco_parcelado|floatformat:2 }} sem juros
                 </p>
             </div>
         </a>
