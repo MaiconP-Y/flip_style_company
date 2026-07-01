@@ -137,6 +137,15 @@ class ProductVariant(models.Model):
     def __str__(self):
         return f"{self.product.name} - Tam: {self.size.name} (Estoque: {self.stock})"
     
+    def save(self, *args, **kwargs):
+        # Se a variante for nova e o campo order não foi preenchido manualmente (continuar 0)
+        if not self.id and self.order == 0:
+            # Conta quantas variantes esse produto específico já tem e define a sequência
+            subsequente = ProductVariant.objects.filter(product=self.product).count() + 1
+            self.order = subsequente
+        
+        super().save(*args, **kwargs)
+    
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='products/')
