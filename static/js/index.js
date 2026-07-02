@@ -47,10 +47,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    /**
-     * RESTAURADO: CARROSSEL INFINITO ORIGINAL E FUNCIONAL
-     */
-    const initInfiniteCarousel = (wrapperId, nextBtnId, prevBtnId) => {
+    const createAutoPlayer = (actionFn, interval = 5000) => {
+        let timer = null;
+        let lastTime = performance.now();
+        let isRunning = false;
+
+        const loop = (now) => {
+            if (!isRunning) return;
+            if (now - lastTime >= interval) {
+                // Só executa a ação se a aba estiver em foco (poupa recursos do cliente)
+                if (document.visibilityState === 'visible') {
+                    actionFn();
+                }
+                lastTime = now;
+            }
+            timer = requestAnimationFrame(loop);
+        };
+
+        const start = () => {
+            if (isRunning) return;
+            isRunning = true;
+            lastTime = performance.now();
+            timer = requestAnimationFrame(loop);
+        };
+
+        const stop = () => {
+            isRunning = false;
+            if (timer) cancelAnimationFrame(timer);
+            timer = null;
+        };
+
+        // Controle global de visibilidade
+        document.addEventListener('visibilitychange', () => {
+            document.visibilityState === 'hidden' ? stop() : start();
+        });
+
+        return { start, stop };
+    };
+
+    const initInfiniteCarousel = (wrapperId, nextBtnId, prevBtnId, autoPlayInterval = 5000) => {
         const wrapper = document.getElementById(wrapperId);
         if (!wrapper) return;
         
@@ -71,7 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
         container.appendChild(endFragment);
         container.insertBefore(startFragment, container.firstChild);
 
-        let timer = null;
         let isTransitioning = false;
         let cardWidth = 0;
 
@@ -100,96 +134,56 @@ document.addEventListener('DOMContentLoaded', () => {
             isTransitioning = false;
         };
 
-        const startTimer = () => {
-            if (timer) cancelAnimationFrame(timer);
-            let lastTime = performance.now();
-            
-            const loop = (now) => {
-                if (now - lastTime >= 5000) {
-                    if (document.visibilityState === 'visible' && !isTransitioning) {
-                        const currentIndex = Math.round(container.scrollLeft / cardWidth);
-                        move(currentIndex + 1);
-                    }
-                    lastTime = now;
-                }
-                timer = requestAnimationFrame(loop);
-            };
-            timer = requestAnimationFrame(loop);
+        // Reutilizando o AutoPlayer na lógica infinita
+        const player = createAutoPlayer(() => {
+            if (!isTransitioning) {
+                move(Math.round(container.scrollLeft / cardWidth) + 1);
+            }
+        }, autoPlayInterval);
+
+        const safeManualMove = (direction) => {
+            if (isTransitioning) return;
+            player.stop();
+            move(Math.round(container.scrollLeft / cardWidth) + direction);
+            player.start();
         };
 
-        const stopTimer = () => {
-            if (timer) cancelAnimationFrame(timer);
-            timer = null;
-        };
+        nextBtn?.addEventListener('click', () => safeManualMove(1));
+        prevBtn?.addEventListener('click', () => safeManualMove(-1));
 
-        const resizeObserver = new ResizeObserver(() => {
+        container.addEventListener('scrollend', handleResetPosition);
+        container.addEventListener('touchstart', player.stop, { passive: true });
+        container.addEventListener('touchend', player.start, { passive: true });
+
+        new ResizeObserver(() => {
             const oldWidth = cardWidth;
             cardWidth = CarouselEngine.getCardWidth(container);
             if (oldWidth !== cardWidth && oldWidth > 0) {
-                const currentIndex = Math.round(container.scrollLeft / oldWidth);
-                move(currentIndex, false);
+                move(Math.round(container.scrollLeft / oldWidth), false);
             }
-        });
-        resizeObserver.observe(container);
-
-        container.addEventListener('scrollend', handleResetPosition);
-        container.addEventListener('touchstart', stopTimer, { passive: true });
-        container.addEventListener('touchend', startTimer, { passive: true });
-
-        nextBtn?.addEventListener('click', () => {
-            if (isTransitioning) return;
-            stopTimer();
-            move(Math.round(container.scrollLeft / cardWidth) + 1);
-            startTimer();
-        });
-
-        prevBtn?.addEventListener('click', () => {
-            if (isTransitioning) return;
-            stopTimer();
-            move(Math.round(container.scrollLeft / cardWidth) - 1);
-            startTimer();
-        });
-
-        document.addEventListener('visibilitychange', () => {
-            document.visibilityState === 'hidden' ? stopTimer() : startTimer();
-        });
+        }).observe(container);
 
         requestAnimationFrame(() => {
             cardWidth = CarouselEngine.getCardWidth(container);
             move(originalCount, false);
-            startTimer();
+            player.start();
         });
     };
 
-    /**
-     * OTIMIZADO: CARROSSEL TRADICIONAL COM RECALCULO CIRÚRGICO APENAS EM BREAKPOINTS
-     */
-    const setupCarousel = (carouselId, nextBtnId, prevBtnId, dotsContainerId) => {
-        const container = document.getElementById(carouselId);
+    const setupCarousel = ({ containerId, nextBtnId, prevBtnId, dotsContainerId, autoPlay = false, interval = 5000 }) => {
+        const container = document.getElementById(containerId);
         const nextBtn = document.getElementById(nextBtnId);
         const prevBtn = document.getElementById(prevBtnId);
         const dotsContainer = document.getElementById(dotsContainerId);
+        
         if (!container) return;
 
         let cardWidth = CarouselEngine.getCardWidth(container);
         let dots = [];
-
-        const rebuildDots = () => {
-            dots = CarouselEngine.createDots(container, dotsContainer, (i) => {
-                container.scrollTo({ left: i * cardWidth });
-            });
-            syncDots();
-        };
-
-        const update = () => {
-            cardWidth = CarouselEngine.getCardWidth(container);
-            syncDots();
-        };
-
         let ticking = false;
 
         const syncDots = () => {
-            if (!ticking) {
+            if (!ticking && dots.length > 0) {
                 window.requestAnimationFrame(() => {
                     const idx = CarouselEngine.getActiveIndex(container.scrollLeft, cardWidth, dots.length);
                     dots.forEach((dot, i) => {
@@ -204,35 +198,84 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
+        const rebuildDots = () => {
+            if (dotsContainer) {
+                dots = CarouselEngine.createDots(container, dotsContainer, (i) => {
+                    container.scrollTo({ left: i * cardWidth });
+                });
+                syncDots();
+            }
+        };
+
+        const goNext = () => {
+            const atEnd = container.scrollLeft + container.offsetWidth >= container.scrollWidth - 10;
+            container.scrollTo({ left: atEnd ? 0 : container.scrollLeft + cardWidth });
+        };
+
+        const goPrev = () => {
+            const atStart = container.scrollLeft <= 1;
+            container.scrollTo({ left: atStart ? container.scrollWidth : container.scrollLeft - cardWidth });
+        };
+
+        // Integração cirúrgica com o AutoPlayer
+        let player = null;
+        if (autoPlay) {
+            player = createAutoPlayer(goNext, interval);
+            container.addEventListener('touchstart', player.stop, { passive: true });
+            container.addEventListener('touchend', player.start, { passive: true });
+            
+            player.start();
+        }
+
         rebuildDots();
 
-        new ResizeObserver(update).observe(container);
+        new ResizeObserver(() => {
+            cardWidth = CarouselEngine.getCardWidth(container);
+            syncDots();
+        }).observe(container);
 
         const breakpoints = [
             window.matchMedia('(max-width: 899px)'),
             window.matchMedia('(max-width: 600px)')
         ];
-        breakpoints.forEach(query => {
-            query.addEventListener('change', rebuildDots);
-        });
+        breakpoints.forEach(query => query.addEventListener('change', rebuildDots));
 
         nextBtn?.addEventListener('click', () => {
-            const atEnd = container.scrollLeft + container.offsetWidth >= container.scrollWidth - 10;
-            container.scrollTo({ left: atEnd ? 0 : container.scrollLeft + cardWidth });
+            if (player) player.stop();
+            goNext();
+            if (player) player.start();
         });
 
         prevBtn?.addEventListener('click', () => {
-            const atStart = container.scrollLeft <= 1;
-            container.scrollTo({ left: atStart ? container.scrollWidth : container.scrollLeft - cardWidth });
+            if (player) player.stop();
+            goPrev();
+            if (player) player.start();
         });
 
         container.addEventListener('scroll', syncDots, { passive: true });
     };
 
-    // Execução Centralizada
-    initInfiniteCarousel('bannerHome', 'bannerNext', 'bannerPrev');
-    initInfiniteCarousel('brandsCarouselWrapper', 'brandsNext', 'brandsPrev');
-    
-    setupCarousel('productsCarousel', 'prodNext', 'prodPrev', 'prodPagination');
-    setupCarousel('categoriesCarousel', 'catNext', 'catPrev', 'catPagination');
+    initInfiniteCarousel('brandsCarouselWrapper', 'brandsNext', 'brandsPrev', 4000);
+
+    setupCarousel({
+        containerId: 'bannerInner',
+        nextBtnId: 'bannerNext',
+        prevBtnId: 'bannerPrev',
+        autoPlay: true,
+        interval: 5000
+    });
+
+    setupCarousel({ 
+        containerId: 'productsCarousel', 
+        nextBtnId: 'prodNext', 
+        prevBtnId: 'prodPrev', 
+        dotsContainerId: 'prodPagination' 
+    });
+
+    setupCarousel({ 
+        containerId: 'categoriesCarousel', 
+        nextBtnId: 'catNext', 
+        prevBtnId: 'catPrev', 
+        dotsContainerId: 'catPagination' 
+    });
 });

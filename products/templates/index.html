@@ -14,7 +14,7 @@
         <a href="{% url 'subcategory' subcategory_slug='footwears' %}" class="banner-link carousel-item">
             <picture>
                 <source media="(max-width: 600px)" srcset="{% static 'img/banner-mobile-buts.webp' %}">
-                <img src="{% static 'img/banner-desktop-buts.webp' %}" width="1920" height="780" alt="Banner Buts" class="banner-img">
+                <img src="{% static 'img/banner-desktop-buts.webp' %}" width="1920" height="780" alt="Banner Buts" class="banner-img" fetchpriority="high">
             </picture>
             <div class="banner-content">
                 <h1>VÁRIOS BUTS!</h1>
@@ -25,7 +25,7 @@
         <a href="{% url 'category' category_slug='area-skt' %}" class="banner-link carousel-item">
             <picture>
                 <source media="(max-width: 600px)" srcset="{% static 'img/banner-mobile-shapes.webp' %}">
-                <img src="{% static 'img/banner-desktop-shapes.webp' %}" width="1920" height="780" alt="Banner Shapes" class="banner-img" fetchpriority="high">
+                <img src="{% static 'img/banner-desktop-shapes.webp' %}" width="1920" height="780" alt="Banner Shapes" class="banner-img">
             </picture>
             <div class="banner-content">
                 <h1>SHAPES SKATEBOARDS!</h1>
