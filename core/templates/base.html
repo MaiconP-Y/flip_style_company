@@ -21,6 +21,7 @@
                         <div class="submenu-inner">
                             <ul>
                                 <li><a href="{% url 'products' %}?marca=avonts">Avonts</a></li>
+                                <li><a href="{% url 'products' %}?marca=brothas">Brothas</a></li>
                                 <li><a href="{% url 'products' %}?marca=hocks">Hocks</a></li>
                                 <li><a href="{% url 'products' %}?marca=new-skt">New</a></li>
                                 <li><a href="{% url 'products' %}?marca=ous">Öus</a></li>
@@ -30,7 +31,6 @@
                                 <li><a href="{% url 'products' %}?marca=pixain">Pixain</a></li>
                                 <li><a href="{% url 'products' %}?marca=xxl">XXL</a></li>
                                 <li><a href="{% url 'products' %}?marca=mad-rats">Mad Rats</a></li>
-                                <li><a href="{% url 'products' %}?marca=brothas">Brothas</a></li>
                                 <li><a href="{% url 'products' %}?marca=stamp">Stamp</a></li>
                             </ul>
                         </div>
@@ -51,13 +51,31 @@
                         </div>
                     </div>
                 </li>
+
+                <li class="has-submenu">
+                    <a href="{% url 'products' %}">Modelos de Buts</a>
+                    <button class="toggle-submenu" aria-label="Abrir submenu" aria-expanded="false">+</button>
+                    <div class="submenu">
+                        <div class="submenu-inner">
+                            <ul>
+                                {% for modelo in modelos_do_menu %}
+                                    <li>
+                                        <a href="{% url 'products' %}?modelo={{ modelo.slug }}">
+                                            {{ modelo.name }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </li>
                 
                 <li class="has-submenu">
                     <a href="{% url 'category' category_slug='area-skt' %}">Área SKT</a> 
                 </li>
                 
                 <li class="has-submenu">
-                    <a href="{% url 'category' category_slug='footwears' %}">Footwears</a>
+                    <a href="{% url 'category' category_slug='footwears' %}">Footwears (Buts)</a>
                 </li>
             </ul>
 

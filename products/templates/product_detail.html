@@ -2,7 +2,7 @@
 {% load static %}
 {% load markdown_tags %}
 {% block title %}{{ product.name }} - FlipStyleCompany{% endblock %}
-{% block description %}Compre {{ product.name }} da marca {{ product.brand.name }} na FlipStyleCompany.{% endblock %}
+{% block description %}Compre {{ product.name }} da marca {{ produto.product_model.brand.name }} na FlipStyleCompany.{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/product_detail.css' %}">
@@ -42,7 +42,7 @@
 
     <div class="product-info-panel">
         <div class="info-header">
-            <span class="brand-badge">{{ product.brand.name }}</span>
+            <span class="brand-badge">{{ product.product_model.brand.name }}</span>
             <h1 class="product-title">{{ product.name }}</h1>
             
             <div class="price-block">
@@ -75,7 +75,7 @@
                 </div>
             </div>
 
-            <a href="https://wa.me/5515996100598?text=Olá! Tenho interesse no produto: {{ product.brand.name }} - {{ product.name }}" 
+            <a href="https://wa.me/5515996100598?text=Olá! Tenho interesse no produto: {{ product.product_model.brand.name }} - {{ product.name }}" 
                target="_blank" 
                class="btn-whatsapp-buy">
                 Comprar via WhatsApp
@@ -97,26 +97,26 @@
             </div>
         </form>
 
-        {% if product.description %}
+        {% if product.product_model.description %}
             <div class="product-description">
                 <h3>Detalhes do Produto</h3>
                 <div class="desc-content">
-                    {{ product.description|linebreaks }}
+                    {{ product.product_model.description|linebreaks }}
                 </div>
             </div>
         {% endif %}
         
         {% if tabela_medidas %}
-        <dialog id="sizeGuideModal" class="size-guide-dialog" aria-label="Tabela de Medidas {{ product.brand.name }}">
+        <dialog id="sizeGuideModal" class="size-guide-dialog" aria-label="Tabela de Medidas {{ product.product_model.brand.name }}">
             <div class="dialog-inner">
                 <div class="dialog-header">
-                    <h3>Tabela de Medidas — {{ product.brand.name }}</h3>
+                    <h3>Tabela de Medidas — {{ produto.product_model.brand.name }}</h3>
                     <button type="button" class="dialog-close" id="closeSizeGuide" aria-label="Fechar">✕</button>
                 </div>
                 <div class="dialog-body">
                     {% if tabela_medidas.guide_image %}
                         <img src="{{ tabela_medidas.guide_image.url }}"
-                             alt="Tabela de Medidas {{ product.brand.name }}"
+                             alt="Tabela de Medidas {{ product.product_model.brand.name }}"
                              class="dialog-img"
                              loading="lazy"
                              decoding="async"
@@ -153,7 +153,7 @@
             </div>
             {% endif %}
             <div class="product-info">
-                <h3>{{ produto.brand.name }} - {{ produto.name }}</h3>
+                <h3>{{ produto.product_model.brand.name }} - {{ produto.name }}</h3>
                 <p class="product-price">R$ {{ produto.get_pix_price }}<span class="pix-discount-mini"> no Pix 5% off</span></p>
                 <p class="product-installments">
                     Ou R$ {{ produto.price }} em 12x de R$ {{ produto.preco_parcelado|floatformat:2 }} sem juros

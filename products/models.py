@@ -62,6 +62,7 @@ class ProductModel(models.Model):
     brand = models.ForeignKey(Brand, on_delete=models.PROTECT, null=True, related_name='product_models')
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
+    slug = models.SlugField(unique=True, null=True, blank=True)
 
     class Meta:
         verbose_name = "Modelo de Produto"
@@ -71,13 +72,11 @@ class ProductModel(models.Model):
         return self.name
     
 class Product(models.Model):
-    product_model = models.ForeignKey(ProductModel, on_delete=models.CASCADE, related_name='color_variants', null=True, blank=True)
-    subcategory = models.ForeignKey(Subcategory, on_delete=models.PROTECT, related_name='products')
-    brand = models.ForeignKey(Brand, on_delete=models.PROTECT, null=True, related_name='products')
+    # 1. Tornamos o campo obrigatório (removidos null=True, blank=True)
+    product_model = models.ForeignKey(ProductModel, on_delete=models.CASCADE, related_name='color_variants')
     color = models.ForeignKey(Color, on_delete=models.PROTECT, null=True, blank=True, related_name='products')
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255) # Mantido para "Tênis Flat Core Classic black"
     slug = models.SlugField(unique=True)
-    description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=6, decimal_places=2)
     is_featured = models.BooleanField(default=False, verbose_name="É destaque?")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -87,11 +86,10 @@ class Product(models.Model):
         verbose_name_plural = "Produtos"
 
     def __str__(self):
-        # O Django trata o __str__ como uma representação de debug.
-        # Prefira exibir apenas o que existe.
         parts = [self.name]
-        if self.brand:
-            parts.insert(0, f"[{self.brand.name}]")
+        # Atualizamos aqui para buscar a marca através do modelo pai, caso exista
+        if self.product_model and self.product_model.brand:
+            parts.insert(0, f"[{self.product_model.brand.name}]")
         if self.color:
             parts.append(f" - {self.color.name}")
         return " ".join(parts)

@@ -12,13 +12,19 @@
 {% block content %}
 <div class="category-banner">
     <h1>
-        {{ brand_name|default:subcategory_name|default:category_name|default:"Coleção Completa" }}
+        {{ modelo_name|default:brand_name|default:subcategory_name|default:category_name|default:"Coleção Completa" }}
     </h1>
 </div>
 
 <main class="products-list-container">
-    {% if request.GET.cor or request.GET.tamanho or request.GET.marca %}
-        <div class="filtros-ativos">            
+    {% if request.GET.cor or request.GET.tamanho or request.GET.marca or request.GET.modelo %}
+        <div class="filtros-ativos">
+            {% if request.GET.modelo %}
+                <a href="?{% query_transform modelo=None %}" class="tag-filtro">
+                    {{ modelo_name|default:request.GET.modelo|title }} <span>&times;</span>
+                </a>
+            {% endif %}
+                        
             {% if request.GET.cor %}
                 <a href="?{% query_transform cor=None %}" class="tag-filtro">
                     {{ request.GET.cor|title }} <span>&times;</span>
@@ -91,7 +97,7 @@
             {% endif %}
             
             <div class="product-info">
-                <h3>{{ produto.brand.name }} - {{ produto.name }}</h3>
+                <h3>{{ produto.product_model.brand.name }} - {{ produto.name }}</h3>
                 <p class="product-price">R$ {{ produto.get_pix_price }}<span class="pix-discount-mini"> no Pix 5% off</span></p>
                 <p class="product-installments">
                     Ou R$ {{ produto.price }} em 12x de R$ {{ produto.preco_parcelado|floatformat:2 }} sem juros
