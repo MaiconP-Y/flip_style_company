@@ -57,8 +57,21 @@ class Color(models.Model):
     def __str__(self):
         return self.name
 
+class ProductModel(models.Model):
+    subcategory = models.ForeignKey(Subcategory, on_delete=models.PROTECT, related_name='product_models')
+    brand = models.ForeignKey(Brand, on_delete=models.PROTECT, null=True, related_name='product_models')
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
 
+    class Meta:
+        verbose_name = "Modelo de Produto"
+        verbose_name_plural = "Modelos de Produtos"
+
+    def __str__(self):
+        return self.name
+    
 class Product(models.Model):
+    product_model = models.ForeignKey(ProductModel, on_delete=models.CASCADE, related_name='color_variants', null=True, blank=True)
     subcategory = models.ForeignKey(Subcategory, on_delete=models.PROTECT, related_name='products')
     brand = models.ForeignKey(Brand, on_delete=models.PROTECT, null=True, related_name='products')
     color = models.ForeignKey(Color, on_delete=models.PROTECT, null=True, blank=True, related_name='products')

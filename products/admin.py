@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, SizeGuide, Subcategory, Brand, Color, Size, Product, ProductVariant, ProductImage
+from .models import Category, SizeGuide, Subcategory, Brand, Color, Size, Product, ProductVariant, ProductImage, ProductModel
 
 admin.site.site_title = "FlipStyle Admin"
 admin.site.site_header = "FlipStyle"
@@ -7,7 +7,7 @@ admin.site.index_title = "Painel FlipStyle"
 
 @admin.register(SizeGuide)
 class SizeGuideAdmin(admin.ModelAdmin):
-    list_display = ('brand', 'subcategory', 'has_image') # 'has_image' é um atalho visual
+    list_display = ('brand', 'subcategory', 'has_image')
     list_filter = ('brand', 'subcategory')
 
     def has_image(self, obj):
@@ -15,33 +15,41 @@ class SizeGuideAdmin(admin.ModelAdmin):
     has_image.boolean = True
     has_image.short_description = "Tem Imagem?"
 
+
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 3
     max_num = 3
 
+
 class ProductVariantInline(admin.TabularInline):
     model = ProductVariant
     extra = 1
     fields = ('size', 'stock', 'order')
-    
 
-# 2. Único registro para o modelo Product
+
+@admin.register(ProductModel)
+class ProductModelAdmin(admin.ModelAdmin):
+    list_display = ('name', 'brand', 'subcategory')
+    list_filter = ('brand', 'subcategory')
+    search_fields = ('name',)
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    # Combinamos todos os atributos aqui:
     inlines = [ProductImageInline, ProductVariantInline]
-    list_display = ('name', 'brand', 'color', 'price', 'is_featured', 'created_at')
-    list_editable = ('is_featured',) # Permite editar direto na lista
+    # 'brand' saiu daqui e entrou 'product_model' indicando o pai agrupador
+    list_display = ('name', 'product_model', 'color', 'price', 'is_featured', 'created_at')
+    list_editable = ('is_featured', 'product_model') # Mantém editável se precisar trocar de modelo rápido
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ('name',)
 
-# 3. Outros registros
+
 @admin.register(Subcategory)
 class SubcategoryAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
 
-# Registros simples
+
 admin.site.register(Category)
 admin.site.register(Brand)
 admin.site.register(Color)
