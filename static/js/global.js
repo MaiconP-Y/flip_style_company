@@ -60,7 +60,7 @@ function initResponsiveMenu() {
     const toggleSubmenuBtns = document.querySelectorAll('.toggle-submenu');
     const overlay = document.getElementById('js-menu-overlay');
 
-    const isMobile = () => window.matchMedia("(max-width: 905px)").matches;
+    const isMobile = () => window.matchMedia("(max-width: 1050px)").matches;
 
     function fecharMenuMobile() {
         if (!navLinks) return;

@@ -338,24 +338,20 @@ footer {
         display: inline-block;
     } 
 }
-/* Ativa o grid de 4 linhas apenas em telas de PC (acima de 768px) */
-@media (min-width: 906px) {
+
+@media (min-width: 1051px) {
     .submenu-inner ul {
-        display: grid;
-        grid-auto-flow: column; /* Empilha de cima para baixo */
-        grid-template-rows: repeat(4, auto); /* Limite de 4 itens por coluna */
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        align-content: flex-start;
+        height: 200px; /* ~4 itens (37px cada, com o padding atual do <a>) */
     }
     .submenu-inner li {
         width: 200px;
     }
 }
-@media (max-width: 1000px) {
-    .footer-container {
-        grid-template-columns: repeat(2, auto); /* Cria 3 colunas automáticas */
-        justify-content: center;
-    }
-}
-@media (max-width: 905px) {
+@media (max-width: 1050px) {
     header {
         height: 140px;
     }
