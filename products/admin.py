@@ -15,7 +15,7 @@ admin.site.index_title = "Painel FlipStyle"
 MOLDES_TAMANHO = {
     'CAMISETAS_PP_ao_XGG': ['PP', 'P', 'M', 'G', 'GG', 'XGG'],
     'TENIS_34_ao_44': [str(i) for i in range(34, 45)],
-    'CALÇAS_BERMUDAS_34_ao_50': [str(i) for i in range(34, 51, 2)],
+    'CALÇAS_BERMUDAS_38_ao_58': [str(i) for i in range(38, 59, 2)],
 }
 
 

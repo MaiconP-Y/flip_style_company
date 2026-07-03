@@ -442,3 +442,43 @@
     flex: 1;
     text-align: center;
 }
+
+.product-color-swatches h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #1d1d1f;
+}
+.swatches-grid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.swatch-item {
+    width: 84px;
+    height: 84px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: #ffffff;
+}
+.swatch-item img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+.swatch-item:hover {
+    border-color: #000;
+}
+.swatch-item.active {
+    border: 2px solid #000; /* Destaca a cor que o usuário já está visualizando */
+    pointer-events: none;  /* Desativa o clique na cor atual */
+}
+@media (min-width: 1000px) {
+    .swatch-item {
+        width: 101px;
+        height: 101px;
+    }
+}

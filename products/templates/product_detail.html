@@ -97,6 +97,23 @@
             </div>
         </form>
 
+        {% if cores_do_modelo %}
+        <div class="product-color-swatches">
+            <h3>Cores disponíveis:</h3>
+            <div class="swatches-grid">
+                <div class="swatch-item active">
+                    <img src="{{ product.images.first.image_thumbnail.url }}" alt="{{ product.color.name }}">
+                </div>
+                
+                {% for outra_cor in cores_do_modelo %}
+                    <a href="{% url 'product_detail' outra_cor.slug %}" class="swatch-item" title="{{ outra_cor.color.name }}">
+                        <img src="{{ outra_cor.images.first.image_thumbnail.url }}" alt="{{ outra_cor.color.name }}">
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
         {% if product.product_model.description %}
             <div class="product-description">
                 <h3>Detalhes do Produto</h3>
@@ -130,6 +147,7 @@
             </div>
         </dialog>
         {% endif %}
+        
     </div>
 </div>
 

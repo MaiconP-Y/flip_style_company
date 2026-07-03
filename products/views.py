@@ -139,14 +139,12 @@ class ProductDetailView(DetailView):
     template_name = 'product_detail.html'
 
     def get_queryset(self):
-        # Ajustado para trazer a marca através do product_model pré-carregado
         return Product.objects.all().select_related('product_model__brand').prefetch_related('images', 'variants__size')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         produto_atual = self.object
         
-        # 1. Tabela de medidas baseada na marca e subcategoria do product_model
         try:
             context['tabela_medidas'] = SizeGuide.objects.get(
                 brand=produto_atual.product_model.brand,
@@ -155,31 +153,26 @@ class ProductDetailView(DetailView):
         except SizeGuide.DoesNotExist:
             context['tabela_medidas'] = None
             
-        # 2. Busca os produtos recomendados filtrando pelo product_model__subcategory
-        recomendados = list(Product.objects.filter(
-            product_model__subcategory=produto_atual.product_model.subcategory,
+        # 1. Busca as outras cores do mesmo modelo para as miniaturas (LIMIT 6)
+        cores_do_modelo = list(Product.objects.filter(
+            product_model=produto_atual.product_model,
             variants__stock__gt=0
         ).exclude(
             id=produto_atual.id
-        ).distinct().select_related('product_model__brand').prefetch_related('images').order_by('-id')[:4])
+        ).distinct().prefetch_related('images')[:6])
         
-        # 3. Se não alcançou os 4 produtos, preenche o restante com produtos de destaque
-        total_desejado = 4
-        if len(recomendados) < total_desejado:
-            vagas_restantes = total_desejado - len(recomendados)
-            
-            ids_excluidos = [p.id for p in recomendados] + [produto_atual.id]
-            
-            destaques_completarem = Product.objects.filter(
-                is_featured=True,
-                variants__stock__gt=0
-            ).exclude(
-                id__in=ids_excluidos
-            ).distinct().select_related('product_model__brand').prefetch_related('images')[:vagas_restantes]
-            
-            recomendados.extend(list(destaques_completarem))
-            
-        context['produtos_recomendados'] = recomendados
+        context['cores_do_modelo'] = cores_do_modelo
+        
+        # 2. MÁGICA "ANTI-REPETIÇÃO": Junta o ID do produto atual com os IDs das miniaturas de cores
+        ids_para_excluir = [produto_atual.id] + [p.id for p in cores_do_modelo]
+        
+        # 3. Busca os destaques garantindo que NADA que já apareceu acima se repita aqui (LIMIT 4)
+        context['produtos_recomendados'] = Product.objects.filter(
+            is_featured=True,
+            variants__stock__gt=0
+        ).exclude(
+            id__in=ids_para_excluir  # Exclui o atual E as outras cores
+        ).distinct().select_related('product_model__brand').prefetch_related('images')[:4]
 
         return context
 
