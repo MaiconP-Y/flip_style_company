@@ -186,5 +186,5 @@ class ProductDetailView(DetailView):
 def QuemSomosView(request):
     return render(request, 'quem_somos.html')
 
-def politica_privacidade(request):
+def PrivacidadeView(request):
     return render(request, 'politica_privacidade.html')
