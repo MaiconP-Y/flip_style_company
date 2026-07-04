@@ -77,7 +77,7 @@ class Product(models.Model):
     color = models.ForeignKey(Color, on_delete=models.PROTECT, null=True, blank=True, related_name='products')
     name = models.CharField(max_length=255) # Mantido para "Tênis Flat Core Classic black"
     slug = models.SlugField(unique=True)
-    price = models.DecimalField(max_digits=6, decimal_places=2)
+    price = models.DecimalField(max_digits=6, decimal_places=2, db_index=True)
     is_featured = models.BooleanField(default=False, verbose_name="É destaque?")
     created_at = models.DateTimeField(auto_now_add=True)
 
