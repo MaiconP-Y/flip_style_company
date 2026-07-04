@@ -17,35 +17,35 @@
 </div>
 
 <main class="products-list-container">
-    {% if request.GET.cor or request.GET.tamanho or request.GET.marca or request.GET.modelo %}
+    {% if request.GET.cor or request.GET.tamanho or request.GET.marca or request.GET.modelo or request.GET.ordenar %}
         <div class="filtros-ativos">
+            {% if request.GET.ordenar %}
+                <a href="?{% query_transform ordenar=None %}" class="tag-filtro">
+                    {{ ordenacao_label }} <span>&times;</span>
+                </a>
+            {% endif %}
             {% if request.GET.modelo %}
                 <a href="?{% query_transform modelo=None %}" class="tag-filtro">
                     {{ modelo_name|default:request.GET.modelo|title }} <span>&times;</span>
                 </a>
             {% endif %}
-                        
             {% if request.GET.cor %}
                 <a href="?{% query_transform cor=None %}" class="tag-filtro">
                     {{ request.GET.cor|title }} <span>&times;</span>
                 </a>
             {% endif %}
-            
             {% if request.GET.tamanho %}
                 <a href="?{% query_transform tamanho=None %}" class="tag-filtro">
                     {{ request.GET.tamanho }} <span>&times;</span>
                 </a>
             {% endif %}
-
             {% if request.GET.marca %}
                 <a href="?{% query_transform marca=None %}" class="tag-filtro">
-                    {{ request.GET.marca|title }} <span>&times;</span>
+                    {{ brand_name|default:request.GET.marca|title }} <span>&times;</span>
                 </a>
             {% endif %}
 
-            <a href="{% url 'products' %}" class="limpar-tudo">
-                Limpar tudo
-            </a>
+            <a href="{% url 'products' %}" class="limpar-tudo">Limpar tudo</a>
         </div>
     {% endif %}
     <div class="menu-filtros">
@@ -70,12 +70,14 @@
                 </div>
             </div>
         </div>
-
+        
         <div class="dropdown filtros-direita">
             <button class="dropbtn">ORDENAR POR ▾</button>
-            <div class="dropdown-content menu-preco"> 
-                <a href="?{% query_transform preco='asc' %}" class="btn-filtro">Menor Preço</a>
-                <a href="?{% query_transform preco='desc' %}" class="btn-filtro">Maior Preço</a>
+            <div class="dropdown-content menu-preco">
+                <a href="?{% query_transform ordenar='preco_asc' %}" class="btn-filtro">Menor Preço</a>
+                <a href="?{% query_transform ordenar='preco_desc' %}" class="btn-filtro">Maior Preço</a>
+                <a href="?{% query_transform ordenar='marca_asc' %}" class="btn-filtro">Marca: A - Z</a>
+                <a href="?{% query_transform ordenar='marca_desc' %}" class="btn-filtro">Marca: Z - A</a>
             </div>
         </div>
     </div>

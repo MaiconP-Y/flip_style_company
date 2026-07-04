@@ -7,8 +7,8 @@ from decimal import Decimal
 
 from io import BytesIO
 from django.core.files.base import ContentFile
-from PIL import Image, ImageOps
-
+from PIL import Image
+from django.core.exceptions import ValidationError
 class Category(models.Model):
     name = models.CharField(max_length=20)
     slug = models.SlugField(unique=True)
@@ -166,31 +166,42 @@ class ProductImage(models.Model):
         verbose_name = "Imagem do Produto"
         verbose_name_plural = "Imagens dos Produtos"
 
+    def clean(self):
+        """Valida o formato da imagem antes de salvar."""
+        if self.image:
+            try:
+                with Image.open(self.image) as img:
+                    if img.format not in ['JPEG', 'PNG', 'WEBP']:
+                        raise ValidationError(f"Formato '{img.format}' não permitido. Use JPEG, PNG ou WEBP.")
+            except Exception:
+                raise ValidationError("O arquivo enviado não é uma imagem válida ou está corrompido.")
+
     def save(self, *args, **kwargs):
+        # Garante que a validação do clean() seja executada antes de persistir
+        self.full_clean()
+
         if self.image and hasattr(self.image, 'file'):
-            img_original = Image.open(self.image)
-            
-            # Extraímos apenas o nome base para evitar caminhos duplicados
-            nome_original = os.path.basename(self.image.name)
-            nome_base = os.path.splitext(nome_original)[0]
+            # Processamento da imagem
+            with Image.open(self.image) as img_original:
+                nome_original = os.path.basename(self.image.name)
+                nome_base = os.path.splitext(nome_original)[0]
 
-            # 1. SALVA A IMAGEM PRINCIPAL (Redimensionada, mantendo proporção original)
-            img_principal = img_original.copy()
-            img_principal.thumbnail((2000, 2000), Image.Resampling.LANCZOS) # Exemplo: 1200px máx
-            buffer_grande = BytesIO()
-            img_principal.save(buffer_grande, format='WEBP', quality=90)
-            self.image.save(f"{nome_base}.webp", ContentFile(buffer_grande.getvalue()), save=False)
+                # 1. SALVA A IMAGEM PRINCIPAL
+                img_principal = img_original.copy()
+                img_principal.thumbnail((2000, 2000), Image.Resampling.LANCZOS)
+                buffer_grande = BytesIO()
+                img_principal.save(buffer_grande, format='WEBP', quality=90)
+                self.image.save(f"{nome_base}.webp", ContentFile(buffer_grande.getvalue()), save=False)
 
-            # 2. CRIA E SALVA O THUMBNAIL (600x600 proporcional)
-            img_thumb = img_original.copy()
-            img_thumb.thumbnail((600, 600), Image.Resampling.LANCZOS)
-            buffer_pequeno = BytesIO()
-            img_thumb.save(buffer_pequeno, format='WEBP', quality=85)
-            
-            # Aqui forçamos o caminho limpo no banco de dados
-            nome_arquivo_thumb = f"{nome_base}_600.webp"
-            self.image_thumbnail.name = os.path.join('products/thumbnails/', nome_arquivo_thumb)
-            self.image_thumbnail.save(nome_arquivo_thumb, ContentFile(buffer_pequeno.getvalue()), save=False)
+                # 2. CRIA E SALVA O THUMBNAIL
+                img_thumb = img_original.copy()
+                img_thumb.thumbnail((600, 600), Image.Resampling.LANCZOS)
+                buffer_pequeno = BytesIO()
+                img_thumb.save(buffer_pequeno, format='WEBP', quality=85)
+                
+                nome_arquivo_thumb = f"{nome_base}_600.webp"
+                self.image_thumbnail.name = os.path.join('products/thumbnails/', nome_arquivo_thumb)
+                self.image_thumbnail.save(nome_arquivo_thumb, ContentFile(buffer_pequeno.getvalue()), save=False)
 
         super().save(*args, **kwargs)
 
@@ -217,10 +228,39 @@ class SizeGuide(models.Model):
     class Meta:
         verbose_name = "Guia de Medida"
         verbose_name_plural = "Guias de Medidas"
-        # Garante apenas UMA tabela para a combinação exata de Marca + Subcategoria (ex: Vans + Camisetas)
         unique_together = ('brand', 'subcategory') 
-    def __str__(self):
-        return f"Tabela {self.brand.name} - {self.subcategory.name}"
+
+    def clean(self):
+        """Valida se é uma imagem suportada antes de processar."""
+        if self.guide_image:
+            try:
+                with Image.open(self.guide_image) as img:
+                    if img.format not in ['JPEG', 'PNG', 'WEBP']:
+                        raise ValidationError(f"Formato '{img.format}' não permitido. Use JPEG, PNG ou WEBP.")
+            except Exception:
+                raise ValidationError("O arquivo não é uma imagem válida.")
+
+    def save(self, *args, **kwargs):
+        self.full_clean() # Valida antes de processar
+        
+        # Só converte se for uma imagem nova ou se foi alterada
+        if self.guide_image and hasattr(self.guide_image, 'file'):
+            # Abrimos a imagem original
+            with Image.open(self.guide_image) as img:
+                # Se não for WebP, convertemos para WebP
+                if img.format != 'WEBP':
+                    buffer = BytesIO()
+                    # Converte para WebP com boa qualidade
+                    img.save(buffer, format='WEBP', quality=85)
+                    
+                    # Gera um novo nome de arquivo .webp
+                    nome_base = os.path.splitext(os.path.basename(self.guide_image.name))[0]
+                    novo_nome = f"{nome_base}.webp"
+                    
+                    # Substitui o arquivo no campo
+                    self.guide_image.save(novo_nome, ContentFile(buffer.getvalue()), save=False)
+
+        super().save(*args, **kwargs)
 
 @receiver(post_delete, sender=ProductImage)
 @receiver(post_delete, sender=SizeGuide)
