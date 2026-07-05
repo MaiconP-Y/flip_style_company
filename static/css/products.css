@@ -10,7 +10,11 @@
     gap: 30px 20px;
     width: 100%;
 }
-
+@media (hover: hover) and (pointer: fine) {
+    .dropdown:hover .dropdown-content {
+        display: grid;
+    }
+}
 /* Container principal dos filtros - Agora usando Flexbox para separar */
 .menu-filtros { 
     display: flex; 

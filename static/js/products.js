@@ -1,14 +1,17 @@
-document.addEventListener('click', function(e) {
+document.addEventListener('click', function (e) {
     const btn = e.target.closest('.dropbtn');
-    const dropdown = e.target.closest('.dropdown');
+    const clickedDropdown = e.target.closest('.dropdown');
 
-    // fecha qualquer outro dropdown que não seja o clicado
-    document.querySelectorAll('.dropdown.active').forEach(d => {
-        if (d !== dropdown) d.classList.remove('active');
+    document.querySelectorAll('.dropdown').forEach(d => {
+        const content = d.querySelector('.dropdown-content');
+        if (!content) return;
+
+        if (d === clickedDropdown && btn) {
+            const isOpen = content.style.display === 'grid';
+            content.style.display = isOpen ? 'none' : 'grid';
+            if (isOpen) btn.blur();
+        } else {
+            content.style.display = 'none';
+        }
     });
-
-    if (btn && dropdown) {
-        dropdown.classList.toggle('active');
-        if (!dropdown.classList.contains('active')) btn.blur();
-    }
 });
