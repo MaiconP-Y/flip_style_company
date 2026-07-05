@@ -106,7 +106,9 @@
 
 .filtros-ativos {
     display: flex;
-    gap: 10px;
+    flex-wrap: wrap; /* Permite que as tags vão para baixo quando não couberem */
+    gap: 5px;
+    align-items: center;
 }
 
 .tag-filtro {
@@ -130,7 +132,6 @@
     color: #666;
     text-decoration: underline;
     font-size: 14px;
-    align-self: center;
 }
 /* Responsividade */
 .category-banner {

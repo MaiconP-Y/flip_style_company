@@ -1,4 +1,8 @@
 document.addEventListener('click', function (e) {
+    // Se o usuário clicou em uma opção de filtro (link), não faz nada aqui.
+    // Isso devolve a sensação de clique padrão e deixa o link carregar.
+    if (e.target.closest('.btn-filtro')) return;
+
     const btn = e.target.closest('.dropbtn');
     const clickedDropdown = e.target.closest('.dropdown');
 
