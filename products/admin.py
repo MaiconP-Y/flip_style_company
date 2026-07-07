@@ -37,6 +37,23 @@ class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
     max_num = 3
+    readonly_fields = ('image_thumbnail',)
+
+    def get_readonly_fields(self, request, obj=None):
+        return super().get_readonly_fields(request, obj)
+
+    def get_formset(self, request, obj=None, **kwargs):
+        formset = super().get_formset(request, obj, **kwargs)
+        
+        class ReadOnlyImageForm(formset.form):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                # Bloqueia a alteração da imagem principal APENAS se ela já existir
+                if self.instance and self.instance.pk and self.instance.image:
+                    self.fields['image'].disabled = True
+                    
+        formset.form = ReadOnlyImageForm
+        return formset
 
 
 class ProductVariantInline(admin.TabularInline):
@@ -133,6 +150,10 @@ class SizeGuideAdmin(admin.ModelAdmin):
         return bool(obj.guide_image)
     has_image.boolean = True
     has_image.short_description = "Tem Imagem?"
+    def get_readonly_fields(self, request, obj=None):
+        if obj and obj.guide_image:
+            return ('guide_image',) # O campo fica como leitura (sem botão de upload)
+        return ()
 
 @admin.register(Subcategory)
 class SubcategoryAdmin(admin.ModelAdmin):
