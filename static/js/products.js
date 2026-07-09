@@ -1,21 +1,16 @@
 document.addEventListener('click', function (e) {
-    // Se o usuário clicou em uma opção de filtro (link), não faz nada aqui.
-    // Isso devolve a sensação de clique padrão e deixa o link carregar.
+    // Clique numa opção de filtro: deixa o link navegar normalmente.
     if (e.target.closest('.btn-filtro')) return;
 
     const btn = e.target.closest('.dropbtn');
     const clickedDropdown = e.target.closest('.dropdown');
 
     document.querySelectorAll('.dropdown').forEach(d => {
-        const content = d.querySelector('.dropdown-content');
-        if (!content) return;
-
         if (d === clickedDropdown && btn) {
-            const isOpen = content.style.display === 'grid';
-            content.style.display = isOpen ? 'none' : 'grid';
-            if (isOpen) btn.blur();
+            d.classList.toggle('active');
+            if (!d.classList.contains('active')) btn.blur();
         } else {
-            content.style.display = 'none';
+            d.classList.remove('active');
         }
     });
 });
