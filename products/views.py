@@ -1,7 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView
 from .models import Product, Color, Size, Brand, SizeGuide, Subcategory, Category, ProductModel
 from django.db.models import Q
+from django.http import Http404
 
 def home(request):
     # 1. Busca os produtos de destaque (Otimizado com select_related para a nova estrutura)
@@ -119,6 +120,23 @@ class ProductsListView(ListView):
         context['marcas'] = Brand.objects.all().order_by('name')
         
         return context
+    
+    def get(self, request, *args, **kwargs):
+        try:
+            return super().get(request, *args, **kwargs)
+        except Http404:
+            # Captura o 404 gerado quando os filtros reduzem o número de páginas
+            params = request.GET.copy()
+            
+            if 'page' in params:
+                params.pop('page')  # Remove a página inválida para resetar para a página 1
+            
+            # Reconstrói a URL preservando os filtros aplicados pelo usuário
+            redirect_url = request.path
+            if params:
+                redirect_url += f"?{params.urlencode()}"
+            
+            return redirect(redirect_url)
 
 class ProductDetailView(DetailView):
     model = Product
