@@ -3,6 +3,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
 from products.views import home, ProductsListView, QuemSomosView, PrivacidadeView, ProductDetailView
+from django.views.generic.base import RedirectView
 
 urlpatterns = [
     path('c-cyber-control/', admin.site.urls),
@@ -13,6 +14,10 @@ urlpatterns = [
     path('produtos/categoria/<slug:category_slug>/', ProductsListView.as_view(), name='category'),
     path('produtos/sub/<slug:subcategory_slug>/', ProductsListView.as_view(), name='subcategory'),
     path('produto/<slug:slug>/', ProductDetailView.as_view(), name='product_detail'),
+    path(
+        'favicon.ico', 
+        RedirectView.as_view(url=settings.STATIC_URL + 'img/favicon.ico', permanent=True)
+    ),
 ]
 
 # Apenas adicione as rotas de mídia se estivermos em desenvolvimento
