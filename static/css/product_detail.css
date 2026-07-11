@@ -38,12 +38,15 @@
 
 .gallery-main {
     width: 100%;
-    max-width: 100%;
     aspect-ratio: 1 / 1;
+    max-width: 100%;
     background-color: #ffffff;
     border-radius: 8px;
     overflow: hidden;
     cursor: zoom-in;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .gallery-main.zoomed {
@@ -52,13 +55,13 @@
 
 .main-img {
     width: 100%;
-    height: auto;
-    object-fit: cover;
+    height: 100%;             /* Mudado para 100% para o flexbox alinhar o tamanho correto */
+    object-fit: contain;      /* Garante que o tênis apareça inteiro sem cortes */
     display: block;
     transform-origin: center center;
     transition: transform 0.15s ease-out;
     will-change: transform;
-    pointer-events: none; /* evita flickering no mousemove */
+    pointer-events: none;     /* evita flickering no mousemove */
 }
 
 .gallery-main.zoomed .main-img {
@@ -88,7 +91,7 @@
     border: 2px solid transparent;
     border-radius: 6px;
     padding: 0;
-    background: #f8f8f8;
+    background-color: #ffffff;
     cursor: pointer;
     overflow: hidden;
     transition: border-color 0.2s ease;
@@ -100,7 +103,7 @@
 
 .thumb-img {
     width: 100%;
-    height: 100%;
+    height: auto;
     object-fit: cover;
 }
 
@@ -463,6 +466,9 @@
     cursor: pointer;
     transition: all 0.2s ease;
     background-color: #ffffff;
+    display: flex; /* Adicionado */
+    align-items: center; /* Centraliza verticalmente */
+    justify-content: center; /* Centraliza horizontalmente */
 }
 .swatch-item img {
     width: 100%;

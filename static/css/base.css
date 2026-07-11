@@ -294,22 +294,28 @@ footer {
     position: relative;
     width: 100%;
     aspect-ratio: 1 / 1;
-
+    display: flex;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
 }
 
 .product-img {
     width: 100%;
     height: auto;
-    object-fit: cover;
+    object-fit: contain;
     transition: opacity 0.3s ease, transform 0.4s ease;
     will-change: transform, opacity;
 }
 
+/* Se você usa uma classe para o hover/imagem secundária */
 .secondary-img {
     position: absolute;
     top: 0;
     left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Adicione isso se não estiver */
     opacity: 0;
 }
 
