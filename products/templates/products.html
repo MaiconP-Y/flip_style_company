@@ -92,7 +92,6 @@
                          height="600" 
                          alt="{{ produto.name }}" 
                          class="product-img {% if forloop.first %}primary-img{% else %}secondary-img{% endif %}"
-                         {% if not forloop.parentloop.first %}loading="lazy"{% endif %}
                          decoding="async">
                 {% endfor %}
             </div>

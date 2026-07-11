@@ -32,7 +32,6 @@
                          data-full-src="{{ img.image.url }}"
                          alt="Miniatura {{ product.name }}" 
                          class="thumb-img"
-                         loading="lazy"
                          decoding="async">
                 </button>
             {% endfor %}
@@ -135,7 +134,6 @@
                         <img src="{{ tabela_medidas.guide_image.url }}"
                              alt="Tabela de Medidas {{ product.product_model.brand.name }}"
                              class="dialog-img"
-                             loading="lazy"
                              decoding="async"
                              width="1900">
                     {% else %}
@@ -165,7 +163,6 @@
                          height="600"
                          alt="{{ produto.name }}"
                          class="product-img {% if forloop.first %}primary-img{% else %}secondary-img{% endif %}"
-                         loading="lazy"
                          decoding="async">
                 {% endfor %}
             </div>
