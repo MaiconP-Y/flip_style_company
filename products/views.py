@@ -67,8 +67,9 @@ class ProductsListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
-        # Variáveis base
+        context['paginas'] = context['page_obj'].paginator.get_elided_page_range(
+            context['page_obj'].number, on_each_side=1, on_ends=1
+        )
         category_slug = self.kwargs.get('category_slug')
         sub_slug = self.kwargs.get('subcategory_slug')
         brand_slug = self.request.GET.get('marca')

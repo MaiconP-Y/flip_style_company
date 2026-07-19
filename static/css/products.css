@@ -176,9 +176,33 @@
     pointer-events: none;
 }
 
-.page-info {
+.page-numbers {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.page-num {
+    text-decoration: none;
+    color: #9a9a9a;
     font-size: 13px;
-    color: #666;
+    font-family: sans-serif;
+    transition: color 0.15s ease;
+}
+
+.page-num:hover {
+    color: #000;
+}
+
+.page-num.active {
+    color: #000;
+    font-weight: 600;
+    pointer-events: none;
+}
+
+.page-ellipsis {
+    color: #ccc;
+    font-size: 13px;
     font-family: sans-serif;
 }
 

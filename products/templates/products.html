@@ -117,9 +117,18 @@
         Anterior
         </a>
 
-        <span class="page-info">
-            {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
-        </span>
+        <div class="page-numbers">
+            {% for num in paginas %}
+                {% if num == page_obj.paginator.ELLIPSIS %}
+                    <span class="page-ellipsis">…</span>
+                {% else %}
+                    <a href="?{% query_transform page=num %}"
+                       class="page-num {% if num == page_obj.number %}active{% endif %}">
+                        {{ num }}
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </div>
 
         <a href="{% if page_obj.has_next %}?{% query_transform page=page_obj.next_page_number %}{% endif %}" 
         class="nav-btn {% if not page_obj.has_next %}hidden{% endif %}">
