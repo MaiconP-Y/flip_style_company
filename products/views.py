@@ -164,7 +164,7 @@ class ProductDetailView(DetailView):
             variants__stock__gt=0
         ).exclude(
             id=produto_atual.id
-        ).distinct().prefetch_related('images')[:6])
+        ).distinct().prefetch_related('images'))
         
         context['cores_do_modelo'] = cores_do_modelo
         
