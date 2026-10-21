@@ -1,7 +1,7 @@
-Django==5.2.15
+Django==5.2.18
 python-decouple==3.8
-gunicorn==26.0.0
-Pillow==12.2.0
+gunicorn==26.2.0
+Pillow==12.3.0
 Brotli==1.2.0
-markdown==3.10.2
+markdown==3.11.2
 # pip install psycopg[c] para executar comandos localmente
