@@ -156,6 +156,11 @@ STATICFILES_DIRS = [
     BASE_DIR / "static", # Isso faz o Django olhar na raiz do projeto
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'painel_promissorias'
+LOGOUT_REDIRECT_URL = 'login'
+
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",

@@ -68,7 +68,7 @@ def _chamar_gateway_get(path: str, params: dict, secret: str, timeout: int = 10)
         return 500, {"status": "erro", "mensagem": f"Erro ao consultar gateway: {exc}"}
 
 
-@staff_member_required
+@staff_member_required(login_url='login')
 @require_GET
 def whatsapp_qrcode(request):
     base_url, slug, secret = _gateway_config()
@@ -84,7 +84,7 @@ def whatsapp_qrcode(request):
     return JsonResponse(payload, status=code)
 
 
-@staff_member_required
+@staff_member_required(login_url='login')
 @require_GET
 def whatsapp_status(request):
     base_url, slug, secret = _gateway_config()
@@ -279,7 +279,7 @@ def _qs_preservando(request, chave_pagina: str, numero_pagina: int) -> str:
     return params.urlencode()
 
 
-@staff_member_required
+@staff_member_required(login_url='login')
 def painel_promissorias(request):
     falha_parcela_id = request.session.pop("falha_envio_parcela_id", None)
     falha_data = request.session.pop("falha_envio_data", None)
