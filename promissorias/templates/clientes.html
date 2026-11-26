@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clientes · Promissórias</title>
+<style>
+:root {
+  --bg: #f3f3f3;
+  --card: #ffffff;
+  --ink: #161616;
+  --muted: #6b6b6b;
+  --line: #e2e2e2;
+  --soft: #ececec;
+  --radius: 10px;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+.wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px 48px; }
+
+.topo { background: var(--card); border-bottom: 1px solid var(--line); }
+.topo .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; padding-bottom: 0; }
+.topo h1 { margin: 0; font-size: 18px; }
+.topo nav { display: flex; gap: 16px; }
+.topo a { color: var(--muted); text-decoration: none; font-size: 14px; }
+.topo a:hover { color: var(--ink); }
+
+.msg { margin: 16px 0 0; padding: 10px 14px; background: var(--ink); color: #fff; border-radius: var(--radius); font-size: 14px; }
+
+.topo-lista { display: flex; justify-content: space-between; align-items: center; margin: 28px 0 14px; gap: 12px; flex-wrap: wrap; }
+.topo-lista h2 { margin: 0; font-size: 17px; text-transform: uppercase; letter-spacing: .4px; }
+.topo-lista input {
+  width: 100%; max-width: 300px; padding: 9px 11px; font: inherit;
+  background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+}
+
+.cliente-card {
+  background: var(--card); border-radius: var(--radius); margin-bottom: 12px;
+  border: 1px solid var(--line); overflow: hidden;
+}
+.cliente-header {
+  padding: 16px 18px; display: flex; justify-content: space-between;
+  align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.cliente-info strong { display: block; font-size: 16px; }
+.cliente-info span { font-size: 13px; color: var(--muted); }
+.cliente-acoes { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.saldo { font-weight: 700; font-size: 15px; margin-right: 6px; }
+.saldo.zero { color: var(--muted); font-weight: 500; }
+
+.btn {
+  display: inline-block; padding: 7px 13px; font: inherit; font-size: 13px; font-weight: 600;
+  background: var(--ink); color: #fff; border: 0; border-radius: 8px; cursor: pointer; text-decoration: none;
+}
+.btn:hover { background: #000; }
+.btn.sec { background: var(--soft); color: var(--ink); font-weight: 500; }
+.btn.sec:hover { background: #dedede; }
+
+details.parcelas-box { border-top: 1px solid var(--soft); background: #fafafa; }
+details.parcelas-box summary {
+  padding: 10px 18px; font-size: 13px; font-weight: 600; color: var(--muted);
+  cursor: pointer; list-style: none; user-select: none;
+}
+details.parcelas-box summary::-webkit-details-marker { display: none; }
+details.parcelas-box summary:hover { color: var(--ink); }
+
+.lista-parcelas { padding: 0 18px 14px; }
+.item-parcela {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; gap: 10px;
+}
+.item-parcela:last-child { border-bottom: 0; }
+.item-parcela.paga { color: var(--muted); }
+.badge-pago { font-size: 12px; background: var(--soft); padding: 2px 8px; border-radius: 99px; }
+</style>
+</head>
+<body>
+
+<header class="topo">
+  <div class="wrap">
+    <h1>Clientes</h1>
+    <nav>
+      <a href="{% url 'painel_promissorias' %}">← Voltar ao Painel</a>
+      <a href="{% url 'admin:index' %}">Admin</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  {% for m in messages %}<div class="msg">{{ m }}</div>{% endfor %}
+
+  <div class="topo-lista">
+    <h2>Base de Clientes</h2>
+    <input type="search" id="buscaCliente" placeholder="Filtrar por nome ou CPF...">
+  </div>
+
+  <div id="listaClientes">
+    {% for c in clientes %}
+    <div class="cliente-card" data-busca="{{ c.nome|lower }} {{ c.cpf_cnpj }}">
+      <div class="cliente-header">
+        <div class="cliente-info">
+          <strong>{{ c.nome }}</strong>
+          <span>CPF/CNPJ: {{ c.cpf_cnpj }} {% if c.whatsapp %}· WhatsApp: {{ c.whatsapp }}{% endif %}</span>
+        </div>
+
+        <div class="cliente-acoes">
+          {% if c.saldo_devedor and c.saldo_devedor > 0 %}
+            <span class="saldo">Deve: R$ {{ c.saldo_devedor|floatformat:2 }}</span>
+            <form method="post" onsubmit="return confirm('Quitar TODAS as parcelas em aberto de {{ c.nome|escapejs }}?')">
+              {% csrf_token %}
+              <input type="hidden" name="acao" value="quitar_tudo">
+              <input type="hidden" name="cliente_id" value="{{ c.id }}">
+              <button type="submit" class="btn">Limpar / Quitar tudo</button>
+            </form>
+          {% else %}
+            <span class="saldo zero">Nada em aberto</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <details class="parcelas-box">
+        <summary>Ver parcelas para baixa antecipada ou histórico ▾</summary>
+        <div class="lista-parcelas">
+          {% for acordo in c.acordos.all %}
+            {% for p in acordo.parcelas.all %}
+              <div class="item-parcela {% if p.status == 'pago' %}paga{% endif %}">
+                <div>
+                  <strong>{{ p.identificacao_parcela }}</strong> · {{ acordo.descricao }}
+                  <small>(Venc: {{ p.vencimento|date:"d/m/Y" }})</small>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <span>R$ {{ p.valor|floatformat:2 }}</span>
+                  {% if p.status != 'pago' %}
+                    <form method="post" onsubmit="return confirm('Dar baixa antecipada na parcela {{ p.identificacao_parcela }}?')">
+                      {% csrf_token %}
+                      <input type="hidden" name="acao" value="baixar_parcela">
+                      <input type="hidden" name="parcela_id" value="{{ p.id }}">
+                      <button type="submit" class="btn sec">Dar baixa</button>
+                    </form>
+                  {% else %}
+                    <span class="badge-pago">Pago</span>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          {% empty %}
+            <p style="color:var(--muted); font-size:13px; margin:8px 0 0;">Nenhuma promissória registrada para este cliente.</p>
+          {% endfor %}
+        </div>
+      </details>
+    </div>
+    {% empty %}
+      <p style="color:var(--muted);">Nenhum cliente cadastrado ainda.</p>
+    {% endfor %}
+  </div>
+</main>
+
+<script>
+document.getElementById('buscaCliente').addEventListener('input', function() {
+  const termo = this.value.trim().toLowerCase();
+  document.querySelectorAll('.cliente-card').forEach(card => {
+    card.hidden = termo && !card.dataset.busca.includes(termo);
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,554 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Promissórias</title>
+<script>
+(function () {
+  try {
+    var t = localStorage.getItem('painel_tema');
+    if (t === 'dark' || t === 'light') {
+      document.documentElement.setAttribute('data-tema', t);
+    }
+  } catch (e) {}
+})();
+</script>
+<link rel="stylesheet" href="{% static 'css/painel.css' %}">
+</head>
+<body>
+
+<header class="topo">
+  <div class="wrap">
+    <a href="{% url 'painel_promissorias' %}" class="marca-topo">
+      <img src="{% static 'img/logo.webp' %}" alt="FlipStyleCompany" width="36" height="36">
+      <span>Promissórias</span>
+    </a>
+    <nav>
+      <a href="#parcelas" data-aba="parcelas">Parcelas</a>
+      <a href="#clientes" data-aba="clientes">Clientes</a>
+      <a href="{% url 'admin:index' %}">Admin</a>
+      <button type="button" class="btn sec mini tema-btn" id="btnTema" aria-label="Alternar tema claro ou escuro">Dark</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  {% for m in messages %}<div class="msg">{{ m }}</div>{% endfor %}
+
+  <div class="conexao">
+    <button type="button" class="btn sec" id="btnQrCode" hidden>Conectar WhatsApp (QR Code)</button>
+    <span id="statusQr" class="conexao-status"></span>
+  </div>
+
+  <div id="boxQr" class="qr-box" hidden>
+    <div id="canvasQr"></div>
+  </div>
+
+  <section class="totais">
+    <div class="total destaque"><span>A receber</span><strong>R$ {{ total_pendente|floatformat:2 }}</strong></div>
+    <div class="total"><span>Recebido</span><strong>R$ {{ total_recebido|floatformat:2 }}</strong></div>
+  </section>
+
+  <!-- ===================== ABA PARCELAS ===================== -->
+  <section id="aba-parcelas">
+
+    <h2>Nova promissória</h2>
+    <details class="nova">
+      <summary>Cadastrar venda parcelada</summary>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="acao" value="nova_promissoria">
+        <div class="grid">
+          <div class="c3">
+            <label for="buscaClientePromissoria">Buscar cliente</label>
+            <input type="search" id="buscaClientePromissoria" placeholder="Digite nome, CPF/CNPJ ou WhatsApp..." autocomplete="off">
+          </div>
+          <div class="c3">
+            <label for="cliente_id">Cliente</label>
+            <select name="cliente_id" id="cliente_id" required>
+              {% for c in clientes %}<option value="{{ c.id }}" data-busca="{{ c.nome|lower }} {{ c.cpf_cnpj }} {{ c.whatsapp }}">{{ c.nome }} · {{ c.cpf_cnpj }}</option>{% endfor %}
+              <option value="novo" data-busca="novo cliente cadastrar">+ Novo cliente</option>
+            </select>
+          </div>
+
+          <div class="novo-cliente" id="novoCliente">
+            <div class="c2"><label>Nome</label><input name="novo_nome" maxlength="150"></div>
+            <div class="c2"><label>CPF ou CNPJ</label><input name="novo_cpf" maxlength="18"></div>
+            <div class="c2"><label>WhatsApp</label><input name="novo_whatsapp" placeholder="(43) 99999-9999" inputmode="tel"></div>
+          </div>
+
+          <div class="c4"><label>Descrição</label><input name="descricao" maxlength="200" placeholder="Compra na loja"></div>
+          <div class="c2"><label>Valor total (R$)</label><input name="valor_total" inputmode="decimal" placeholder="0,00" required></div>
+          <div class="c2"><label>Parcelas</label><input type="number" name="quantidade_parcelas" min="1" max="60" value="1" required></div>
+          <div class="c2"><label>Primeira parcela</label><input type="date" name="primeiro_vencimento" value="{{ hoje|date:'Y-m-d' }}"></div>
+          <div class="c6"><button class="btn" type="submit">Criar promissória</button></div>
+        </div>
+      </form>
+    </details>
+
+    <h2>Parcelas</h2>
+    <div class="filtros">
+      <input type="search" id="buscaParcela" placeholder="Buscar cliente ou descrição" aria-label="Buscar parcela">
+      <select id="filtroStatus" aria-label="Filtrar por status">
+        <option value="">Todos os status</option>
+        <option value="aberto" selected>Em aberto</option>
+        <option value="atrasado">Atrasadas</option>
+        <option value="pago">Pagas</option>
+      </select>
+      <select id="filtroEnvio" aria-label="Filtrar por envio de lembrete">
+        <option value="">Todos os envios</option>
+        <option value="aguardando_disparo">Aguardando disparo hoje</option>
+        <option value="enviado_hoje">Lembrete enviado hoje</option>
+        <option value="falhou_hoje">Falhou no envio hoje</option>
+        <option value="atrasado_pendente">Atrasado · não enviado hoje</option>
+        <option value="atrasado_enviado">Atrasado · enviado hoje</option>
+        <option value="aguardando_data">Aguardando data</option>
+      </select>
+    </div>
+
+    <div class="tabela">
+      <table>
+        <thead>
+          <tr>
+            <th>Cliente</th><th>WhatsApp</th><th>Parcela</th><th>Vencimento</th><th>Valor</th><th>Status</th><th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="linhas">
+          {% for p in parcelas %}
+          {% if p.status == 'pago' %}
+            <tr class="pago" data-grupo="pago"
+          {% elif p.vencimento < hoje or p.status == 'atrasado' or p.status == 'aviso_serasa' %}
+            <tr data-grupo="atrasado aberto"
+          {% else %}
+            <tr data-grupo="aberto"
+          {% endif %}
+              data-envio="{{ p.info_envio.codigo }}"
+              data-texto="{{ p.acordo.cliente.nome|lower }} {{ p.acordo.descricao|lower }} {{ p.acordo.cliente.whatsapp }} {{ p.info_envio.titulo|lower }}">
+            <td>{{ p.acordo.cliente.nome }}<small>{{ p.acordo.descricao }}</small></td>
+            <td>{{ p.acordo.cliente.whatsapp|default:"—" }}</td>
+            <td>{{ p.identificacao_parcela }}</td>
+            <td>{{ p.vencimento|date:"d/m/Y" }}</td>
+            <td class="num">R$ {{ p.valor|floatformat:2 }}</td>
+            <td>
+              {% if p.status == 'pago' %}<span class="tag pago">Pago</span>
+              {% elif p.status == 'aviso_serasa' %}<span class="tag aviso_serasa">Aviso Serasa</span>
+              {% elif p.vencimento < hoje or p.status == 'atrasado' %}<span class="tag atrasado">Atrasado</span>
+              {% else %}<span class="tag pendente">Pendente</span>{% endif %}
+              <span class="envio-indicador {{ p.info_envio.estilo }}">{{ p.info_envio.titulo }}</span>
+              <small>{{ p.info_envio.detalhe }}</small>
+            </td>
+            <td class="acoes">
+              {% if p.status != 'pago' %}
+                {% if p.acordo.cliente.whatsapp %}
+                  <a class="btn sec mini" href="https://wa.me/{{ p.acordo.cliente.whatsapp }}" target="_blank" rel="noopener">WhatsApp</a>
+                {% endif %}
+
+                <form method="post" class="inline" onsubmit="return confirm('Dar baixa na parcela {{ p.identificacao_parcela }}?')">
+                  {% csrf_token %}
+                  <input type="hidden" name="acao" value="baixar_parcela">
+                  <input type="hidden" name="parcela_id" value="{{ p.id }}">
+                  <button class="btn mini" type="submit">Dar baixa</button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7" class="vazio">Nenhuma parcela cadastrada ainda.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div class="vazio" id="semParcela" hidden>Nenhuma parcela com esse filtro.</div>
+    </div>
+
+    {% if parcelas_page.paginator.num_pages > 1 %}
+    <nav class="pagination-nav" aria-label="Paginação de parcelas">
+      <a href="{% if parcelas_page.has_previous %}{{ url_parcelas_prev }}{% endif %}"
+         class="nav-btn {% if not parcelas_page.has_previous %}hidden{% endif %}">
+        Anterior
+      </a>
+      <div class="page-numbers">
+        {% for item in links_parcelas %}
+          {% if item.is_ellipsis %}
+            <span class="page-ellipsis">…</span>
+          {% else %}
+            <a href="{{ item.url }}" class="page-num {% if item.active %}active{% endif %}">
+              {{ item.num }}
+            </a>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <a href="{% if parcelas_page.has_next %}{{ url_parcelas_next }}{% endif %}"
+         class="nav-btn {% if not parcelas_page.has_next %}hidden{% endif %}">
+        Próximo
+      </a>
+    </nav>
+    {% endif %}
+  </section>
+
+  <!-- ===================== ABA CLIENTES ===================== -->
+  <section id="aba-clientes" hidden>
+
+    <h2>Clientes</h2>
+    <div class="filtros">
+      <input type="search" id="buscaCliente" placeholder="Buscar por nome, CPF/CNPJ ou WhatsApp" aria-label="Buscar cliente">
+      <select id="filtroSaldo" aria-label="Filtrar por saldo">
+        <option value="">Todos</option>
+        <option value="1">Com saldo em aberto</option>
+      </select>
+    </div>
+
+    <div id="listaClientes">
+      {% for c in clientes %}
+      <div class="cliente-card"
+           data-busca="{{ c.nome|lower }} {{ c.cpf_cnpj }} {{ c.whatsapp }}"
+           data-devendo="{% if c.saldo_devedor and c.saldo_devedor > 0 %}1{% endif %}">
+
+        <div class="cliente-header">
+          <div class="cliente-info">
+            <strong>{{ c.nome }}</strong>
+            <span>{{ c.cpf_cnpj }}{% if c.whatsapp %} · <a href="https://wa.me/{{ c.whatsapp }}" target="_blank" rel="noopener">{{ c.whatsapp }}</a>{% endif %}</span>
+          </div>
+          <div class="cliente-acoes">
+            {% if c.saldo_devedor and c.saldo_devedor > 0 %}
+              <span class="saldo">Deve R$ {{ c.saldo_devedor|floatformat:2 }}</span>
+              <form method="post" class="inline" onsubmit="return confirm('Quitar TODAS as parcelas em aberto de {{ c.nome|escapejs }}?')">
+                {% csrf_token %}
+                <input type="hidden" name="acao" value="quitar_tudo">
+                <input type="hidden" name="cliente_id" value="{{ c.id }}">
+                <button type="submit" class="btn mini">Quitar tudo</button>
+              </form>
+            {% else %}
+              <span class="saldo zero">Nada em aberto</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <details class="box">
+          <summary>Parcelas (baixa antecipada e histórico) ▾</summary>
+          <div class="conteudo">
+            {% for acordo in c.acordos.all %}
+              {% for p in acordo.parcelas.all %}
+                <div class="item-parcela{% if p.status == 'pago' %} paga{% endif %}">
+                  <div><strong>{{ p.identificacao_parcela }}</strong> · {{ acordo.descricao }} <small>Venc. {{ p.vencimento|date:"d/m/Y" }}</small></div>
+                  <div class="dir">
+                    <span>R$ {{ p.valor|floatformat:2 }}</span>
+                    {% if p.status == 'pago' %}
+                      <span class="tag pago">Pago</span>
+                    {% else %}
+                      {% if p.vencimento < hoje or p.status == 'atrasado' %}<span class="tag atrasado">Atrasado</span>{% endif %}
+
+                      <form method="post" class="inline" onsubmit="return confirm('Dar baixa na parcela {{ p.identificacao_parcela }}?')">
+                        {% csrf_token %}
+                        <input type="hidden" name="acao" value="baixar_parcela">
+                        <input type="hidden" name="parcela_id" value="{{ p.id }}">
+                        <button class="btn sec mini" type="submit">Dar baixa</button>
+                      </form>
+                    {% endif %}
+                  </div>
+                </div>
+              {% endfor %}
+            {% empty %}
+              <p class="vazio-linha">Nenhuma promissória registrada para este cliente.</p>
+            {% endfor %}
+          </div>
+        </details>
+
+        <details class="box">
+          <summary>Editar cadastro ▾</summary>
+          <div class="conteudo">
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="acao" value="editar_cliente">
+              <input type="hidden" name="cliente_id" value="{{ c.id }}">
+              <div class="grid">
+                <div class="c3"><label>Nome</label><input name="nome" value="{{ c.nome }}" maxlength="150" required></div>
+                <div class="c3"><label>CPF ou CNPJ</label><input name="cpf_cnpj" value="{{ c.cpf_cnpj }}" maxlength="18" required></div>
+                <div class="c3"><label>WhatsApp</label><input name="whatsapp" value="{{ c.whatsapp }}" inputmode="tel" required></div>
+                <div class="c3"><label>Observações</label><input name="observacoes" value="{{ c.observacoes|default_if_none:'' }}"></div>
+                <div class="c6"><button class="btn mini" type="submit">Salvar alterações</button></div>
+              </div>
+            </form>
+          </div>
+        </details>
+      </div>
+      {% empty %}
+        <p class="vazio-linha">Nenhum cliente cadastrado ainda.</p>
+      {% endfor %}
+      <p class="vazio" id="semCliente" hidden>Nenhum cliente com esse filtro.</p>
+    </div>
+
+    {% if clientes_page.paginator.num_pages > 1 %}
+    <nav class="pagination-nav" aria-label="Paginação de clientes">
+      <a href="{% if clientes_page.has_previous %}{{ url_clientes_prev }}{% endif %}"
+         class="nav-btn {% if not clientes_page.has_previous %}hidden{% endif %}">
+        Anterior
+      </a>
+      <div class="page-numbers">
+        {% for item in links_clientes %}
+          {% if item.is_ellipsis %}
+            <span class="page-ellipsis">…</span>
+          {% else %}
+            <a href="{{ item.url }}" class="page-num {% if item.active %}active{% endif %}">
+              {{ item.num }}
+            </a>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <a href="{% if clientes_page.has_next %}{{ url_clientes_next }}{% endif %}"
+         class="nav-btn {% if not clientes_page.has_next %}hidden{% endif %}">
+        Próximo
+      </a>
+    </nav>
+    {% endif %}
+  </section>
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(function () {
+  var btnTema = document.getElementById('btnTema');
+  function aplicarTema(tema) {
+    var escolhido = (tema === 'dark') ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-tema', escolhido);
+    try { localStorage.setItem('painel_tema', escolhido); } catch (e) {}
+    if (btnTema) {
+      btnTema.textContent = (escolhido === 'dark') ? 'Claro' : 'Dark';
+    }
+  }
+  var temaSalvo = 'light';
+  try {
+    var l = localStorage.getItem('painel_tema');
+    if (l === 'dark' || l === 'light') temaSalvo = l;
+  } catch (e) {}
+  aplicarTema(temaSalvo);
+  if (btnTema) {
+    btnTema.addEventListener('click', function () {
+      var atual = document.documentElement.getAttribute('data-tema') || 'light';
+      aplicarTema(atual === 'dark' ? 'light' : 'dark');
+    });
+  }
+
+  var abas = ['parcelas', 'clientes'];
+  function mostrarAba() {
+    var atual = location.hash.replace('#', '');
+    if (abas.indexOf(atual) === -1) atual = 'parcelas';
+    abas.forEach(function (nome) {
+      document.getElementById('aba-' + nome).hidden = (nome !== atual);
+      document.querySelector('[data-aba="' + nome + '"]').classList.toggle('ativo', nome === atual);
+    });
+  }
+  window.addEventListener('hashchange', mostrarAba);
+  mostrarAba();
+
+  var sel = document.getElementById('cliente_id');
+  var novo = document.getElementById('novoCliente');
+  var camposNovo = novo.querySelectorAll('input');
+  function toggleNovo() {
+    var isNovo = sel.value === 'novo';
+    novo.classList.toggle('on', isNovo);
+    camposNovo.forEach(function (inp) { inp.required = isNovo; });
+  }
+  sel.addEventListener('change', toggleNovo);
+  toggleNovo();
+
+  var buscaProm = document.getElementById('buscaClientePromissoria');
+  if (buscaProm && sel) {
+    buscaProm.addEventListener('input', function () {
+      var termo = buscaProm.value.trim().toLowerCase();
+      var primeiraVisivel = null;
+
+      Array.from(sel.options).forEach(function (opt) {
+        if (opt.value === 'novo') {
+          opt.hidden = false;
+          return;
+        }
+        var texto = opt.dataset.busca || opt.textContent.toLowerCase();
+        var visivel = !termo || texto.indexOf(termo) > -1;
+        opt.hidden = !visivel;
+        if (visivel && !primeiraVisivel) {
+          primeiraVisivel = opt;
+        }
+      });
+
+      if (sel.selectedOptions.length && sel.selectedOptions[0].hidden) {
+        if (primeiraVisivel) {
+          sel.value = primeiraVisivel.value;
+        } else {
+          sel.value = 'novo';
+        }
+        toggleNovo();
+      }
+    });
+  }
+
+  var buscaP = document.getElementById('buscaParcela');
+  var status = document.getElementById('filtroStatus');
+  var filtroEnvio = document.getElementById('filtroEnvio');
+  var linhas = document.querySelectorAll('#linhas tr[data-grupo]');
+  var semP = document.getElementById('semParcela');
+  function filtrarParcelas() {
+    var termo = buscaP.value.trim().toLowerCase(),
+        grupo = status.value,
+        envio = filtroEnvio ? filtroEnvio.value : '',
+        n = 0;
+    linhas.forEach(function (tr) {
+      var ok = (!grupo || tr.dataset.grupo.split(' ').indexOf(grupo) > -1) &&
+               (!envio || tr.dataset.envio === envio) &&
+               (!termo || tr.dataset.texto.indexOf(termo) > -1);
+      tr.hidden = !ok;
+      if (ok) n++;
+    });
+    semP.hidden = n > 0 || linhas.length === 0;
+  }
+  buscaP.addEventListener('input', filtrarParcelas);
+  status.addEventListener('change', filtrarParcelas);
+  if (filtroEnvio) filtroEnvio.addEventListener('change', filtrarParcelas);
+  filtrarParcelas();
+
+  var buscaC = document.getElementById('buscaCliente');
+  var saldo = document.getElementById('filtroSaldo');
+  var cards = document.querySelectorAll('.cliente-card');
+  var semC = document.getElementById('semCliente');
+  function filtrarClientes() {
+    var termo = buscaC.value.trim().toLowerCase(), n = 0;
+    cards.forEach(function (card) {
+      var ok = (!termo || card.dataset.busca.indexOf(termo) > -1) &&
+               (!saldo.value || card.dataset.devendo === '1');
+      card.hidden = !ok;
+      if (ok) n++;
+    });
+    semC.hidden = n > 0 || cards.length === 0;
+  }
+  buscaC.addEventListener('input', filtrarClientes);
+  saldo.addEventListener('change', filtrarClientes);
+
+  var btnQr = document.getElementById('btnQrCode');
+  var statusQr = document.getElementById('statusQr');
+  var boxQr = document.getElementById('boxQr');
+  var canvasQr = document.getElementById('canvasQr');
+  var pollQr = null;
+  var timerRenovarQr = null;
+  var TEMPO_QR_MS = 120000;
+
+  function setBotaoAlertaQr(ativo) {
+    if (!btnQr) return;
+    btnQr.classList.toggle('alerta-qr', Boolean(ativo));
+  }
+
+  function atualizarEstadoConexao(conectado, texto, alertaQr) {
+    statusQr.classList.remove('conectado');
+    if (conectado) {
+      if (btnQr) {
+        btnQr.hidden = true;
+        btnQr.classList.remove('alerta-qr');
+      }
+      statusQr.classList.add('conectado');
+      statusQr.textContent = 'Conectado';
+    } else {
+      if (btnQr) btnQr.hidden = false;
+      setBotaoAlertaQr(alertaQr !== undefined ? alertaQr : true);
+      statusQr.textContent = texto || '';
+    }
+  }
+
+  function pararPollQr() {
+    if (pollQr !== null) {
+      clearInterval(pollQr);
+      pollQr = null;
+    }
+    if (timerRenovarQr !== null) {
+      clearTimeout(timerRenovarQr);
+      timerRenovarQr = null;
+    }
+  }
+
+  function checarStatusConexao() {
+    return fetch("{% url 'whatsapp_status' %}")
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.conectado || data.status === 'conectado') {
+          pararPollQr();
+          boxQr.hidden = true;
+          canvasQr.innerHTML = '';
+          atualizarEstadoConexao(true, '', false);
+          return true;
+        }
+        atualizarEstadoConexao(
+          false,
+          boxQr.hidden ? 'WhatsApp desconectado — clique para escanear o QR Code.' : 'Escaneie o QR Code no WhatsApp.',
+          true
+        );
+        return false;
+      })
+      .catch(function () {
+        atualizarEstadoConexao(false, '', true);
+        return false;
+      });
+  }
+
+  function solicitarQrCode(silencioso) {
+    if (!btnQr) return;
+    pararPollQr();
+    btnQr.disabled = true;
+    statusQr.classList.remove('conectado');
+    if (!silencioso) {
+      statusQr.textContent = 'Buscando QR Code...';
+    }
+
+    fetch("{% url 'whatsapp_qrcode' %}?acao=gerar")
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        canvasQr.innerHTML = '';
+
+        if (data.status === 'conectado') {
+          boxQr.hidden = true;
+          atualizarEstadoConexao(true, '', false);
+          return;
+        }
+
+        if (data.status === 'pendente' && data.qrcode) {
+          boxQr.hidden = false;
+          atualizarEstadoConexao(false, 'Escaneie o QR Code no WhatsApp (válido por pouco tempo).', true);
+          if (typeof QRCode !== 'undefined') {
+            new QRCode(canvasQr, {
+              text: data.qrcode,
+              width: 220,
+              height: 220
+            });
+          } else {
+            canvasQr.textContent = data.qrcode;
+          }
+          pollQr = setInterval(checarStatusConexao, 5000);
+          timerRenovarQr = setTimeout(function () {
+            if (!boxQr.hidden) {
+              solicitarQrCode(true);
+            }
+          }, TEMPO_QR_MS);
+        } else {
+          boxQr.hidden = true;
+          atualizarEstadoConexao(false, data.mensagem || 'Não foi possível gerar o QR Code.', true);
+        }
+      })
+      .catch(function () {
+        boxQr.hidden = true;
+        atualizarEstadoConexao(false, 'Falha ao consultar o QR Code.', true);
+      })
+      .finally(function () {
+        btnQr.disabled = false;
+      });
+  }
+
+  if (btnQr) {
+    btnQr.addEventListener('click', function () {
+      solicitarQrCode(false);
+    });
+  }
+
+  checarStatusConexao();
+})();
+</script>
+</body>
+</html>
