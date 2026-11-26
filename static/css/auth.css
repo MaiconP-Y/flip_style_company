@@ -1,0 +1,183 @@
+/* =========================================
+   AUTH (LOGIN) - PADRÃO FLIPSTYLE
+   Depende das variáveis e do reset do base.css
+   ========================================= */
+.auth-container {
+    width: 100%;
+    max-width: 440px;
+    margin: 60px auto;
+    padding: 40px 32px;
+    background-color: #ffffff;
+    border: 2px solid #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.auth-container h2 {
+    font-size: 24px;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-align: center;
+    letter-spacing: 2px;
+    color: var(--text-primary);
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* =========================================
+   FORMULÁRIO (form.as_p)
+   ========================================= */
+.auth-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.auth-container form p {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.auth-container label {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-primary);
+}
+
+.auth-container input[type="text"],
+.auth-container input[type="email"],
+.auth-container input[type="password"] {
+    width: 100%;
+    height: 46px;
+    padding: 0 14px;
+    font-size: 14px;
+    color: var(--text-primary);
+    background-color: #ffffff;
+    border: 1px solid #d2d2d7;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-container input::placeholder {
+    color: var(--text-secondary);
+}
+
+.auth-container input:hover {
+    border-color: #a1a1a6;
+}
+
+.auth-container input:focus {
+    border-color: #000000;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Textos de ajuda do Django */
+.auth-container .helptext {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* Mensagens de erro do Django */
+.auth-container .errorlist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.auth-container .errorlist li {
+    font-size: 13px;
+    font-weight: 500;
+    color: #b00020;
+    background-color: #fdf2f3;
+    border: 1px solid #f0c5ca;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+}
+
+.auth-container input[aria-invalid="true"] {
+    border-color: #b00020;
+}
+
+/* =========================================
+   BOTÃO (CTA) - igual ao btn-whatsapp-buy
+   ========================================= */
+.auth-container button[type="submit"] {
+    width: 100%;
+    height: 54px;
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #ffffff;
+    background: #000000;
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.auth-container button[type="submit"]:hover {
+    background: #353535;
+}
+
+.auth-container button[type="submit"]:active {
+    transform: scale(0.98);
+}
+
+.auth-container button[type="submit"]:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 3px;
+}
+
+/* =========================================
+   LINKS AUXILIARES (opcional)
+   Ex.: <p class="auth-links"><a href="...">Esqueci a senha</a></p>
+   ========================================= */
+.auth-container .auth-links {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.auth-container .auth-links a {
+    color: #666666;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.15s ease;
+}
+
+.auth-container .auth-links a:hover {
+    color: #000000;
+}
+
+/* =========================================
+   RESPONSIVO
+   ========================================= */
+@media (max-width: 905px) {
+    .auth-container {
+        margin: 40px auto;
+    }
+}
+
+@media (max-width: 600px) {
+    .auth-container {
+        max-width: calc(100% - 30px);
+        margin: 30px auto;
+        padding: 30px 20px;
+    }
+
+    .auth-container h2 {
+        font-size: 20px;
+    }
+}
