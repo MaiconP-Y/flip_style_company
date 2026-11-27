@@ -77,20 +77,6 @@
                   <small>· R$ {{ acordo.valor_total|floatformat:2 }} ({{ acordo.quantidade_parcelas }}x)</small>
                 </div>
                 <div class="acordo-acoes">
-                  <form method="post" class="inline" onsubmit="return confirm('Apagar apenas as parcelas FUTURAS (a partir de hoje) deste acordo?')">
-                    {% csrf_token %}
-                    <input type="hidden" name="acao" value="excluir_acordo">
-                    <input type="hidden" name="acordo_id" value="{{ acordo.id }}">
-                    <input type="hidden" name="escopo" value="futuras">
-                    <button type="submit" class="btn sec mini">Apagar futuras</button>
-                  </form>
-                  <form method="post" class="inline" onsubmit="return confirm('Apagar apenas as parcelas PASSADAS (anteriores a hoje) deste acordo?')">
-                    {% csrf_token %}
-                    <input type="hidden" name="acao" value="excluir_acordo">
-                    <input type="hidden" name="acordo_id" value="{{ acordo.id }}">
-                    <input type="hidden" name="escopo" value="passadas">
-                    <button type="submit" class="btn sec mini">Apagar passadas</button>
-                  </form>
                   <form method="post" class="inline" onsubmit="return confirm('EXCLUIR este acordo inteiro e todas as suas parcelas?')">
                     {% csrf_token %}
                     <input type="hidden" name="acao" value="excluir_acordo">

@@ -348,7 +348,7 @@ def _disparar_aviso_parcela_agora(
 
     chave_pix = _chave_pix_config()
     if chave_pix:
-        time.sleep(random.uniform(15, 25))
+        time.sleep(random.uniform(3, 5))
         _enviar_texto_com_digitacao(telefone, chave_pix)
 
     if parcela.vencimento == hoje:
@@ -710,20 +710,10 @@ def clientes_promissorias(request):
                 AcordoPromissoria.objects.select_related("cliente"),
                 id=request.POST.get("acordo_id"),
             )
-            escopo = request.POST.get("escopo", "tudo")
-            hoje_post = timezone.localdate()
-
             with transaction.atomic():
-                if escopo == "futuras":
-                    qtd, _ = acordo.parcelas.filter(vencimento__gte=hoje_post).delete()
-                    messages.success(request, f"{qtd} parcela(s) a partir de hoje removidas do acordo.")
-                elif escopo == "passadas":
-                    qtd, _ = acordo.parcelas.filter(vencimento__lt=hoje_post).delete()
-                    messages.success(request, f"{qtd} parcela(s) anteriores a hoje removidas do acordo.")
-                else:
-                    nome_cli = acordo.cliente.nome
-                    acordo.delete()
-                    messages.success(request, f"Promissória/acordo de {nome_cli} e suas parcelas excluídos.")
+                nome_cli = acordo.cliente.nome
+                acordo.delete()
+            messages.success(request, f"Promissória/acordo de {nome_cli} e suas parcelas excluídos.")
             return redirect("clientes")
 
         elif acao == "excluir_cliente_tudo":
