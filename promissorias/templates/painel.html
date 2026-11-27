@@ -27,7 +27,7 @@
     </a>
     <nav>
       <a href="#parcelas" data-aba="parcelas">Parcelas</a>
-      <a href="#clientes" data-aba="clientes">Clientes</a>
+      <a href="{% url 'clientes' %}" data-aba="clientes">Clientes</a>
       <a href="{% url 'admin:index' %}">Admin</a>
       <button type="button" class="btn sec mini tema-btn" id="btnTema" aria-label="Alternar tema claro ou escuro">Dark</button>
     </nav>
@@ -63,13 +63,18 @@
         <div class="grid">
           <div class="c3">
             <label for="buscaClientePromissoria">Buscar cliente</label>
-            <input type="search" id="buscaClientePromissoria" placeholder="Digite nome, CPF/CNPJ ou WhatsApp..." autocomplete="off">
+            <input type="search" id="buscaClientePromissoria" list="clientesDatalist" placeholder="Nome, CPF ou WhatsApp..." autocomplete="off">
+            <datalist id="clientesDatalist">
+              {% for c in clientes %}
+                <option value="{{ c.nome }} · {{ c.cpf_cnpj }}" data-id="{{ c.id }}"></option>
+              {% endfor %}
+            </datalist>
           </div>
           <div class="c3">
             <label for="cliente_id">Cliente</label>
             <select name="cliente_id" id="cliente_id" required>
-              {% for c in clientes %}<option value="{{ c.id }}" data-busca="{{ c.nome|lower }} {{ c.cpf_cnpj }} {{ c.whatsapp }}">{{ c.nome }} · {{ c.cpf_cnpj }}</option>{% endfor %}
-              <option value="novo" data-busca="novo cliente cadastrar">+ Novo cliente</option>
+              <option value="novo">+ Novo cliente</option>
+              {% for c in clientes %}<option value="{{ c.id }}">{{ c.nome }} · {{ c.cpf_cnpj }}</option>{% endfor %}
             </select>
           </div>
 
@@ -152,6 +157,13 @@
                   <button class="btn mini" type="submit">Dar baixa</button>
                 </form>
               {% endif %}
+
+              <form method="post" class="inline" onsubmit="return confirm('Excluir a parcela {{ p.identificacao_parcela }} de {{ p.acordo.cliente.nome|escapejs }}?')">
+                {% csrf_token %}
+                <input type="hidden" name="acao" value="excluir_parcela">
+                <input type="hidden" name="parcela_id" value="{{ p.id }}">
+                <button class="btn sec mini" type="submit">Excluir</button>
+              </form>
             </td>
           </tr>
           {% empty %}
@@ -306,7 +318,7 @@
 
 </main>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="{% static 'js/qrcode.min.js' %}"></script>
 <script>
 (function () {
   var btnTema = document.getElementById('btnTema');
@@ -358,27 +370,14 @@
   if (buscaProm && sel) {
     buscaProm.addEventListener('input', function () {
       var termo = buscaProm.value.trim().toLowerCase();
-      var primeiraVisivel = null;
+      if (!termo) return;
 
-      Array.from(sel.options).forEach(function (opt) {
-        if (opt.value === 'novo') {
-          opt.hidden = false;
-          return;
-        }
-        var texto = opt.dataset.busca || opt.textContent.toLowerCase();
-        var visivel = !termo || texto.indexOf(termo) > -1;
-        opt.hidden = !visivel;
-        if (visivel && !primeiraVisivel) {
-          primeiraVisivel = opt;
-        }
+      var achou = Array.from(sel.options).find(function (opt) {
+        return opt.value !== 'novo' && opt.textContent.toLowerCase().indexOf(termo) > -1;
       });
 
-      if (sel.selectedOptions.length && sel.selectedOptions[0].hidden) {
-        if (primeiraVisivel) {
-          sel.value = primeiraVisivel.value;
-        } else {
-          sel.value = 'novo';
-        }
+      if (achou) {
+        sel.value = achou.value;
         toggleNovo();
       }
     });

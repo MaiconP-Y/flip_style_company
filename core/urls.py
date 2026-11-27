@@ -16,6 +16,7 @@ from promissorias.views import (
     painel_promissorias,
     whatsapp_qrcode,
     whatsapp_status,
+    clientes_promissorias,
 )
 
 urlpatterns = [
@@ -30,7 +31,7 @@ urlpatterns = [
     path("produtos/sub/<slug:subcategory_slug>/", ProductsListView.as_view(), name="subcategory"),
     path("produto/<slug:slug>/", ProductDetailView.as_view(), name="product_detail"),
     path("promissorias/", painel_promissorias, name="painel_promissorias"),
-    path("clientes/", painel_promissorias, name="clientes"),
+    path("clientes/", clientes_promissorias, name="clientes"),
     path("whatsapp/qrcode/", whatsapp_qrcode, name="whatsapp_qrcode"),
     path("whatsapp/status/", whatsapp_status, name="whatsapp_status"),
     path(

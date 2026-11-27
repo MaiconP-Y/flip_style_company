@@ -19,8 +19,89 @@ from django.utils import timezone
 from django.views.decorators.http import require_GET
 
 from promissorias.models import AcordoPromissoria, ClientePromissoria, ParcelaPromissoria
+from django.db import transaction
+import random
+import time
+
+def _chave_pix_config() -> str:
+    return config("CHAVE_PIX_LOJA", default="").strip()
 
 
+TEMPLATES_COBRANCA = {
+    "vence_hoje": [
+        (
+            "Olá, {nome}! Tudo bem? Passando para lembrar que a parcela {parcela} "
+            "({descricao}), no valor de R$ {valor}, vence hoje ({vencimento}). "
+            "Se precisar de algo, é só chamar por aqui!"
+        ),
+        (
+            "Oi, {nome}! Um lembrete rápido: hoje ({vencimento}) é o vencimento da "
+            "parcela {parcela} referente a {descricao}, no valor de R$ {valor}. "
+            "Qualquer dúvida, estamos à disposição."
+        ),
+        (
+            "Bom dia/boa tarde, {nome}! Tudo certo? Só avisando que a parcela {parcela} "
+            "de {descricao} (R$ {valor}) vence na data de hoje, {vencimento}. "
+            "Agradecemos pela preferência!"
+        ),
+        (
+            "Olá, {nome}. Lembrando que vence hoje ({vencimento}) a parcela {parcela} "
+            "da sua compra ({descricao}), totalizando R$ {valor}. "
+            "Caso já tenha efetuado o pagamento, por favor desconsidere."
+        ),
+    ],
+    "atraso_1_a_5_dias": [
+        (
+            "Olá, {nome}, tudo bem? Consta em nosso sistema que a parcela {parcela} "
+            "({descricao}), no valor de R$ {valor} com vencimento em {vencimento}, "
+            "está em aberto há {dias} {dia_txt}. Podemos confirmar o pagamento para hoje?"
+        ),
+        (
+            "Oi, {nome}! Passando para avisar que a parcela {parcela} de {descricao} "
+            "(R$ {valor}), vencida no dia {vencimento} ({dias} {dia_txt} atrás), "
+            "ainda não consta como paga. Consegue regularizar por aí?"
+        ),
+        (
+            "Olá, {nome}. Identificamos uma pendência na parcela {parcela} ({descricao}), "
+            "no valor de R$ {valor}, que venceu em {vencimento} (atraso de {dias} {dia_txt}). "
+            "Se já pagou, nos envie o comprovante para darmos baixa."
+        ),
+        (
+            "Tudo bem, {nome}? Notamos que a parcela {parcela} referente a {descricao}, "
+            "de R$ {valor} e vencimento em {vencimento}, segue em aberto há {dias} {dia_txt}. "
+            "Ficamos no aguardo para regularizar."
+        ),
+    ],
+    "encaminhamento_serasa": [
+        (
+            "Olá, {nome}. A parcela {parcela} ({descricao}), no valor de R$ {valor} "
+            "e vencida em {vencimento} ({dias} dias de atraso), permanece em aberto. "
+            "Para evitar o encaminhamento do débito ao Serasa, pedimos que regularize ou entre em contato."
+        ),
+        (
+            "Aviso importante, {nome}: consta em aberto a parcela {parcela} de {descricao} "
+            "(R$ {valor}), vencida há {dias} dias ({vencimento}). Evite restrições no CPF "
+            "e o envio ao Serasa acertando essa pendência conosco."
+        ),
+        (
+            "Olá, {nome}. Ainda não identificamos o pagamento da parcela {parcela} ({descricao}), "
+            "de R$ {valor}, vencida em {vencimento} ({dias} dias em atraso). "
+            "Caso não seja regularizada, o título seguirá para negativação no Serasa. Fale conosco."
+        ),
+        (
+            "Prezado(a) {nome}, a parcela {parcela} referente a {descricao}, no valor de R$ {valor} "
+            "(vencimento {vencimento} · {dias} dias de atraso), segue pendente. "
+            "Entre em contato para evitarmos o registro do débito junto ao Serasa."
+        ),
+    ],
+}
+
+RODAPES_PIX = [
+    "Para facilitar, segue abaixo nossa chave Pix (basta copiar e colar):",
+    "Se preferir pagar via Pix agora, vou mandar a chave na mensagem seguinte para facilitar a cópia:",
+    "Caso queira quitar por Pix, segue a chave logo abaixo:",
+    "Para pagamento via Pix, é só copiar a chave que enviei logo abaixo:",
+]
 def _gateway_config() -> tuple[str, str, str]:
     base_url = config("AVISEJA_BASE_URL", default="").strip().rstrip("/")
     slug = config("AVISEJA_INSTANCE_ID", default="default").strip()
@@ -105,10 +186,12 @@ def _apenas_digitos(valor):
 def _formatar_moeda_br(valor: Decimal) -> str:
     return f"{valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
-
-def _montar_mensagem_cobranca(parcela: ParcelaPromissoria, hoje: date) -> tuple[str, str, int]:
+def _montar_mensagem_cobranca(
+    parcela: ParcelaPromissoria, hoje: date, indice_variacao: int | None = None
+) -> tuple[str, str, int]:
     dias_atraso = max(0, (hoje - parcela.vencimento).days)
     cliente = parcela.acordo.cliente
+    primeiro_nome = (cliente.nome or "").strip().split()[0] if cliente.nome else "Cliente"
     valor_fmt = _formatar_moeda_br(parcela.valor)
     venc_fmt = parcela.vencimento.strftime("%d/%m/%Y")
     descricao = parcela.acordo.descricao or "compra na loja"
@@ -116,30 +199,30 @@ def _montar_mensagem_cobranca(parcela: ParcelaPromissoria, hoje: date) -> tuple[
 
     if dias_atraso == 0:
         faixa = "vence_hoje"
-        mensagem = (
-            f"Olá, {cliente.nome}! Passando para lembrar que a parcela {identificacao} "
-            f"da sua compra ({descricao}), no valor de R$ {valor_fmt}, vence hoje ({venc_fmt}). "
-            f"Qualquer dúvida, estamos à disposição!"
-        )
     elif 1 <= dias_atraso <= 5:
         faixa = "atraso_1_a_5_dias"
-        dia_txt = "dia" if dias_atraso == 1 else "dias"
-        mensagem = (
-            f"Olá, {cliente.nome}. Identificamos que a parcela {identificacao} ({descricao}), "
-            f"no valor de R$ {valor_fmt}, com vencimento em {venc_fmt}, encontra-se em atraso "
-            f"há {dias_atraso} {dia_txt}. Por favor, regularize o pagamento o quanto antes."
-        )
     else:
         faixa = "encaminhamento_serasa"
-        mensagem = (
-            f"Olá, {cliente.nome}. A parcela {identificacao} ({descricao}), "
-            f"no valor de R$ {valor_fmt}, vencida em {venc_fmt} ({dias_atraso} dias de atraso), "
-            f"permanece em aberto. Caso não seja regularizada, o débito poderá ser "
-            f"encaminhado ao Serasa. Entre em contato para resolver."
-        )
+
+    modelos = TEMPLATES_COBRANCA[faixa]
+    idx = (indice_variacao if indice_variacao is not None else parcela.id) % len(modelos)
+    dia_txt = "dia" if dias_atraso == 1 else "dias"
+
+    mensagem = modelos[idx].format(
+        nome=primeiro_nome,
+        parcela=identificacao,
+        descricao=descricao,
+        valor=valor_fmt,
+        vencimento=venc_fmt,
+        dias=dias_atraso,
+        dia_txt=dia_txt,
+    )
+
+    if _chave_pix_config():
+        rodape_idx = (idx + parcela.id) % len(RODAPES_PIX)
+        mensagem = f"{mensagem}\n\n{RODAPES_PIX[rodape_idx]}"
 
     return mensagem, faixa, dias_atraso
-
 
 def _chamar_gateway_enviar(telefone: str, mensagem: str) -> tuple[bool, str]:
     base_url, slug, secret = _gateway_config()
@@ -182,23 +265,98 @@ def _chamar_gateway_enviar(telefone: str, mensagem: str) -> tuple[bool, str]:
     except Exception as exc:
         return False, f"Falha ao falar com gateway: {exc}"
 
+def _chamar_gateway_presenca(telefone: str, acao: str, timeout: int = 10) -> tuple[bool, str]:
+    """
+    acao: "escrevendo" -> POST /presenca/escrevendo
+          "parar"      -> POST /presenca/parar
+    """
+    base_url, slug, secret = _gateway_config()
+    if not base_url:
+        return False, "Envio automático ainda não configurado."
+    if not secret:
+        return False, "WHATSAPP_HMAC_SECRET não configurado."
 
-def _disparar_aviso_parcela_agora(parcela: ParcelaPromissoria, hoje: date) -> tuple[bool, str]:
+    rota = "/presenca/escrevendo" if acao == "escrevendo" else "/presenca/parar"
+    url = f"{base_url}{rota}"
+    payload = {
+        "slug": slug,
+        "telefone": telefone,
+    }
+    raw_body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+    sig = _assinar_hmac(secret, raw_body)
+
+    req = urllib.request.Request(
+        url,
+        data=raw_body,
+        headers={
+            "Content-Type": "application/json",
+            "X-Signature": sig,
+        },
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            dados = json.loads(resp.read().decode("utf-8"))
+            if resp.status == 200 and dados.get("status") == "ok":
+                return True, ""
+            return False, dados.get("mensagem") or f"Status {resp.status}"
+    except urllib.error.HTTPError as exc:
+        try:
+            detalhe = exc.read().decode("utf-8")
+        except Exception:
+            detalhe = str(exc)
+        return False, f"HTTP {exc.code}: {detalhe}"
+    except Exception as exc:
+        return False, f"Falha ao falar com gateway: {exc}"
+
+
+def _enviar_texto_com_digitacao(telefone: str, mensagem: str) -> tuple[bool, str]:
+    # Simula "digitando..." por um curto intervalo antes de parar e mandar o texto
+    _chamar_gateway_presenca(telefone, "escrevendo")
+    time.sleep(random.uniform(1.8, 3.5))
+    _chamar_gateway_presenca(telefone, "parar")
+    return _chamar_gateway_enviar(telefone, mensagem)
+
+def _disparar_aviso_parcela_agora(
+    parcela: ParcelaPromissoria, hoje: date, indice_variacao: int | None = None
+) -> tuple[bool, str]:
     telefone = _apenas_digitos(parcela.acordo.cliente.whatsapp)
     if not telefone:
         return False, "WhatsApp do cliente não informado."
 
-    mensagem, _, _ = _montar_mensagem_cobranca(parcela, hoje)
-    ok, erro = _chamar_gateway_enviar(telefone, mensagem)
+    aviso_anterior = parcela.ultimo_aviso_em
+
+    # Trava atômica no banco: só avança se ainda não foi avisado hoje
+    with transaction.atomic():
+        reservou = (
+            ParcelaPromissoria.objects.filter(pk=parcela.pk)
+            .exclude(status="pago")
+            .filter(Q(ultimo_aviso_em__isnull=True) | ~Q(ultimo_aviso_em=hoje))
+            .update(ultimo_aviso_em=hoje)
+        )
+
+    if reservou == 0:
+        return False, "Aviso já enviado ou em processamento hoje."
+
+    mensagem, _, _ = _montar_mensagem_cobranca(parcela, hoje, indice_variacao=indice_variacao)
+    ok, erro = _enviar_texto_com_digitacao(telefone, mensagem)
     if not ok:
+        # Se falhou antes de enviar, devolve o estado anterior para poder tentar de novo
+        ParcelaPromissoria.objects.filter(pk=parcela.pk).update(ultimo_aviso_em=aviso_anterior)
         return False, erro
 
-    parcela.ultimo_aviso_em = hoje
-    if parcela.vencimento == hoje:
-        parcela.lembrete_vencimento_enviado = True
-    parcela.save(update_fields=["ultimo_aviso_em", "lembrete_vencimento_enviado"])
-    return True, ""
+    chave_pix = _chave_pix_config()
+    if chave_pix:
+        time.sleep(random.uniform(15, 25))
+        _enviar_texto_com_digitacao(telefone, chave_pix)
 
+    if parcela.vencimento == hoje:
+        ParcelaPromissoria.objects.filter(pk=parcela.pk).update(lembrete_vencimento_enviado=True)
+        parcela.lembrete_vencimento_enviado = True
+
+    parcela.ultimo_aviso_em = hoje
+    return True, ""
 
 def _descrever_envio_parcela(parcela: ParcelaPromissoria, hoje: date, falhou_hoje: bool = False) -> dict:
     dias_atraso = max(0, (hoje - parcela.vencimento).days)
@@ -425,7 +583,15 @@ def painel_promissorias(request):
             cliente.save()
             messages.success(request, f"Cadastro de {cliente.nome} atualizado.")
             return redirect("painel_promissorias")
-
+        
+        elif acao == "excluir_parcela":
+            parcela = get_object_or_404(ParcelaPromissoria, id=request.POST.get("parcela_id"))
+            with transaction.atomic():
+                desc = f"{parcela.acordo.cliente.nome} ({parcela.identificacao_parcela})"
+                parcela.delete()
+            messages.success(request, f"Parcela {desc} excluída permanentemente.")
+            return redirect("painel_promissorias")
+        
     hoje = timezone.localdate()
 
     parcelas_qs = (
@@ -512,5 +678,138 @@ def painel_promissorias(request):
             "hoje": hoje,
             "total_pendente": total_pendente,
             "total_recebido": total_recebido,
+        },
+    )
+
+@staff_member_required(login_url='login')
+def clientes_promissorias(request):
+    if request.method == "POST":
+        acao = request.POST.get("acao")
+
+        if acao == "baixar_parcela":
+            parcela = get_object_or_404(ParcelaPromissoria, id=request.POST.get("parcela_id"))
+            parcela.status = "pago"
+            parcela.pago_em = timezone.now()
+            parcela.save(update_fields=["status", "pago_em"])
+            messages.success(request, f"Parcela {parcela.identificacao_parcela} baixada manualmente.")
+            return redirect("clientes")
+
+        elif acao == "excluir_parcela":
+            parcela = get_object_or_404(
+                ParcelaPromissoria.objects.select_related("acordo__cliente"),
+                id=request.POST.get("parcela_id"),
+            )
+            with transaction.atomic():
+                desc = f"{parcela.acordo.cliente.nome} ({parcela.identificacao_parcela})"
+                parcela.delete()
+            messages.success(request, f"Parcela {desc} excluída.")
+            return redirect("clientes")
+
+        elif acao == "excluir_acordo":
+            acordo = get_object_or_404(
+                AcordoPromissoria.objects.select_related("cliente"),
+                id=request.POST.get("acordo_id"),
+            )
+            escopo = request.POST.get("escopo", "tudo")
+            hoje_post = timezone.localdate()
+
+            with transaction.atomic():
+                if escopo == "futuras":
+                    qtd, _ = acordo.parcelas.filter(vencimento__gte=hoje_post).delete()
+                    messages.success(request, f"{qtd} parcela(s) a partir de hoje removidas do acordo.")
+                elif escopo == "passadas":
+                    qtd, _ = acordo.parcelas.filter(vencimento__lt=hoje_post).delete()
+                    messages.success(request, f"{qtd} parcela(s) anteriores a hoje removidas do acordo.")
+                else:
+                    nome_cli = acordo.cliente.nome
+                    acordo.delete()
+                    messages.success(request, f"Promissória/acordo de {nome_cli} e suas parcelas excluídos.")
+            return redirect("clientes")
+
+        elif acao == "excluir_cliente_tudo":
+            cliente = get_object_or_404(ClientePromissoria, id=request.POST.get("cliente_id"))
+            with transaction.atomic():
+                nome_cli = cliente.nome
+                cliente.delete()
+            messages.success(request, f"Cliente {nome_cli} e todos os acordos/parcelas vinculados foram excluídos.")
+            return redirect("clientes")
+
+        elif acao == "quitar_tudo":
+            cliente = get_object_or_404(ClientePromissoria, id=request.POST.get("cliente_id"))
+            qtd = (
+                ParcelaPromissoria.objects.filter(acordo__cliente=cliente)
+                .exclude(status="pago")
+                .update(status="pago", pago_em=timezone.now())
+            )
+            messages.success(request, f"{qtd} parcela(s) de {cliente.nome} quitada(s).")
+            return redirect("clientes")
+
+        elif acao == "editar_cliente":
+            try:
+                cliente = get_object_or_404(ClientePromissoria, id=int(request.POST.get("cliente_id")))
+            except (TypeError, ValueError):
+                messages.error(request, "Cliente inválido.")
+                return redirect("clientes")
+
+            novo_nome = request.POST.get("nome", "").strip()
+            novo_cpf = _apenas_digitos(request.POST.get("cpf_cnpj"))
+            novo_whatsapp = _apenas_digitos(request.POST.get("whatsapp")) or cliente.whatsapp
+            novo_obs = request.POST.get("observacoes", "").strip() or None
+
+            if not novo_nome or not novo_cpf:
+                messages.error(request, "Nome e CPF/CNPJ são obrigatórios.")
+                return redirect("clientes")
+
+            if ClientePromissoria.objects.exclude(pk=cliente.pk).filter(cpf_cnpj=novo_cpf).exists():
+                messages.error(request, "Já existe outro cliente cadastrado com esse CPF/CNPJ.")
+                return redirect("clientes")
+
+            cliente.nome = novo_nome
+            cliente.cpf_cnpj = novo_cpf
+            cliente.whatsapp = novo_whatsapp
+            cliente.observacoes = novo_obs
+            cliente.save()
+            messages.success(request, f"Cadastro de {cliente.nome} atualizado.")
+            return redirect("clientes")
+
+    hoje = timezone.localdate()
+    clientes_qs = (
+        ClientePromissoria.objects.annotate(
+            saldo_devedor=Sum(
+                "acordos__parcelas__valor",
+                filter=~Q(acordos__parcelas__status="pago"),
+            )
+        )
+        .prefetch_related("acordos__parcelas")
+        .order_by("nome", "id")
+    )
+    clientes_page, paginas_clientes = _paginar_seguro(
+        clientes_qs, 15, request.GET.get("c_page")
+    )
+
+    links_clientes = [
+        {
+            "num": num,
+            "is_ellipsis": num == clientes_page.paginator.ELLIPSIS,
+            "active": num == clientes_page.number,
+            "url": f"?{_qs_preservando(request, 'c_page', num)}",
+        }
+        for num in paginas_clientes
+    ]
+
+    return render(
+        request,
+        "clientes.html",
+        {
+            "clientes": clientes_page.object_list,
+            "clientes_page": clientes_page,
+            "links_clientes": links_clientes,
+            "url_clientes_prev": f"?{_qs_preservando(request, 'c_page', clientes_page.previous_page_number())}"
+            if clientes_page.has_previous()
+            else "",
+            "url_clientes_next": f"?{_qs_preservando(request, 'c_page', clientes_page.next_page_number())}"
+            if clientes_page.has_next()
+            else "",
+            "hoje": hoje,
         },
     )

@@ -408,6 +408,26 @@ details.nova > form {
 .filtros input  { max-width: 300px; }
 .filtros select { max-width: 220px; }
 
+.topo-lista {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 24px 0 14px;
+}
+
+.topo-lista h2 {
+    margin: 0;
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.topo-lista input {
+    width: 100%;
+    max-width: 300px;
+}
+
 /* ---------- 9. Tabela de parcelas ---------- */
 .tabela {
   overflow-x: auto;
@@ -495,6 +515,21 @@ details.nova > form {
 .tag.aviso_serasa { background: var(--bg-surface); color: var(--text-primary); border-style: dashed; }
 .tag.pago         { background: var(--soft); color: var(--text-muted); border-color: var(--soft); }
 
+.badge-pago,
+.badge-atrasado {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 12px;
+    border-radius: 99px;
+    background: var(--soft);
+    color: var(--text-muted);
+}
+
+.badge-atrasado {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
 .envio-indicador {
     display: block;
     margin-top: 5px;
@@ -562,6 +597,44 @@ details.nova > form {
 
 .box .conteudo { padding: 0 20px 16px; }
 
+.acordo-bloco {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.acordo-bloco:last-child {
+    border-bottom: 0;
+}
+
+.acordo-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+}
+
+.acordo-acoes {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.grid-editar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+    margin-bottom: 10px;
+}
+
+.divisor {
+    border: 0;
+    border-top: 1px solid var(--line);
+    margin: 12px 0;
+}
+
 .item-parcela {
     display: flex;
     justify-content: space-between;
@@ -585,94 +658,6 @@ details.nova > form {
     gap: 10px;
 }
 
-/* ---------- 12. Responsivo ---------- */
-@media (max-width: 905px) {
-    .topo .wrap { height: 64px; }
-}
-
-@media (max-width: 760px) {
-    .wrap { padding: 0 12px 36px; }
-    .topo .wrap { height: auto; min-height: 56px; padding-top: 8px; padding-bottom: 8px; flex-wrap: wrap; gap: 10px; }
-    .marca-topo { font-size: 14px; letter-spacing: 1px; gap: 8px; }
-    .marca-topo img { height: 30px; }
-    .topo h1 { font-size: 15px; letter-spacing: 1px; }
-    .topo nav { gap: 12px; align-self: auto; flex-wrap: wrap; }
-    .topo nav a { font-size: 13px; align-self: center; }
-
-    h2 { font-size: 17px; }
-
-    .totais { gap: 10px; }
-    .total { padding: 12px 14px; }
-    .total strong { font-size: 19px; }
-
-    .c2, .c3, .c4 { grid-column: span 6; }
-
-    .filtros { flex-direction: column; gap: 8px; }
-    .filtros input,
-    .filtros select { width: 100%; max-width: 100%; }
-
-    /* Tabela vira lista de cartões */
-    .tabela { background: transparent; border: 0; border-radius: 0; }
-    .tabela thead { display: none; }
-    .tabela table, .tabela tbody { display: block; width: 100%; }
-
-    .tabela tr {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        align-items: center;
-        gap: 4px 10px;
-        margin-bottom: 10px;
-        padding: 12px 14px;
-        background: var(--bg-surface);
-        border: 2px solid var(--bg-surface);
-        border-radius: var(--radius);
-    }
-
-    .tabela td { padding: 0; border: 0; }
-
-    /* Cliente */
-    .tabela td:nth-child(1) { grid-column: 1; grid-row: 1; font-size: 15px; font-weight: 600; }
-    .tabela td:nth-child(1) small { margin-top: 1px; font-weight: 400; }
-
-    /* Valor */
-    .tabela td:nth-child(4) {
-        grid-column: 2;
-        grid-row: 1;
-        align-self: start;
-        font-size: 15px;
-        font-weight: 700;
-        text-align: right;
-    }
-
-    /* Parcela */
-    .tabela td:nth-child(2) { grid-column: 1; grid-row: 2; font-size: 13px; color: var(--text-muted); }
-    .tabela td:nth-child(2)::before { content: "Parcela "; }
-
-    /* Vencimento */
-    .tabela td:nth-child(3) { grid-column: 1; grid-row: 3; font-size: 13px; color: var(--text-muted); }
-    .tabela td:nth-child(3)::before { content: "Venc. "; }
-
-    /* Status */
-    .tabela td:nth-child(5) { grid-column: 2; grid-row: 2 / 4; align-self: center; text-align: right; }
-
-    /* Ações */
-    .tabela td.acoes {
-        grid-column: 1 / -1;
-        grid-row: 4;
-        display: flex;
-        gap: 8px;
-        margin-top: 8px;
-        padding-top: 8px;
-        border-top: 1px solid var(--soft);
-    }
-
-    .tabela td.acoes:empty { display: none; }
-    .tabela td.acoes .btn,
-    .tabela td.acoes form.inline { flex: 1; text-align: center; }
-    .tabela td.acoes form.inline .btn { width: 100%; }
-    .tabela td.acoes .btn.mini { padding: 8px 10px; font-size: 12px; }
-}
-
 .pagination-nav {
   display: flex;
   justify-content: center;
@@ -684,7 +669,6 @@ details.nova > form {
 
 .pagination-nav .nav-btn {
   text-decoration: none;
-
   font-size: 13px;
   font-weight: 600;
   text-transform: uppercase;
@@ -723,4 +707,173 @@ details.nova > form {
 .pagination-nav .page-ellipsis {
   color: var(--muted, #9a9a9a);
   font-size: 13px;
+}
+
+/* ---------- 12. Responsivo ---------- */
+@media (max-width: 905px) {
+    .topo .wrap { height: 64px; }
+}
+
+@media (max-width: 760px) {
+    .wrap { padding: 0 12px 36px; }
+    .topo .wrap {
+        height: auto;
+        min-height: 56px;
+        padding-top: 8px;
+        padding-bottom: 8px;
+        flex-wrap: wrap;
+        gap: 8px 10px;
+    }
+    .marca-topo { font-size: 14px; letter-spacing: 1px; gap: 8px; }
+    .marca-topo img { height: 30px; }
+    .topo h1 { font-size: 15px; letter-spacing: 1px; }
+    .topo nav {
+        width: 100%;
+        gap: 14px;
+        align-self: auto;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        padding-top: 4px;
+        border-top: 1px solid var(--line);
+    }
+    .topo nav a { font-size: 13px; align-self: center; }
+
+    h2 { font-size: 17px; margin-top: 24px; }
+
+    .totais { grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+    .total { padding: 12px 14px; }
+    .total strong { font-size: 18px; }
+
+    .c2, .c3, .c4 { grid-column: span 6; }
+    details.nova > summary { padding: 14px 16px; font-size: 13px; }
+    details.nova > form { padding: 4px 16px 16px; }
+
+    .filtros { flex-direction: column; gap: 8px; }
+    .filtros input,
+    .filtros select,
+    .topo-lista input { width: 100%; max-width: 100%; }
+
+    /* Tabela de parcelas vira cartão limpo por item */
+    .tabela { background: transparent; border: 0; border-radius: 0; overflow: visible; }
+    .tabela thead { display: none; }
+    .tabela table, .tabela tbody { display: block; width: 100%; }
+
+    .tabela tr {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: start;
+        gap: 6px 10px;
+        margin-bottom: 10px;
+        padding: 14px;
+        background: var(--bg-surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+    }
+
+    .tabela td { padding: 0; border: 0; }
+
+    /* 1: Cliente + descrição */
+    .tabela td:nth-child(1) {
+        grid-column: 1;
+        grid-row: 1;
+        font-size: 15px;
+        font-weight: 700;
+    }
+    .tabela td:nth-child(1) small {
+        margin-top: 2px;
+        font-size: 13px;
+        font-weight: 400;
+        color: var(--text-muted);
+    }
+
+    /* 5: Valor */
+    .tabela td:nth-child(5) {
+        grid-column: 2;
+        grid-row: 1;
+        font-size: 15px;
+        font-weight: 700;
+        text-align: right;
+    }
+
+    /* 2: WhatsApp */
+    .tabela td:nth-child(2) {
+        grid-column: 1;
+        grid-row: 2;
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+    .tabela td:nth-child(2)::before { content: "WhatsApp: "; font-weight: 600; }
+
+    /* 3: Parcela */
+    .tabela td:nth-child(3) {
+        grid-column: 1;
+        grid-row: 3;
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+    .tabela td:nth-child(3)::before { content: "Parcela: "; font-weight: 600; }
+
+    /* 4: Vencimento */
+    .tabela td:nth-child(4) {
+        grid-column: 1;
+        grid-row: 4;
+        font-size: 13px;
+        color: var(--text-muted);
+        text-align: left;
+        font-weight: 400;
+    }
+    .tabela td:nth-child(4)::before { content: "Vencimento: "; font-weight: 600; }
+
+    /* 6: Status + envio */
+    .tabela td:nth-child(6) {
+        grid-column: 2;
+        grid-row: 2 / 5;
+        align-self: center;
+        align-items: flex-end;
+        text-align: right;
+        gap: 3px;
+    }
+
+    /* 7: Ações */
+    .tabela td.acoes {
+        grid-column: 1 / -1;
+        grid-row: 5;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 6px;
+        padding-top: 10px;
+        border-top: 1px solid var(--line);
+    }
+
+    .tabela td.acoes .inline {
+        margin-left: 0;
+        flex: 1 1 auto;
+    }
+
+    .tabela td.acoes .btn,
+    .tabela td.acoes form.inline .btn {
+        width: 100%;
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+
+    /* Cartões de cliente e acordos no mobile */
+    .cliente-card { border: 1px solid var(--border); }
+    .cliente-header { padding: 14px; gap: 10px; }
+    .cliente-acoes { width: 100%; justify-content: space-between; }
+    .cliente-acoes .btn { padding: 8px 12px; }
+
+    .box > summary { padding: 12px 14px; }
+    .box .conteudo { padding: 0 14px 14px; }
+
+    .acordo-topo { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .acordo-acoes { width: 100%; }
+    .acordo-acoes .inline { flex: 1 1 auto; }
+    .acordo-acoes .btn.mini { width: 100%; padding: 7px 8px; }
+
+    .item-parcela { align-items: flex-start; flex-direction: column; gap: 8px; padding: 10px 0; }
+    .item-parcela .dir { width: 100%; justify-content: flex-start; gap: 6px; }
+    .item-parcela .dir .inline { flex: 1 1 auto; }
+    .item-parcela .dir .btn.mini { width: 100%; padding: 7px 8px; }
 }

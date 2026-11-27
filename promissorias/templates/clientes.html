@@ -1,92 +1,35 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Clientes · Promissórias</title>
-<style>
-:root {
-  --bg: #f3f3f3;
-  --card: #ffffff;
-  --ink: #161616;
-  --muted: #6b6b6b;
-  --line: #e2e2e2;
-  --soft: #ececec;
-  --radius: 10px;
-}
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--ink);
-  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-}
-.wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px 48px; }
-
-.topo { background: var(--card); border-bottom: 1px solid var(--line); }
-.topo .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; padding-bottom: 0; }
-.topo h1 { margin: 0; font-size: 18px; }
-.topo nav { display: flex; gap: 16px; }
-.topo a { color: var(--muted); text-decoration: none; font-size: 14px; }
-.topo a:hover { color: var(--ink); }
-
-.msg { margin: 16px 0 0; padding: 10px 14px; background: var(--ink); color: #fff; border-radius: var(--radius); font-size: 14px; }
-
-.topo-lista { display: flex; justify-content: space-between; align-items: center; margin: 28px 0 14px; gap: 12px; flex-wrap: wrap; }
-.topo-lista h2 { margin: 0; font-size: 17px; text-transform: uppercase; letter-spacing: .4px; }
-.topo-lista input {
-  width: 100%; max-width: 300px; padding: 9px 11px; font: inherit;
-  background: var(--card); border: 1px solid var(--line); border-radius: 8px;
-}
-
-.cliente-card {
-  background: var(--card); border-radius: var(--radius); margin-bottom: 12px;
-  border: 1px solid var(--line); overflow: hidden;
-}
-.cliente-header {
-  padding: 16px 18px; display: flex; justify-content: space-between;
-  align-items: center; gap: 16px; flex-wrap: wrap;
-}
-.cliente-info strong { display: block; font-size: 16px; }
-.cliente-info span { font-size: 13px; color: var(--muted); }
-.cliente-acoes { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.saldo { font-weight: 700; font-size: 15px; margin-right: 6px; }
-.saldo.zero { color: var(--muted); font-weight: 500; }
-
-.btn {
-  display: inline-block; padding: 7px 13px; font: inherit; font-size: 13px; font-weight: 600;
-  background: var(--ink); color: #fff; border: 0; border-radius: 8px; cursor: pointer; text-decoration: none;
-}
-.btn:hover { background: #000; }
-.btn.sec { background: var(--soft); color: var(--ink); font-weight: 500; }
-.btn.sec:hover { background: #dedede; }
-
-details.parcelas-box { border-top: 1px solid var(--soft); background: #fafafa; }
-details.parcelas-box summary {
-  padding: 10px 18px; font-size: 13px; font-weight: 600; color: var(--muted);
-  cursor: pointer; list-style: none; user-select: none;
-}
-details.parcelas-box summary::-webkit-details-marker { display: none; }
-details.parcelas-box summary:hover { color: var(--ink); }
-
-.lista-parcelas { padding: 0 18px 14px; }
-.item-parcela {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; gap: 10px;
-}
-.item-parcela:last-child { border-bottom: 0; }
-.item-parcela.paga { color: var(--muted); }
-.badge-pago { font-size: 12px; background: var(--soft); padding: 2px 8px; border-radius: 99px; }
-</style>
+<script>
+(function () {
+  try {
+    var t = localStorage.getItem('painel_tema');
+    if (t === 'dark' || t === 'light') {
+      document.documentElement.setAttribute('data-tema', t);
+    }
+  } catch (e) {}
+})();
+</script>
+<link rel="stylesheet" href="{% static 'css/painel.css' %}">
 </head>
 <body>
 
 <header class="topo">
   <div class="wrap">
-    <h1>Clientes</h1>
+    <a href="{% url 'painel_promissorias' %}" class="marca-topo">
+      <img src="{% static 'img/logo.webp' %}" alt="FlipStyleCompany" width="36" height="36">
+      <span>Promissórias</span>
+    </a>
     <nav>
-      <a href="{% url 'painel_promissorias' %}">← Voltar ao Painel</a>
+      <a href="{% url 'painel_promissorias' %}">Parcelas</a>
+      <a href="{% url 'clientes' %}" class="ativo">Clientes</a>
       <a href="{% url 'admin:index' %}">Admin</a>
+      <button type="button" class="btn sec mini tema-btn" id="btnTema" aria-label="Alternar tema claro ou escuro">Dark</button>
     </nav>
   </div>
 </header>
@@ -101,7 +44,7 @@ details.parcelas-box summary:hover { color: var(--ink); }
 
   <div id="listaClientes">
     {% for c in clientes %}
-    <div class="cliente-card" data-busca="{{ c.nome|lower }} {{ c.cpf_cnpj }}">
+    <div class="cliente-card" data-busca="{{ c.nome|lower }} {{ c.cpf_cnpj }} {{ c.whatsapp }}">
       <div class="cliente-header">
         <div class="cliente-info">
           <strong>{{ c.nome }}</strong>
@@ -111,7 +54,7 @@ details.parcelas-box summary:hover { color: var(--ink); }
         <div class="cliente-acoes">
           {% if c.saldo_devedor and c.saldo_devedor > 0 %}
             <span class="saldo">Deve: R$ {{ c.saldo_devedor|floatformat:2 }}</span>
-            <form method="post" onsubmit="return confirm('Quitar TODAS as parcelas em aberto de {{ c.nome|escapejs }}?')">
+            <form method="post" class="inline" onsubmit="return confirm('Quitar TODAS as parcelas em aberto de {{ c.nome|escapejs }}?')">
               {% csrf_token %}
               <input type="hidden" name="acao" value="quitar_tudo">
               <input type="hidden" name="cliente_id" value="{{ c.id }}">
@@ -123,50 +66,163 @@ details.parcelas-box summary:hover { color: var(--ink); }
         </div>
       </div>
 
-      <details class="parcelas-box">
-        <summary>Ver parcelas para baixa antecipada ou histórico ▾</summary>
-        <div class="lista-parcelas">
+      <details class="box">
+        <summary>Ver acordos e parcelas (baixa, histórico e exclusão) ▾</summary>
+        <div class="conteudo">
           {% for acordo in c.acordos.all %}
-            {% for p in acordo.parcelas.all %}
-              <div class="item-parcela {% if p.status == 'pago' %}paga{% endif %}">
+            <div class="acordo-bloco">
+              <div class="acordo-topo">
                 <div>
-                  <strong>{{ p.identificacao_parcela }}</strong> · {{ acordo.descricao }}
-                  <small>(Venc: {{ p.vencimento|date:"d/m/Y" }})</small>
+                  <strong>{{ acordo.descricao }}</strong>
+                  <small>· R$ {{ acordo.valor_total|floatformat:2 }} ({{ acordo.quantidade_parcelas }}x)</small>
                 </div>
-                <div style="display:flex; align-items:center; gap:10px;">
-                  <span>R$ {{ p.valor|floatformat:2 }}</span>
-                  {% if p.status != 'pago' %}
-                    <form method="post" onsubmit="return confirm('Dar baixa antecipada na parcela {{ p.identificacao_parcela }}?')">
-                      {% csrf_token %}
-                      <input type="hidden" name="acao" value="baixar_parcela">
-                      <input type="hidden" name="parcela_id" value="{{ p.id }}">
-                      <button type="submit" class="btn sec">Dar baixa</button>
-                    </form>
-                  {% else %}
-                    <span class="badge-pago">Pago</span>
-                  {% endif %}
+                <div class="acordo-acoes">
+                  <form method="post" class="inline" onsubmit="return confirm('Apagar apenas as parcelas FUTURAS (a partir de hoje) deste acordo?')">
+                    {% csrf_token %}
+                    <input type="hidden" name="acao" value="excluir_acordo">
+                    <input type="hidden" name="acordo_id" value="{{ acordo.id }}">
+                    <input type="hidden" name="escopo" value="futuras">
+                    <button type="submit" class="btn sec mini">Apagar futuras</button>
+                  </form>
+                  <form method="post" class="inline" onsubmit="return confirm('Apagar apenas as parcelas PASSADAS (anteriores a hoje) deste acordo?')">
+                    {% csrf_token %}
+                    <input type="hidden" name="acao" value="excluir_acordo">
+                    <input type="hidden" name="acordo_id" value="{{ acordo.id }}">
+                    <input type="hidden" name="escopo" value="passadas">
+                    <button type="submit" class="btn sec mini">Apagar passadas</button>
+                  </form>
+                  <form method="post" class="inline" onsubmit="return confirm('EXCLUIR este acordo inteiro e todas as suas parcelas?')">
+                    {% csrf_token %}
+                    <input type="hidden" name="acao" value="excluir_acordo">
+                    <input type="hidden" name="acordo_id" value="{{ acordo.id }}">
+                    <input type="hidden" name="escopo" value="tudo">
+                    <button type="submit" class="btn sec mini">Excluir acordo</button>
+                  </form>
                 </div>
               </div>
-            {% endfor %}
+
+              {% for p in acordo.parcelas.all %}
+                <div class="item-parcela {% if p.status == 'pago' %}paga{% endif %}">
+                  <div>
+                    <strong>{{ p.identificacao_parcela }}</strong>
+                    <small>(Venc: {{ p.vencimento|date:"d/m/Y" }})</small>
+                  </div>
+                  <div class="dir">
+                    <span>R$ {{ p.valor|floatformat:2 }}</span>
+                    {% if p.status != 'pago' %}
+                      {% if p.vencimento < hoje or p.status == 'atrasado' %}<span class="badge-atrasado">Atrasado</span>{% endif %}
+                      <form method="post" class="inline" onsubmit="return confirm('Dar baixa antecipada na parcela {{ p.identificacao_parcela }}?')">
+                        {% csrf_token %}
+                        <input type="hidden" name="acao" value="baixar_parcela">
+                        <input type="hidden" name="parcela_id" value="{{ p.id }}">
+                        <button type="submit" class="btn sec mini">Dar baixa</button>
+                      </form>
+                    {% else %}
+                      <span class="badge-pago">Pago</span>
+                    {% endif %}
+                    <form method="post" class="inline" onsubmit="return confirm('Excluir a parcela {{ p.identificacao_parcela }} de {{ c.nome|escapejs }}?')">
+                      {% csrf_token %}
+                      <input type="hidden" name="acao" value="excluir_parcela">
+                      <input type="hidden" name="parcela_id" value="{{ p.id }}">
+                      <button type="submit" class="btn sec mini">Excluir</button>
+                    </form>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
           {% empty %}
-            <p style="color:var(--muted); font-size:13px; margin:8px 0 0;">Nenhuma promissória registrada para este cliente.</p>
+            <p class="vazio-linha">Nenhuma promissória registrada para este cliente.</p>
           {% endfor %}
+        </div>
+      </details>
+
+      <details class="box">
+        <summary>Editar ou excluir cadastro do cliente ▾</summary>
+        <div class="conteudo">
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="acao" value="editar_cliente">
+            <input type="hidden" name="cliente_id" value="{{ c.id }}">
+            <div class="grid-editar">
+              <div><label>Nome</label><input name="nome" value="{{ c.nome }}" maxlength="150" required></div>
+              <div><label>CPF ou CNPJ</label><input name="cpf_cnpj" value="{{ c.cpf_cnpj }}" maxlength="18" required></div>
+              <div><label>WhatsApp</label><input name="whatsapp" value="{{ c.whatsapp }}" inputmode="tel" required></div>
+              <div><label>Observações</label><input name="observacoes" value="{{ c.observacoes|default_if_none:'' }}"></div>
+            </div>
+            <button type="submit" class="btn mini">Salvar alterações</button>
+          </form>
+
+          <hr class="divisor">
+
+          <form method="post" class="inline" onsubmit="return confirm('ATENÇÃO: Isso vai apagar {{ c.nome|escapejs }}, TODAS as promissórias e TODAS as parcelas vinculadas a ele. Confirmar?')">
+            {% csrf_token %}
+            <input type="hidden" name="acao" value="excluir_cliente_tudo">
+            <input type="hidden" name="cliente_id" value="{{ c.id }}">
+            <button type="submit" class="btn sec mini">Excluir cliente e tudo vinculado</button>
+          </form>
         </div>
       </details>
     </div>
     {% empty %}
-      <p style="color:var(--muted);">Nenhum cliente cadastrado ainda.</p>
+      <p class="vazio-linha">Nenhum cliente cadastrado ainda.</p>
     {% endfor %}
   </div>
+
+  {% if clientes_page.paginator.num_pages > 1 %}
+  <nav class="paginacao" aria-label="Paginação de clientes">
+    <div>
+      {% if clientes_page.has_previous %}<a href="{{ url_clientes_prev }}">Anterior</a>{% endif %}
+    </div>
+    <div>
+      {% for item in links_clientes %}
+        {% if item.is_ellipsis %}
+          <span>…</span>
+        {% else %}
+          <a href="{{ item.url }}" class="{% if item.active %}ativo{% endif %}">{{ item.num }}</a>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div>
+      {% if clientes_page.has_next %}<a href="{{ url_clientes_next }}">Próximo</a>{% endif %}
+    </div>
+  </nav>
+  {% endif %}
 </main>
 
 <script>
-document.getElementById('buscaCliente').addEventListener('input', function() {
-  const termo = this.value.trim().toLowerCase();
-  document.querySelectorAll('.cliente-card').forEach(card => {
-    card.hidden = termo && !card.dataset.busca.includes(termo);
-  });
-});
+(function () {
+  var btnTema = document.getElementById('btnTema');
+  function aplicarTema(tema) {
+    var escolhido = (tema === 'dark') ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-tema', escolhido);
+    try { localStorage.setItem('painel_tema', escolhido); } catch (e) {}
+    if (btnTema) {
+      btnTema.textContent = (escolhido === 'dark') ? 'Claro' : 'Dark';
+    }
+  }
+  var temaSalvo = 'light';
+  try {
+    var l = localStorage.getItem('painel_tema');
+    if (l === 'dark' || l === 'light') temaSalvo = l;
+  } catch (e) {}
+  aplicarTema(temaSalvo);
+  if (btnTema) {
+    btnTema.addEventListener('click', function () {
+      var atual = document.documentElement.getAttribute('data-tema') || 'light';
+      aplicarTema(atual === 'dark' ? 'light' : 'dark');
+    });
+  }
+
+  var busca = document.getElementById('buscaCliente');
+  if (busca) {
+    busca.addEventListener('input', function () {
+      var termo = this.value.trim().toLowerCase();
+      document.querySelectorAll('.cliente-card').forEach(function (card) {
+        card.hidden = Boolean(termo && card.dataset.busca.indexOf(termo) === -1);
+      });
+    });
+  }
+})();
 </script>
 </body>
 </html>
