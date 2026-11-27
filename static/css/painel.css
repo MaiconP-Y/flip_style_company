@@ -610,15 +610,18 @@ details.nova > form {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 8px;
     flex-wrap: wrap;
-    margin-bottom: 6px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    background: var(--soft);
+    border-radius: var(--radius);
 }
 
 .acordo-acoes {
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
+    background-color: #000000;
 }
 
 .grid-editar {
