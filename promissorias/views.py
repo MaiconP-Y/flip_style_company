@@ -251,7 +251,7 @@ def _chamar_gateway_enviar(telefone: str, mensagem: str) -> tuple[bool, str]:
     )
 
     try:
-        with urllib.request.urlopen(req, timeout=25) as resp:
+        with urllib.request.urlopen(req, timeout=130) as resp:
             dados = json.loads(resp.read().decode("utf-8"))
             if resp.status == 200 and dados.get("status") == "enviado":
                 return True, ""
@@ -265,58 +265,6 @@ def _chamar_gateway_enviar(telefone: str, mensagem: str) -> tuple[bool, str]:
     except Exception as exc:
         return False, f"Falha ao falar com gateway: {exc}"
 
-def _chamar_gateway_presenca(telefone: str, acao: str, timeout: int = 10) -> tuple[bool, str]:
-    """
-    acao: "escrevendo" -> POST /presenca/escrevendo
-          "parar"      -> POST /presenca/parar
-    """
-    base_url, slug, secret = _gateway_config()
-    if not base_url:
-        return False, "Envio automático ainda não configurado."
-    if not secret:
-        return False, "WHATSAPP_HMAC_SECRET não configurado."
-
-    rota = "/presenca/escrevendo" if acao == "escrevendo" else "/presenca/parar"
-    url = f"{base_url}{rota}"
-    payload = {
-        "slug": slug,
-        "telefone": telefone,
-    }
-    raw_body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-    sig = _assinar_hmac(secret, raw_body)
-
-    req = urllib.request.Request(
-        url,
-        data=raw_body,
-        headers={
-            "Content-Type": "application/json",
-            "X-Signature": sig,
-        },
-        method="POST",
-    )
-
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            dados = json.loads(resp.read().decode("utf-8"))
-            if resp.status == 200 and dados.get("status") == "ok":
-                return True, ""
-            return False, dados.get("mensagem") or f"Status {resp.status}"
-    except urllib.error.HTTPError as exc:
-        try:
-            detalhe = exc.read().decode("utf-8")
-        except Exception:
-            detalhe = str(exc)
-        return False, f"HTTP {exc.code}: {detalhe}"
-    except Exception as exc:
-        return False, f"Falha ao falar com gateway: {exc}"
-
-
-def _enviar_texto_com_digitacao(telefone: str, mensagem: str) -> tuple[bool, str]:
-    # Simula "digitando..." por um curto intervalo antes de parar e mandar o texto
-    _chamar_gateway_presenca(telefone, "escrevendo")
-    time.sleep(random.uniform(1.8, 3.5))
-    _chamar_gateway_presenca(telefone, "parar")
-    return _chamar_gateway_enviar(telefone, mensagem)
 
 def _disparar_aviso_parcela_agora(
     parcela: ParcelaPromissoria, hoje: date, indice_variacao: int | None = None
@@ -340,7 +288,7 @@ def _disparar_aviso_parcela_agora(
         return False, "Aviso já enviado ou em processamento hoje."
 
     mensagem, _, _ = _montar_mensagem_cobranca(parcela, hoje, indice_variacao=indice_variacao)
-    ok, erro = _enviar_texto_com_digitacao(telefone, mensagem)
+    ok, erro = _chamar_gateway_enviar(telefone, mensagem)
     if not ok:
         # Se falhou antes de enviar, devolve o estado anterior para poder tentar de novo
         ParcelaPromissoria.objects.filter(pk=parcela.pk).update(ultimo_aviso_em=aviso_anterior)
@@ -349,7 +297,7 @@ def _disparar_aviso_parcela_agora(
     chave_pix = _chave_pix_config()
     if chave_pix:
         time.sleep(random.uniform(3, 5))
-        _enviar_texto_com_digitacao(telefone, chave_pix)
+        _chamar_gateway_enviar(telefone, chave_pix)
 
     if parcela.vencimento == hoje:
         ParcelaPromissoria.objects.filter(pk=parcela.pk).update(lembrete_vencimento_enviado=True)
